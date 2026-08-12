@@ -1,0 +1,22 @@
+{
+  "_comment": [
+    "Corrections applied on top of products.json, keyed by b2b_product_id.",
+    "products.json is regenerated from the B2BWave export by script/extract_b2bwave.py,",
+    "so it must stay a faithful copy of that export. Anything we know to be wrong in the",
+    "source data is fixed here instead, where the reason is visible and survives re-extraction.",
+    "Reviewed by the operator; safe to commit (no personal data)."
+  ],
+
+  "320": {
+    "_why": [
+      "B2BWave shipped this product with the placeholder SKU '-'. The operator's master",
+      "SKU sheet identifies it as the 10-count Green Apple Supreme THC-free gummies.",
+      "The export also listed price 25.00, which is the RETAIL price for a 10 pack --",
+      "a retail figure that leaked into the wholesale price list. Operator confirmed the",
+      "wholesale price is 12.50, matching the Supreme Formula 10ct at the same count.",
+      "Without this, every wholesale customer would be charged double."
+    ],
+    "sku": "E-IsoSupremeGummies10Ct",
+    "price": 12.5
+  }
+}

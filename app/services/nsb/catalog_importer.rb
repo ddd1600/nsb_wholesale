@@ -28,7 +28,7 @@ module Nsb
     end
 
     def call
-      records = JSON.parse((@data_dir / "products.json").read)
+      records = JSON.parse((@data_dir / "products.json").read).map { |record| apply_override(record) }
       say "importing #{records.size} products from #{@data_dir}"
 
       records.each do |record|
@@ -46,6 +46,26 @@ module Nsb
     private
 
     attr_reader :result
+
+    # Corrections to known-bad source data, keyed by b2b_product_id. Kept out of
+    # products.json so that file stays a faithful copy of the B2BWave export and
+    # survives re-extraction. See db/import_data/product_overrides.json.
+    def overrides
+      @overrides ||= begin
+        path = @data_dir / "product_overrides.json"
+        path.exist? ? JSON.parse(path.read).except("_comment") : {}
+      end
+    end
+
+    def apply_override(record)
+      override = overrides[record["b2b_product_id"].to_s]
+      return record if override.blank?
+
+      # Underscore-prefixed keys are documentation for humans, not data.
+      applied = override.reject { |key, _| key.start_with?("_") }
+      say "  override #{record['b2b_product_id']}: #{applied.keys.join(', ')}"
+      record.merge(applied)
+    end
 
     def import_product(record)
       product = Spree::Product.find_or_initialize_by(b2b_product_id: record["b2b_product_id"])

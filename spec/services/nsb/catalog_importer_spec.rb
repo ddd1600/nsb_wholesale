@@ -144,4 +144,38 @@ RSpec.describe Nsb::CatalogImporter do
     expect(result.failures.size).to eq(1)
     expect(Spree::Product.find_by(b2b_product_id: 241)).to be_present
   end
+
+  describe "source-data overrides" do
+    def write_overrides(data)
+      (data_dir / "product_overrides.json").write(JSON.generate(data))
+    end
+
+    it "applies a corrected SKU without touching products.json" do
+      write_catalog([record("sku" => "-")])
+      write_overrides({ "241" => { "sku" => "E-IsoSupremeGummies10Ct" } })
+
+      importer.call
+
+      expect(Spree::Product.find_by(b2b_product_id: 241).master.sku).to eq("E-IsoSupremeGummies10Ct")
+    end
+
+    it "ignores underscore-prefixed documentation keys" do
+      write_catalog([record])
+      write_overrides({ "_comment" => ["not data"], "241" => { "_why" => "reason", "name" => "Corrected Name" } })
+
+      result = importer.call
+
+      expect(result.failures).to be_empty
+      expect(Spree::Product.find_by(b2b_product_id: 241).name).to eq("Corrected Name")
+    end
+
+    it "leaves products with no override untouched" do
+      write_catalog([record])
+      write_overrides({ "999" => { "sku" => "SHOULD-NOT-APPLY" } })
+
+      importer.call
+
+      expect(Spree::Product.find_by(b2b_product_id: 241).master.sku).to eq("2302")
+    end
+  end
 end
