@@ -1,0 +1,10 @@
+/*
+ * This is a manifest file that'll be compiled into application.css.
+ *
+ * Sprockets manifest (not Propshaft) — see the Gemfile for why this app uses
+ * Sprockets. The Solidus starter frontend template rewrites the require_tree
+ * directive below during install, so it must be present.
+ *
+ * OFF require_tree .
+ *= require_self
+ */

@@ -1,0 +1,31 @@
+<article class="wrapper grid-container py-12" id="claim-account">
+  <div class="col-span-full md:col-start-4 md:col-span-6">
+    <h1 class="font-serif text-h4 md:text-h3 text-center"><%= t("nsb.claims.title") %></h1>
+
+    <p class="mt-4 mb-8 text-center text-body-sm">
+      <%= t("nsb.claims.intro") %>
+    </p>
+
+    <%= form_with url: create_claim_path, scope: :claim, method: :post, class: "space-y-6 mb-8" do |f| %>
+      <div class="text-input">
+        <%= f.label :email, t("nsb.claims.email_label") %>
+        <%= f.email_field :email,
+              value: @email,
+              placeholder: "name@yourcompany.com",
+              required: true,
+              autofocus: true,
+              autocomplete: "email" %>
+      </div>
+
+      <div class="text-center flex flex-col gap-6 items-center">
+        <%= f.button t("nsb.claims.submit"),
+              class: "w-full py-3 px-7 rounded-full text-body-sm font-bold leading-none uppercase whitespace-nowrap transition-colors duration-200 bg-red-500 text-white hover:bg-red-700",
+              name: :commit %>
+      </div>
+    <% end %>
+
+    <p class="text-center text-body-xs opacity-75">
+      <%= link_to t("spree.login"), login_path, class: "underline hover:!text-red-500" %>
+    </p>
+  </div>
+</article>

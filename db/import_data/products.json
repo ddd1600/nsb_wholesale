@@ -1,0 +1,685 @@
+[
+  {
+    "active": true,
+    "b2b_product_id": 241,
+    "category_path": "Tinctures/Supreme Formula",
+    "description": null,
+    "image": {
+      "bytes": 80717,
+      "file": "241.jpg",
+      "sha256": "90ae9df36def6e015f7b0d8e1ac1d71932be8932c9b53646df6112ae25c2736f",
+      "source_url": "https://res.cloudinary.com/dbrtm8pf6/image/upload/v1636993886/uploads/375678c6/products/241/images/e13935d8d24fdeee4a3dbc267b046605f6c5c045_1636993884"
+    },
+    "msrp": 0.0,
+    "name": "1/2oz Supreme Formula Tincture (1950MG)",
+    "price": 48.0,
+    "sku": "2302",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/241",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 242,
+    "category_path": "Tinctures/Supreme Formula",
+    "description": null,
+    "image": {
+      "bytes": 97727,
+      "file": "242.jpg",
+      "sha256": "335f455513b907aa5cae1b756d7eb52c9a4ff819f383302de5546d24d66492e5",
+      "source_url": "https://res.cloudinary.com/dbrtm8pf6/image/upload/v1636993886/uploads/375678c6/products/242/images/e6afda56e0fa9a956c48235752b1194e521daa5d_1636993884"
+    },
+    "msrp": 0.0,
+    "name": "1oz Supreme Formula Tincture (3900MG)",
+    "price": 90.0,
+    "sku": "2301",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/242",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 243,
+    "category_path": "Tinctures/Advanced Formula",
+    "description": null,
+    "image": {
+      "bytes": 186602,
+      "file": "243.jpg",
+      "sha256": "a9f5d6e10b333c30aa5b75e24c2161a2db8dc9c163d5557cb17435932d2c1975",
+      "source_url": "https://res.cloudinary.com/dbrtm8pf6/image/upload/v1636993886/uploads/375678c6/products/243/images/e32d66b22b173bd4e043f09221ac8a567efdf32c_1636993884"
+    },
+    "msrp": 0.0,
+    "name": "0.5oz (700MG) Advanced Hemp Flower Extract",
+    "price": 22.0,
+    "sku": "2203",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/243",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 246,
+    "category_path": "Tinctures/Advanced Formula",
+    "description": null,
+    "image": null,
+    "msrp": 0.0,
+    "name": "1 Gallon/3785mL Advanced Tincture",
+    "price": 3200.0,
+    "sku": "2229",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/246",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 244,
+    "category_path": "Tinctures/Advanced Formula",
+    "description": null,
+    "image": {
+      "bytes": 203618,
+      "file": "244.jpg",
+      "sha256": "d6b253d4d9b15478f09313c2d921448c775977729a935fa0e7a71fea4d3347ec",
+      "source_url": "https://res.cloudinary.com/dbrtm8pf6/image/upload/v1636993885/uploads/375678c6/products/244/images/327cd2e1caa68b1c76dd99a2ebd2b6b8b8f25e52_1636993884"
+    },
+    "msrp": 0.0,
+    "name": "1oz (1400MG) Advanced Hemp Flower Extract",
+    "price": 37.5,
+    "sku": "2201",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/244",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 247,
+    "category_path": "Tinctures/Advanced Formula",
+    "description": null,
+    "image": {
+      "bytes": 108600,
+      "file": "247.jpg",
+      "sha256": "7efce6b5bdf344db4858a6967eb6362f3d77a967c396e1dfe3f6c9d07f37683d",
+      "source_url": "https://res.cloudinary.com/dbrtm8pf6/image/upload/v1636993887/uploads/375678c6/products/247/images/199ad4431af199c916ffaa1eb8e186061c568487_1636993886"
+    },
+    "msrp": 0.0,
+    "name": "1oz (1400MG) Advanced Hemp Flower Extract - Mint Chocolate Flavor",
+    "price": 37.5,
+    "sku": "2211",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/247",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 245,
+    "category_path": "Tinctures/Advanced Formula",
+    "description": null,
+    "image": {
+      "bytes": 170794,
+      "file": "245.jpg",
+      "sha256": "3436e2e448dfa41fc2aebbd2991c6c9f64e3eb7d0a2f4f32c3b94725456b17fd",
+      "source_url": "https://res.cloudinary.com/dbrtm8pf6/image/upload/v1636993887/uploads/375678c6/products/245/images/350f666bfb37cf57e7ebc03bdca070e98fee0458_1636993885"
+    },
+    "msrp": 0.0,
+    "name": "2oz (2800MG) Advanced Hemp Flower Extract",
+    "price": 63.0,
+    "sku": "2202",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/245",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 250,
+    "category_path": "Tinctures/Original Formula",
+    "description": null,
+    "image": {
+      "bytes": 183616,
+      "file": "250.jpg",
+      "sha256": "5a0ffe8acc6d740763cc2874e66ec5034595e7492942f9556413be211a424f88",
+      "source_url": "https://res.cloudinary.com/dbrtm8pf6/image/upload/v1636993888/uploads/375678c6/products/250/images/44dee37f643edcecc6f2e4e91720266f4015bd49_1636993887"
+    },
+    "msrp": 0.0,
+    "name": "0.5oz (225MG) Hemp Flower Extract",
+    "price": 12.0,
+    "sku": "2103",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/250",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 254,
+    "category_path": "Tinctures/Original Formula",
+    "description": null,
+    "image": null,
+    "msrp": 0.0,
+    "name": "1 Gallon/3785mL (~52,000mg) Original Tincture",
+    "price": 1536.0,
+    "sku": "2230",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/254",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 251,
+    "category_path": "Tinctures/Original Formula",
+    "description": null,
+    "image": {
+      "bytes": 197545,
+      "file": "251.jpg",
+      "sha256": "ca947bc2e05da91f65d5989e0bd64e5827df662fbe70b0c74684de44747d844c",
+      "source_url": "https://res.cloudinary.com/dbrtm8pf6/image/upload/v1636993890/uploads/375678c6/products/251/images/2578a8525b22de43c2532ffdb7d8d3a448e25001_1636993888"
+    },
+    "msrp": 0.0,
+    "name": "1oz (450MG) Hemp Flower Extract",
+    "price": 22.0,
+    "sku": "2101",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/251",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 256,
+    "category_path": "Tinctures/Original Formula",
+    "description": null,
+    "image": {
+      "bytes": 152303,
+      "file": "256.jpg",
+      "sha256": "918c15ce528589dba013a46d652a9a66a7f82bccf1fb34329865d2608c3b11d1",
+      "source_url": "https://res.cloudinary.com/dbrtm8pf6/image/upload/v1636993891/uploads/375678c6/products/256/images/c1161d73987a515ade3a716e88fb2e4bc066bd5d_1636993889"
+    },
+    "msrp": 0.0,
+    "name": "1oz (450MG) Hemp Flower Extract - Mint Chocolate Flavor",
+    "price": 22.0,
+    "sku": "2111",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/256",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 255,
+    "category_path": "Tinctures/Original Formula",
+    "description": null,
+    "image": {
+      "bytes": 151911,
+      "file": "255.jpg",
+      "sha256": "04e82888617bace73de510ff2233962b5f7141b68760ce9042d39192ac770b00",
+      "source_url": "https://res.cloudinary.com/dbrtm8pf6/image/upload/v1636993891/uploads/375678c6/products/255/images/d8193ec2e50c295680fdbeef19b3651e8b7a3550_1636993889"
+    },
+    "msrp": 0.0,
+    "name": "1oz (450MG) Hemp Flower Extract - Peanut Butter Flavor",
+    "price": 22.0,
+    "sku": "2121",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/255",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 252,
+    "category_path": "Tinctures/Original Formula",
+    "description": null,
+    "image": {
+      "bytes": 167124,
+      "file": "252.jpg",
+      "sha256": "5ba5fa9c628ff132c3444ccd74123083621472c6c96c000d8fad6e7bf60ce1ad",
+      "source_url": "https://res.cloudinary.com/dbrtm8pf6/image/upload/v1636993890/uploads/375678c6/products/252/images/9e67615af51dd3198d315018b249051eb3ed11cc_1636993889"
+    },
+    "msrp": 0.0,
+    "name": "2oz (900MG) Hemp Flower Extract",
+    "price": 30.0,
+    "sku": "2102",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/252",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 257,
+    "category_path": "Tinctures/Original Formula",
+    "description": null,
+    "image": null,
+    "msrp": 0.0,
+    "name": "Pet Tincture (Peanut Butter Flavor)",
+    "price": 20.0,
+    "sku": "T-1PetsPB",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/257",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 253,
+    "category_path": "Tinctures/Original Formula",
+    "description": null,
+    "image": {
+      "bytes": 91223,
+      "file": "253.jpg",
+      "sha256": "f582ff2d64c8920a51e6baa9cb336860e087abadc607ea04a123f14739a069cf",
+      "source_url": "https://res.cloudinary.com/dbrtm8pf6/image/upload/v1636993890/uploads/375678c6/products/253/images/bed820122a009922a024650236c543ed987b9965_1636993889"
+    },
+    "msrp": 0.0,
+    "name": "Pet Tincture 425MG",
+    "price": 20.0,
+    "sku": "7211",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/253",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 258,
+    "category_path": "Tinctures/Delta 8 THC Infused Tinctures",
+    "description": "<p>Each 1oz bottle contains 1380mg CBD and 360mg Hemp Derived Delta-8 THC</p>",
+    "image": null,
+    "msrp": 0.0,
+    "name": "1oz 4:1 CBD:D8 THC Advanced Tincture (1825mg)",
+    "price": 37.5,
+    "sku": "T-1825",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/258",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 317,
+    "category_path": "Tinctures/Delta 8 THC Infused Tinctures",
+    "description": "<p>We created this product so our customers can get the same effects of Delta 8 THC at a lower price point. This cannabinoids in this product are almost exclusively Delta 8 THC. Concentration is 40 mg/mL D8-THC, with 1200mg total THC in the bottle.</p>",
+    "image": {
+      "bytes": 856190,
+      "file": "317.jpg",
+      "sha256": "b420791848a6590f33a4c737ab68981067b3a00206d509e8e6159c36b15a33bb",
+      "source_url": "https://res.cloudinary.com/dbrtm8pf6/image/upload/v1656522219/uploads/375678c6/products/317/images/zrkagczp5r73kzkruoui"
+    },
+    "msrp": 0.0,
+    "name": "1oz Delta 8 Advanced Tincture (40 mg/mL)",
+    "price": 20.0,
+    "sku": "T-D8AdvancedFormula",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/317",
+    "taxable": false
+  },
+  {
+    "active": true,
+    "b2b_product_id": 248,
+    "category_path": "Tinctures/CBD Isolate Only (THC-Free)",
+    "description": null,
+    "image": {
+      "bytes": 162301,
+      "file": "248.jpg",
+      "sha256": "503d482b446f7ed94fc9e89baa07abde5ee5314e25ed08952c3a1645f3352ec1",
+      "source_url": "https://res.cloudinary.com/dbrtm8pf6/image/upload/v1636993888/uploads/375678c6/products/248/images/7bc85bedf17ae58b1bc17f44d949c57bef1727c9_1636993886"
+    },
+    "msrp": 0.0,
+    "name": "1oz (1400MG) Advanced THC-Free Hemp Flower Extract",
+    "price": 20.0,
+    "sku": "2401",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/248",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 304,
+    "category_path": "Gelcaps",
+    "description": "<p>30 Advanced Hemp Flower Extract Infused Gelcaps, each containing 22mg cannabinoids (20mg CBD)</p>",
+    "image": {
+      "bytes": 111535,
+      "file": "304.jpg",
+      "sha256": "644e05d89c83e93ad7be9b46df8907b86b6df37219d694bb0538db15cc0b8b2d",
+      "source_url": "https://res.cloudinary.com/dbrtm8pf6/image/upload/v1636993904/uploads/375678c6/products/304/images/ba6dddc3a6674c2542165313b6f38e50537a5b6c_1636993903"
+    },
+    "msrp": 0.0,
+    "name": "Advanced Gelcaps (30 count)",
+    "price": 25.0,
+    "sku": "E-Gelcaps30",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/304",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 283,
+    "category_path": "Edibles/Delta 8 Gummies",
+    "description": "<p>Each gummy contains approximately 7mg CBD (from full spectrum oil) and 7mg Delta 8 THC</p>",
+    "image": null,
+    "msrp": 0.0,
+    "name": "DELTA 8 THC and Hemp Flower Extract Infused Gummies (10CT)",
+    "price": 10.0,
+    "sku": "E-D8Gummies10Ct",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/283",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 282,
+    "category_path": "Edibles/Delta 8 Gummies",
+    "description": "<p>Each gummy contains approximately 7mg CBD (from full spectrum oil) and 7mg Delta-8 THC</p>",
+    "image": null,
+    "msrp": 60.0,
+    "name": "DELTA 8 THC and Hemp Flower Extract Infused Gummies (30CT)",
+    "price": 30.0,
+    "sku": "E-D8Gummies30Ct",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/282",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 271,
+    "category_path": "Edibles/CBD Taffy",
+    "description": null,
+    "image": {
+      "bytes": 309113,
+      "file": "271.jpg",
+      "sha256": "e0779f15b5f5fa6b7b7fde8d9bd7e555bb15dc424deac6231137ebac45184a47",
+      "source_url": "https://res.cloudinary.com/dbrtm8pf6/image/upload/v1636993896/uploads/375678c6/products/271/images/6f79dd4586bae4391345712908120ce5b99b3bd6_1636993894"
+    },
+    "msrp": 0.0,
+    "name": "Infused Salt Water Taffies (20 count, Caramel Flavor)",
+    "price": 20.0,
+    "sku": "3213",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/271",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 270,
+    "category_path": "Edibles/CBD Taffy",
+    "description": null,
+    "image": {
+      "bytes": 226461,
+      "file": "270.jpg",
+      "sha256": "193091f86954852db22e7ae68e0f4df4b10a0abbcb1e1dfbcb8f50946de43e39",
+      "source_url": "https://res.cloudinary.com/dbrtm8pf6/image/upload/v1636993895/uploads/375678c6/products/270/images/0e5e29cff1128e093e77a1aef183ea1c6d98bb61_1636993894"
+    },
+    "msrp": 0.0,
+    "name": "Infused Salt Water Taffies (50 Count, Caramel Flavor)",
+    "price": 50.0,
+    "sku": "3214",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/270",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 268,
+    "category_path": "Edibles/CBD Taffy",
+    "description": null,
+    "image": null,
+    "msrp": 0.0,
+    "name": "Infused THC-Free Salt Water Taffies (50 Count, Caramel Flavor)",
+    "price": 50.0,
+    "sku": "3224",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/268",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 280,
+    "category_path": "Edibles/Honey",
+    "description": null,
+    "image": {
+      "bytes": 191813,
+      "file": "280.png",
+      "sha256": "160fc1ca0ffd63a60468bca218f24e213d55d81b84df676cd92f37ae5f50856f",
+      "source_url": "https://res.cloudinary.com/dbrtm8pf6/image/upload/v1636993898/uploads/375678c6/products/280/images/382e8fb36994da2c874be64fc8ebb52684a604d5_1636993896"
+    },
+    "msrp": 0.0,
+    "name": "(100pack) Hemp Honey Sticks 15mg",
+    "price": 180.0,
+    "sku": "3114",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/280",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 279,
+    "category_path": "Edibles/Honey",
+    "description": null,
+    "image": {
+      "bytes": 216350,
+      "file": "279.jpg",
+      "sha256": "942866dfad31f56ce47a5c0e1622431a57ed8234cfbd327a576f88760c811ed6",
+      "source_url": "https://res.cloudinary.com/dbrtm8pf6/image/upload/v1636993897/uploads/375678c6/products/279/images/ecf7eb0997d0894da37005acd79e023a1af0eae1_1636993896"
+    },
+    "msrp": 0.0,
+    "name": "(20 Pack) Honey Sticks",
+    "price": 27.5,
+    "sku": "3112",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/279",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 281,
+    "category_path": "Edibles/Honey",
+    "description": null,
+    "image": null,
+    "msrp": 0.0,
+    "name": "Honey Stick Sample (1X)",
+    "price": 1.0,
+    "sku": "3111",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/281",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 284,
+    "category_path": "Edibles/Chewing Gum",
+    "description": "<p>10ct CBD Infused Chewing Gum (22mg/pc)</p>",
+    "image": null,
+    "msrp": 0.0,
+    "name": "10 Ct CBD Infused Chewing Gum (22MG/piece)",
+    "price": 7.5,
+    "sku": "E-CBDGum10Ct",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/284",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 319,
+    "category_path": "Edibles/CBD Gummies",
+    "description": "<p>Each gummy contains 60mg CBD and 1.25 Delta 9 THC. A true full spectrum blend, great for sleep.</p>",
+    "image": {
+      "bytes": 83186,
+      "file": "319.png",
+      "sha256": "0dd82ed56c45998810e0cfd55c92da03b64c8280e3f3ecc71aeb68a86126b741",
+      "source_url": "https://res.cloudinary.com/dbrtm8pf6/image/upload/v1678288361/uploads/375678c6/products/319/images/Supreme_Formula_2x3_-_10ct_draft_1678288362"
+    },
+    "msrp": 20.0,
+    "name": "Supreme Formula Gummies (10ct)",
+    "price": 12.5,
+    "sku": "E-Supreme Gummies10Ct",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/319",
+    "taxable": false
+  },
+  {
+    "active": true,
+    "b2b_product_id": 318,
+    "category_path": "Edibles/CBD Gummies",
+    "description": "<p>Each gummy contains 60mg CBD and 1.25 Delta 9 THC. A true full spectrum blend, great for sleep.</p>",
+    "image": {
+      "bytes": 83357,
+      "file": "318.png",
+      "sha256": "1570a760862ae566d6eb31ecc6dd5b52969e074c18775ee0878b1a9a7c7c45f0",
+      "source_url": "https://res.cloudinary.com/dbrtm8pf6/image/upload/v1678288309/uploads/375678c6/products/318/images/Supreme_Formula_2x3_-_30ct_draft_1678288310"
+    },
+    "msrp": 60.0,
+    "name": "Supreme Formula Gummies (30ct)",
+    "price": 30.0,
+    "sku": "E-Supreme Gummies30Ct",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/318",
+    "taxable": false
+  },
+  {
+    "active": true,
+    "b2b_product_id": 320,
+    "category_path": "Edibles/CBD Gummies",
+    "description": "<p>CBD Isolate infused Green Apple flavored gummies. 70mg CBD per gummy</p>",
+    "image": {
+      "bytes": 93091,
+      "file": "320.png",
+      "sha256": "736f787f4ce05c0f6c2ed524cb0027019fecf4900c13e9ed6e3d80110f83b4d4",
+      "source_url": "https://res.cloudinary.com/dbrtm8pf6/image/upload/v1692802036/uploads/375678c6/products/320/images/x2qkxgwdmsywlhsaqkn5"
+    },
+    "msrp": 0.0,
+    "name": "THC Free Green Apple Gummies",
+    "price": 25.0,
+    "sku": "-",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/320",
+    "taxable": false
+  },
+  {
+    "active": true,
+    "b2b_product_id": 288,
+    "category_path": "Skincare",
+    "description": null,
+    "image": {
+      "bytes": 169857,
+      "file": "288.jpg",
+      "sha256": "7761adcbcc8c49eec561cd992dea605ee08cdbe80abd64b0c9cfcfcc19c0c974",
+      "source_url": "https://res.cloudinary.com/dbrtm8pf6/image/upload/v1636993899/uploads/375678c6/products/288/images/1f16883a0ad330a39d0a9e8b6cef91834a267063_1636993898"
+    },
+    "msrp": 0.0,
+    "name": "Hot Muscle Rub",
+    "price": 15.0,
+    "sku": "6221",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/288",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 287,
+    "category_path": "Skincare",
+    "description": null,
+    "image": {
+      "bytes": 173131,
+      "file": "287.jpg",
+      "sha256": "f50c1c0b2d45f1c0e9e105077ac9a68aae28c2e6f3e93087736f60fb31ccf873",
+      "source_url": "https://res.cloudinary.com/dbrtm8pf6/image/upload/v1636993898/uploads/375678c6/products/287/images/916b57c1c2f50c5688944ad2813640b34a93dc11_1636993897"
+    },
+    "msrp": 0.0,
+    "name": "Lip Balm (50mg)",
+    "price": 7.5,
+    "sku": "6131",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/287",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 286,
+    "category_path": "Skincare",
+    "description": null,
+    "image": {
+      "bytes": 45418,
+      "file": "286.jpg",
+      "sha256": "2c58da5de19c6811b6fc620ff2c0b936eb6e11775164492fd58c8454b8f5d284",
+      "source_url": "https://res.cloudinary.com/dbrtm8pf6/image/upload/v1636993898/uploads/375678c6/products/286/images/5b9fb0d6556d1789f77192c8236f18872a9fc0af_1636993896"
+    },
+    "msrp": 0.0,
+    "name": "Lotion Bar (100mg)",
+    "price": 15.0,
+    "sku": "6231",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/286",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 259,
+    "category_path": "Other",
+    "description": null,
+    "image": null,
+    "msrp": 0.0,
+    "name": "CBD Isolate (1 Kilogram)",
+    "price": 2000.0,
+    "sku": "I-CBDKilo",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/259",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 303,
+    "category_path": "Other",
+    "description": null,
+    "image": null,
+    "msrp": 0.0,
+    "name": "Lab Test (Private Label)",
+    "price": 65.99,
+    "sku": "0005",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/303",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 265,
+    "category_path": "Other/Marketing Materials",
+    "description": null,
+    "image": {
+      "bytes": 310188,
+      "file": "265.jpg",
+      "sha256": "5f79a5e1f1496cc06541b9450701a4c2bab308b9487a99ac25eafee3d57f742c",
+      "source_url": "https://res.cloudinary.com/dbrtm8pf6/image/upload/v1636993893/uploads/375678c6/products/265/images/cb9b9e14732b8069bb2e3a02ff9a709446d84535_1636993891"
+    },
+    "msrp": 0.0,
+    "name": "Brochure Holder",
+    "price": 0.0,
+    "sku": "brochureholder",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/265",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 264,
+    "category_path": "Other/Marketing Materials",
+    "description": null,
+    "image": {
+      "bytes": 124281,
+      "file": "264.jpg",
+      "sha256": "67364c8a34a8710dcc48230b408b2bf255c22c84a74a5c0f87b007e5d40d8d57",
+      "source_url": "https://res.cloudinary.com/dbrtm8pf6/image/upload/v1636993893/uploads/375678c6/products/264/images/dbb6e1f99d369ba6cb5578e8c0ebb455b072d474_1636993891"
+    },
+    "msrp": 0.0,
+    "name": "Display Case (3 Tier)",
+    "price": 50.0,
+    "sku": "5221",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/264",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 263,
+    "category_path": "Other/Marketing Materials",
+    "description": null,
+    "image": {
+      "bytes": 411142,
+      "file": "263.jpg",
+      "sha256": "f9910ff2aa5633548e422b57e6372d901c9244cd6381ef20d0fada5c879f7025",
+      "source_url": "https://res.cloudinary.com/dbrtm8pf6/image/upload/v1636993893/uploads/375678c6/products/263/images/d1623cf78c476baba38f5e4aebdc81811cc163fe_1636993891"
+    },
+    "msrp": 0.0,
+    "name": "NSB Poster",
+    "price": 0.0,
+    "sku": "5121",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/263",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 261,
+    "category_path": "Other/Marketing Materials",
+    "description": null,
+    "image": {
+      "bytes": 306420,
+      "file": "261.jpg",
+      "sha256": "450377c9118e8e6e9005e177d5d159083bbf02edec0175e940f64c108e95fdd1",
+      "source_url": "https://res.cloudinary.com/dbrtm8pf6/image/upload/v1636993893/uploads/375678c6/products/261/images/7b4a1d6696456b7317f1d42782dca44d9da7a259_1636993891"
+    },
+    "msrp": 0.0,
+    "name": "NSB Poster-1",
+    "price": 0.0,
+    "sku": "5122",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/261",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 266,
+    "category_path": "Other/Marketing Materials",
+    "description": null,
+    "image": {
+      "bytes": 812044,
+      "file": "266.jpg",
+      "sha256": "e76db1298ff2527cd33d09e5ab6cb8e6bab36e7ea63b5de578132a5e4bfb7242",
+      "source_url": "https://res.cloudinary.com/dbrtm8pf6/image/upload/v1636993895/uploads/375678c6/products/266/images/2203663a0f2996f39e2313a6435083ef6d9925d9_1636993893"
+    },
+    "msrp": 0.0,
+    "name": "Trifold Brochure",
+    "price": 0.0,
+    "sku": "5111",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/266",
+    "taxable": true
+  }
+]

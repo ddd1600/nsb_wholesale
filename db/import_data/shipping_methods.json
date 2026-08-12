@@ -1,0 +1,38 @@
+[
+  {
+    "active": true,
+    "b2b_product_id": 299,
+    "category_path": "Shipping",
+    "description": null,
+    "msrp": 0.0,
+    "name": "UPS Ground Shipping",
+    "price": 24.0,
+    "sku": "0010",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/299",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 300,
+    "category_path": "Shipping",
+    "description": null,
+    "msrp": 0.0,
+    "name": "USPS Overnight Shipping",
+    "price": 29.0,
+    "sku": "USPSOvernight",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/300",
+    "taxable": true
+  },
+  {
+    "active": true,
+    "b2b_product_id": 301,
+    "category_path": "Shipping",
+    "description": null,
+    "msrp": 0.0,
+    "name": "USPS Standard Shipping",
+    "price": 18.9,
+    "sku": "USPSStandard",
+    "source_url": "https://newsouthbotanicals.b2bwave.com/products/view/301",
+    "taxable": true
+  }
+]

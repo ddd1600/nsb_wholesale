@@ -1,0 +1,20 @@
+en:
+  nsb:
+    claims:
+      title: "Set up your wholesale account"
+      intro: "Your account and order history have already been moved over. Enter the email address you used to order from us and we'll send you a link to choose a password."
+      email_label: "Email address"
+      submit: "Send me a setup link"
+      blank_email: "Please enter your email address."
+      # Deliberately tells the visitor the address is unknown, so a typo or a
+      # forgotten alternate address can be corrected immediately.
+      not_found: "We don't have %{email} on file. It may be a typo, or your account may be under a different email address — often the one your business first ordered with. Try another address, or get in touch and we'll look it up for you."
+      rate_limited: "That's a lot of attempts in a short time. Please wait a few minutes and try again, or contact us and we'll help."
+      help_html: "Stuck? Email us at %{email} and we'll sort it out."
+      sent:
+        title: "Check your email"
+        body: "If %{email} is the address we have on file, a setup link is on its way. It's valid for %{days} days."
+        spam_hint: "It should arrive within a few minutes. If you don't see it, check your spam or junk folder."
+        retry: "Entered the wrong address?"
+        retry_link: "Try a different email"
+      claiming_for: "Setting up the portal for %{company}."

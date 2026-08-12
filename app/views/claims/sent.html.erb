@@ -1,0 +1,18 @@
+<article class="wrapper grid-container py-12" id="claim-sent">
+  <div class="col-span-full md:col-start-4 md:col-span-6 text-center">
+    <h1 class="font-serif text-h4 md:text-h3"><%= t("nsb.claims.sent.title") %></h1>
+
+    <p class="mt-4 text-body-sm">
+      <%= t("nsb.claims.sent.body", email: @email, days: (Devise.reset_password_within / 1.day).to_i) %>
+    </p>
+
+    <p class="mt-4 text-body-xs opacity-75">
+      <%= t("nsb.claims.sent.spam_hint") %>
+    </p>
+
+    <p class="mt-8 text-body-xs">
+      <%= t("nsb.claims.sent.retry") %>
+      <%= link_to t("nsb.claims.sent.retry_link"), claim_path, class: "underline hover:!text-red-500" %>
+    </p>
+  </div>
+</article>

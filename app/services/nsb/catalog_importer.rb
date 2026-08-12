@@ -1,0 +1,136 @@
+# frozen_string_literal: true
+
+module Nsb
+  # Imports the B2BWave catalog from the reviewed intermediate files in
+  # db/import_data into Solidus.
+  #
+  # Safe to re-run: every product is keyed on b2b_product_id, so a second run
+  # updates in place rather than duplicating. This is the task that runs on
+  # production, so it reads only committed local files -- no network, no
+  # spreadsheet parsing, no dependency on B2BWave still being alive.
+  #
+  # Generate the input files with: python3 script/extract_b2bwave.py
+  class CatalogImporter
+    DATA_DIR = Rails.root.join("db/import_data")
+    TAXONOMY_NAME = "Categories"
+
+    Result = Struct.new(:created, :updated, :images_attached, :images_skipped, :failures, keyword_init: true) do
+      def to_s
+        "created=#{created} updated=#{updated} images_attached=#{images_attached} " \
+          "images_skipped=#{images_skipped} failures=#{failures.size}"
+      end
+    end
+
+    def initialize(data_dir: DATA_DIR, logger: Rails.logger)
+      @data_dir = Pathname(data_dir)
+      @logger = logger
+      @result = Result.new(created: 0, updated: 0, images_attached: 0, images_skipped: 0, failures: [])
+    end
+
+    def call
+      records = JSON.parse((@data_dir / "products.json").read)
+      say "importing #{records.size} products from #{@data_dir}"
+
+      records.each do |record|
+        # Per-record transaction: one bad row must not roll back a good import.
+        ActiveRecord::Base.transaction { import_product(record) }
+      rescue => error
+        @result.failures << { sku: record["sku"], name: record["name"], error: error.message }
+        say "  FAILED  #{record['sku']}  #{error.message}"
+      end
+
+      say "done: #{@result}"
+      @result
+    end
+
+    private
+
+    attr_reader :result
+
+    def import_product(record)
+      product = Spree::Product.find_or_initialize_by(b2b_product_id: record["b2b_product_id"])
+      new_record = product.new_record?
+
+      product.name = record["name"]
+      product.description = record["description"]
+      product.shipping_category = default_shipping_category
+      # Four marketing items (brochures, posters) are genuinely free; Solidus
+      # requires a non-null price, so they import at 0.0 rather than being skipped.
+      product.price = record["price"] || 0.0
+      product.available_on = record["active"] ? (product.available_on || Time.current) : nil
+      product.save!
+
+      # SKU lives on the master variant. Kept as-is from B2BWave, including the
+      # placeholder "-", so admin still matches the old system; b2b_product_id
+      # is what we actually key on.
+      if record["sku"].present? && product.master.sku != record["sku"]
+        product.master.update!(sku: record["sku"])
+      end
+
+      assign_taxon(product, record["category_path"])
+      attach_image(product, record["image"])
+
+      new_record ? @result.created += 1 : @result.updated += 1
+    end
+
+    def default_shipping_category
+      @default_shipping_category ||= Spree::ShippingCategory.find_or_create_by!(name: "Default")
+    end
+
+    def taxonomy
+      @taxonomy ||= Spree::Taxonomy.find_or_create_by!(name: TAXONOMY_NAME)
+    end
+
+    # "Tinctures/Original Formula" becomes Categories > Tinctures > Original Formula.
+    def assign_taxon(product, category_path)
+      return if category_path.blank?
+
+      taxon = category_path.split("/").map(&:strip).reject(&:blank?).reduce(taxonomy.root) do |parent, name|
+        parent.children.find_by(name: name) ||
+          Spree::Taxon.create!(name: name, taxonomy: taxonomy, parent: parent)
+      end
+
+      # Assignment rather than <<, so re-running cannot pile up duplicates.
+      product.taxons = [taxon] unless product.taxons.include?(taxon)
+    end
+
+    def attach_image(product, image_info)
+      return if image_info.blank?
+
+      path = @data_dir / "product_images" / image_info["file"]
+      raise "image file missing: #{path}" unless path.exist?
+
+      master = product.master
+      existing = master.images.first
+
+      # Idempotency without a checksum column: same filename and same byte
+      # count means we already imported this exact file.
+      if existing&.attachment&.attached? &&
+         existing.attachment.blob.filename.to_s == image_info["file"] &&
+         existing.attachment.blob.byte_size == image_info["bytes"]
+        @result.images_skipped += 1
+        return
+      end
+
+      existing&.destroy
+      # Pass an explicit hash rather than a File. Solidus normalises a bare IO
+      # to {io:, filename: <absolute path>}, which stores the full local path as
+      # the blob filename and leaves the handle's lifetime tied to this block --
+      # Active Storage's content-type identification then hits a closed stream.
+      # Reading into memory sidesteps both; the largest image here is under 1MB.
+      master.images.create!(
+        attachment: {
+          io: StringIO.new(path.binread),
+          filename: image_info["file"],
+          content_type: Marcel::MimeType.for(path)
+        }
+      )
+      @result.images_attached += 1
+    end
+
+    def say(message)
+      @logger.info("[catalog-import] #{message}")
+      puts message if $stdout.tty? || Rails.env.development?
+    end
+  end
+end
