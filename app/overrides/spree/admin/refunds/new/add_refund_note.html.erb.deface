@@ -1,0 +1,49 @@
+<!-- insert_bottom "[data-hook='admin_refund_form_fields']" -->
+
+<%#
+  Adds a free-text note to the admin refund form, revealed when the reason is
+  "Other". Solidus ships a single reason ("Return processing") and no way to say
+  what actually happened.
+
+  A Deface override rather than a copied view: the upstream form is otherwise
+  fine, and copying it would silently drift from Solidus on the next upgrade.
+  The refunds controller already does params.require(:refund).permit!, so the
+  note needs no controller change; Nsb::RefundNote stores it in admin_metadata.
+
+  Plain JS, no jQuery: the legacy admin bundles jQuery but relying on it here
+  would tie this override to that detail.
+%>
+<div class="col-12" id="refund-note-wrapper" style="display: none;">
+  <div class="field">
+    <label for="refund_note">Note</label><br>
+    <%= text_field_tag "refund[note]", nil,
+          id: "refund_note",
+          class: "fullwidth",
+          maxlength: 255,
+          placeholder: "Why is this being refunded? Recorded against the refund for your records." %>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var select = document.getElementById("refund_refund_reason_id");
+    var wrapper = document.getElementById("refund-note-wrapper");
+    if (!select || !wrapper) return;
+
+    function selectedLabel() {
+      var option = select.options[select.selectedIndex];
+      return option ? option.text.trim().toLowerCase() : "";
+    }
+
+    function toggle() {
+      // Reveal for "Other"; keep it available for anything the operator has
+      // added later whose name starts with "other".
+      var show = selectedLabel().indexOf("other") === 0;
+      wrapper.style.display = show ? "" : "none";
+      if (!show) document.getElementById("refund_note").value = "";
+    }
+
+    select.addEventListener("change", toggle);
+    toggle();
+  })();
+</script>

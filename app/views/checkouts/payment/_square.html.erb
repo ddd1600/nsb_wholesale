@@ -1,0 +1,68 @@
+<%#
+  Square card entry.
+
+  There is deliberately NO card number, expiry or CVV input here. Square's Web
+  Payments SDK renders those inside an iframe it owns, so the digits never enter
+  this page's DOM and never reach our server. What we post is the single-use
+  token the SDK hands back, in gateway_payment_profile_id.
+
+  Compare app/views/checkouts/payment/_gateway.html.erb, the stock Solidus
+  partial, which posts a raw card number -- exactly what CLAUDE.md forbids.
+%>
+<% config = Nsb::Square::Configuration.new %>
+<% param_prefix = "payment_source[#{payment_method.id}]" %>
+
+<div class="square-payment-method flex flex-col gap-y-6 w-full"
+     data-controller="square-payment"
+     data-square-payment-application-id-value="<%= config.application_id %>"
+     data-square-payment-location-id-value="<%= config.location_id %>"
+     data-square-payment-sdk-url-value="<%= config.js_sdk_url %>">
+
+  <% if config.browser_configured? %>
+    <div class="text-input">
+      <%= label_tag "square_name_#{payment_method.id}", "#{t('spree.name_on_card')}:" %>
+      <%= text_field_tag "#{param_prefix}[name]",
+            @order.billing_name,
+            id: "square_name_#{payment_method.id}",
+            autocomplete: "cc-name" %>
+    </div>
+
+    <%# Square mounts its hosted card fields into this element. %>
+    <div data-square-payment-target="card"
+         class="rounded-lg border border-gray-mid p-3 min-h-[56px] bg-white"></div>
+
+    <p data-square-payment-target="error"
+       class="hidden text-body-sm text-red-600"
+       role="alert"
+       aria-live="polite"></p>
+
+    <%# Says plainly what happens to the card, since customers reasonably assume
+        a portal is storing it. Accurate: the token is single-use and we keep
+        only the last four digits and brand for the order record. %>
+    <p class="text-body-xs opacity-75"><%= t("nsb.checkout.card_not_stored") %></p>
+
+    <%# Populated by the Stimulus controller from Square's tokenize() result.
+        Only the token and non-sensitive display fields are ever submitted. %>
+    <%= hidden_field_tag "#{param_prefix}[gateway_payment_profile_id]", "",
+          data: { square_payment_target: "token" } %>
+    <%= hidden_field_tag "#{param_prefix}[last_digits]", "",
+          data: { square_payment_target: "lastDigits" } %>
+    <%= hidden_field_tag "#{param_prefix}[month]", "",
+          data: { square_payment_target: "expMonth" } %>
+    <%= hidden_field_tag "#{param_prefix}[year]", "",
+          data: { square_payment_target: "expYear" } %>
+    <%= hidden_field_tag "#{param_prefix}[cc_type]", "",
+          data: { square_payment_target: "ccType" } %>
+
+    <% if @order.bill_address %>
+      <%= fields_for "#{param_prefix}[address_attributes]", @order.bill_address do |f| %>
+        <%= render 'address/form_hidden', form: f %>
+      <% end %>
+    <% end %>
+  <% else %>
+    <p class="text-body-sm text-red-600">
+      Card payment is unavailable: Square is not configured on this server.
+      Set SQUARE_APPLICATION_ID and SQUARE_LOCATION_ID.
+    </p>
+  <% end %>
+</div>

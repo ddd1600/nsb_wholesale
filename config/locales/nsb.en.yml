@@ -1,5 +1,13 @@
 en:
+  spree:
+    # Solidus labels every checkout step's button "Save and Continue", which on
+    # the payment step reads as "save my card details" -- alarming, and untrue:
+    # Square tokens are single-use and no card is ever stored. Relabelled rather
+    # than adding a "don't save my card" opt-out, which would imply we save cards.
+    save_and_continue: "Continue"
   nsb:
+    checkout:
+      card_not_stored: "Your card details go straight to Square and are never stored on our servers. You'll enter them again next time you order."
     claims:
       title: "Set up your wholesale account"
       intro: "Your account and order history have already been moved over. Enter the email address you used to order from us and we'll send you a link to choose a password."

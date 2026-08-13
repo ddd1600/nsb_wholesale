@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class ProductsController < StoreController
+  include Nsb::PreloadsProductImages
+
   before_action :load_product, only: :show
   before_action :load_taxon, only: :index
 
@@ -14,7 +16,7 @@ class ProductsController < StoreController
 
   def index
     @searcher = build_searcher(params.merge(include_images: true))
-    @products = @searcher.retrieve_products
+    @products = preload_product_images(@searcher.retrieve_products)
   end
 
   def show

@@ -15,12 +15,14 @@
       </div>
     </div>
 
-    <div class="relative w-6 h-6">
+    <%# `group` drives the sign-in dropdown revealed on hover or keyboard focus. %>
+    <div class="relative w-6 h-6 group">
       <%= link_to spree_current_user ? account_path : login_path, title: spree_current_user ? 'Account' : 'Login' do %>
         <svg class='w-6 h-6 fill-black dark:fill-white'>
           <use xlink:href="<%= image_path('remixicon.symbol.svg') %>#ri-user-line"></use>
         </svg>
       <% end %>
+      <%= render 'shared/auth/header_login' %>
     </div>
     <div class="relative hidden lg:flex">
       <%= link_to "https://solidus.io", class:"flex flex-row items-center gap-1" do %>

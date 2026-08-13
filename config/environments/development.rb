@@ -38,7 +38,10 @@ Rails.application.configure do
   # into the browser, so the claim flow can be walked end to end without any
   # SMTP credentials present in this environment (EMAIL_SETUP.md, build
   # requirement 3: dev and production credentials stay fully separate).
-  config.action_mailer.delivery_method = :letter_opener
+  # Collects mail at http://localhost:3000/letter_opener rather than launching
+  # it in the browser, which previously replaced the order confirmation page
+  # mid-checkout.
+  config.action_mailer.delivery_method = :letter_opener_web
   config.action_mailer.perform_deliveries = true
 
   # Make template changes take effect immediately.

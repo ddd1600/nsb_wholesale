@@ -1,0 +1,38 @@
+<%#
+  How a Square payment is displayed in the admin.
+
+  Solidus derives this path from PaymentMethod#partial_name ("square"), and
+  requires a matching partial in five places -- checkout/payment,
+  checkout/existing_payment, admin source_forms, admin source_views and the API.
+  Missing this one raised MissingTemplate when the operator opened a payment.
+
+  Only non-sensitive display fields exist to show: Square holds the card.
+%>
+<% card = payment.source %>
+
+<div class="square-payment-source">
+  <% if card %>
+    <strong><%= card.cc_type.presence&.titleize || "Card" %></strong>
+    <% if card.last_digits.present? %>
+      ending <%= card.last_digits %>
+    <% end %>
+    <% if card.month.present? && card.year.present? %>
+      (exp <%= format("%02d", card.month.to_i) %>/<%= card.year.to_s.last(2) %>)
+    <% end %>
+  <% else %>
+    <em>No card details recorded.</em>
+  <% end %>
+
+  <% if payment.response_code.present? %>
+    <div class="mt-1">
+      <small>
+        Square payment
+        <code><%= payment.response_code %></code>
+      </small>
+    </div>
+  <% end %>
+
+  <div class="mt-1">
+    <small><em>Card details are held by Square; this store never stores them.</em></small>
+  </div>
+</div>

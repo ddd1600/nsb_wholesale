@@ -1,3 +1,10 @@
+<%#
+  Terms-and-conditions checkbox removed. These are existing wholesale customers
+  with an established trading relationship, not retail strangers -- an extra
+  mandatory tick between them and reordering is friction for no benefit. The
+  starter frontend's placeholder text ("Put your terms and conditions here") was
+  never filled in either, so it was asking customers to agree to nothing.
+%>
 <section class="confirm-step">
   <fieldset class="confirm-step__info">
     <legend class="font-serif text-h5 md:text-h4">
@@ -6,16 +13,6 @@
 
     <%= render 'orders/order_details', order: @order %>
   </fieldset>
-
-  <div class="terms_and_conditions grid-container">
-    <div class="col-span-full lg:col-start-2 lg:col-span-10 xl:col-start-3 xl:col-span-8">
-      <%= render 'checkouts/terms_and_conditions' %>
-      <%= label_tag :accept_terms_and_conditions, class: 'checkbox-input mt-3' do %>
-        <%= check_box_tag :accept_terms_and_conditions, 'accepted', false %>
-        <%= t('spree.agree_to_terms_of_service') %>
-      <% end %>
-    </div>
-  </div>
 
   <div class="flex justify-end py-6 lg:justify-center">
     <%= button_tag(

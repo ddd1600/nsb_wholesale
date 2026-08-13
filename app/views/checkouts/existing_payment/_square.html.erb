@@ -1,0 +1,18 @@
+<%#
+  Shown when a customer has a saved payment source for this method.
+
+  Square tokens from the Web Payments SDK are single-use, so
+  SquareCreditCard#reusable_sources returns [] and this should never render in
+  practice. It exists because Solidus requires the partial to exist for the
+  partial_name, and a MissingTemplate at checkout would be far worse than an
+  unused file.
+%>
+<% card = wallet_payment_source.payment_source %>
+
+<div class="square-existing-payment">
+  <%= card.cc_type.presence&.titleize || "Card" %>
+  <% if card.last_digits.present? %>ending <%= card.last_digits %><% end %>
+  <p class="text-body-xs opacity-75">
+    You'll be asked to re-enter your card, as we don't store card details.
+  </p>
+</div>

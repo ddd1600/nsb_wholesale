@@ -1,6 +1,39 @@
 # frozen_string_literal: true
 
 namespace :nsb do
+  namespace :square do
+    desc "Create/enable the Square payment method (safe to re-run)"
+    task enable: :environment do
+      config = Nsb::Square::Configuration.new
+
+      method = Spree::PaymentMethod::SquareCreditCard.find_or_initialize_by(
+        type: "Spree::PaymentMethod::SquareCreditCard"
+      )
+      method.name = "Credit Card"
+      method.description = "Pay securely by card."
+      method.active = true
+      method.available_to_users = true
+      method.available_to_admin = true
+      # Charge in one step at checkout rather than authorising and capturing
+      # later: this store ships promptly and the operator does not want a
+      # separate capture step to remember.
+      method.auto_capture = true
+      method.save!
+
+      puts "Square payment method ##{method.id} (#{method.name}) is active."
+      puts "  #{method.configuration_summary}"
+      puts "  browser configured: #{config.browser_configured?}"
+
+      unless config.configured? && config.browser_configured?
+        puts
+        puts "Set these before checkout will work:"
+        puts "  SQUARE_ACCESS_TOKEN    (secret - server only)"
+        puts "  SQUARE_LOCATION_ID"
+        puts "  SQUARE_APPLICATION_ID  (public - embedded in the page)"
+      end
+    end
+  end
+
   namespace :mail do
     desc "One-time: obtain a Google OAuth refresh token for SMTP sending"
     task :authorize do

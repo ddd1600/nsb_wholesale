@@ -28,9 +28,22 @@ ENV RAILS_ENV="production" \
 # Throw-away build stage to reduce size of final image
 FROM base AS build
 
-# Install packages needed to build gems
+# Install packages needed to build gems.
+#
+# zlib1g-dev is NOT in the stock Rails 8 Dockerfile. It is required by the zlib
+# gem, which arrives via square.rb -> apimatic_faraday_client_adapter ->
+# faraday-gzip -> zlib. Without it `bundle install` fails at image build time
+# with "An error occurred while installing zlib", which is a confusing place to
+# discover a payment-gem dependency.
+#
+# nodejs is required at BUILD time only. solidus_backend depends on
+# handlebars_assets, which compiles the admin's .hbs templates through ExecJS
+# during assets:precompile; without a JavaScript runtime the build dies with
+# "ExecJS::RuntimeUnavailable". It is deliberately not installed in the final
+# stage -- nothing needs a JS runtime at runtime, and leaving it out keeps the
+# image smaller.
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential git libpq-dev libyaml-dev pkg-config && \
+    apt-get install --no-install-recommends -y build-essential git libpq-dev libyaml-dev pkg-config zlib1g-dev nodejs && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Install application gems

@@ -41,6 +41,10 @@ gem "solidus", "~> 4.7.0"
 # Devise-backed authentication for Solidus users (wholesale customers + admins).
 gem "solidus_auth_devise", "~> 2.6"
 
+# Square's official Ruby SDK. Square is the payment processor for this store --
+# see CLAUDE.md. Do not add Stripe/Braintree/PayPal alternatives.
+gem "square.rb", "~> 46.0", require: "square"
+
 # Active Storage service that keeps uploaded files in PostgreSQL instead of on
 # disk. Render wipes a service's filesystem on every deploy, and its persistent
 # disks cannot be reached from one-off jobs (which is how nsb:import:catalog
@@ -67,9 +71,14 @@ group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
 
-  # Opens outbound mail in the browser instead of sending it. Keeps production
-  # SMTP credentials unreachable from development (see EMAIL_SETUP.md).
-  gem "letter_opener"
+  # Captures outbound mail instead of sending it, keeping production SMTP
+  # credentials unreachable from development (EMAIL_SETUP.md).
+  #
+  # The _web variant on purpose: plain letter_opener launches the message in the
+  # browser the moment it is delivered, which hijacked the tab mid-checkout and
+  # replaced the order confirmation page with the email. This one just collects
+  # messages at /letter_opener for you to read when you want to.
+  gem "letter_opener_web"
 end
 gem "responders"
 gem "solidus_support", ">= 0.12.0"

@@ -1,0 +1,30 @@
+<%#
+  Shown when an admin adds a payment to an order from the backend.
+
+  There is deliberately no card form here. A Square charge needs a token from
+  the Web Payments SDK running in the customer's browser; an admin typing a card
+  number into this page would mean card data hitting our server, which CLAUDE.md
+  forbids outright.
+
+  So this explains the supported routes instead of offering a form that could
+  not work.
+%>
+<div class="square-admin-source">
+  <p>
+    <strong>Card payments are taken through the customer's checkout.</strong>
+  </p>
+  <p>
+    Square requires the card to be entered in the customer's own browser, so a
+    card cannot be keyed in here. To charge this customer, either:
+  </p>
+  <ul>
+    <li>ask them to complete checkout in the portal, or</li>
+    <li>take the payment in the Square dashboard or Square app, then record it
+      against this order using the <em>Check</em> payment method with the Square
+      receipt number in the notes.</li>
+  </ul>
+  <p>
+    <small>Refunds for card payments taken through the portal can be issued from
+    the Payments tab, and will be sent to Square.</small>
+  </p>
+</div>

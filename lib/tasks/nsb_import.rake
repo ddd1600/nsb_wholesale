@@ -18,6 +18,11 @@ namespace :nsb do
       end
     end
 
+    desc "Add the refund reasons the operator actually needs (safe to re-run)"
+    task refund_reasons: :environment do
+      Nsb::RefundReasonSeeder.new.call.each { |name| puts "  #{name}" }
+    end
+
     desc "Set the store's name, url and from-address (safe to re-run)"
     task store: :environment do
       Nsb::StoreConfigurator.new.call

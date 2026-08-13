@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class TaxonsController < StoreController
+  include Nsb::PreloadsProductImages
+
   helper 'spree/taxons', 'spree/products', 'taxon_filters'
 
   before_action :load_taxon, only: [:show]
@@ -9,7 +11,9 @@ class TaxonsController < StoreController
 
   def show
     @searcher = build_searcher(params.merge(taxon: @taxon.id, include_images: true))
-    @products = @searcher.retrieve_products
+    # include_images only preloads Spree::Image; the Active Storage chain behind
+    # each one still N+1s without this.
+    @products = preload_product_images(@searcher.retrieve_products)
   end
 
   private

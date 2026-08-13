@@ -9,4 +9,7 @@
 Rails.application.config.to_prepare do
   # Account claiming for customers migrated from B2BWave.
   Spree.user_class.prepend(Nsb::UserClaimable)
+
+  # Free-text note on refunds, paired with the "Other" refund reason.
+  Spree::Refund.prepend(Nsb::RefundNote)
 end

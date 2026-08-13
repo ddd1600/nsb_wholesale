@@ -18,6 +18,10 @@ resources :users, only: [:edit, :update]
 # Account claim flow for customers migrated from B2BWave. Deliberately outside
 # the devise_scope block: this is our own entry point, and it hands off to
 # Devise's user_passwords#edit once the emailed token is followed.
+# Development-only mailbox for inspecting outbound email. Guarded so it can
+# never be mounted in production, where real mail goes to real customers.
+mount LetterOpenerWeb::Engine, at: '/letter_opener' if Rails.env.development?
+
 get  '/claim',      to: 'claims#new',    as: :claim
 post '/claim',      to: 'claims#create', as: :create_claim
 get  '/claim/sent', to: 'claims#sent',   as: :claim_sent

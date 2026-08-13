@@ -1,0 +1,127 @@
+# Render Blueprint for the NSB wholesale portal.
+#
+# Docker rather than Render's native Ruby runtime, deliberately: product images
+# are stored in PostgreSQL and resized with libvips, and the Dockerfile installs
+# it explicitly. The native runtime's package set is not under our control, and
+# a missing libvips would mean every product image 500s in production.
+#
+# Deploy: Render Dashboard -> New -> Blueprint -> point at this repo.
+#
+# FREE PLANS ARE FOR TESTING ONLY. See the warning below the database.
+
+services:
+  - type: web
+    name: nsb-wholesale
+    runtime: docker
+    # Paid, not free: free PostgreSQL is deleted 30 days after creation with no
+    # backups, and a free web service sleeps after 15 minutes idle with a
+    # ~1 minute cold start. At roughly one order a day that means nearly every
+    # customer would hit a cold start, and the database holding 360 customer
+    # accounts would expire.
+    plan: starter
+    region: ohio
+    dockerfilePath: ./Dockerfile
+    # Migrations run here rather than at boot: preDeployCommand runs once per
+    # deploy, before the new instance starts taking traffic. Putting them in the
+    # entrypoint would re-run them on every restart and, worse, race if the
+    # service ever runs more than one instance.
+    preDeployCommand: ./bin/rails db:prepare
+    # The Dockerfile's default CMD wraps Puma in Thruster, which binds port 80.
+    # Render expects $PORT, which config/puma.rb already honours, so we bypass
+    # Thruster and run Puma directly.
+    dockerCommand: bundle exec puma -C config/puma.rb
+    healthCheckPath: /up
+    autoDeploy: true
+
+    envVars:
+      - key: RAILS_ENV
+        value: production
+      - key: RACK_ENV
+        value: production
+
+      # Signs cookies, and (since the hardcoded Devise.secret_key was removed)
+      # every password-reset and account-claim token. Generated once by Render
+      # and then left alone: rotating it invalidates outstanding claim links.
+      - key: SECRET_KEY_BASE
+        generateValue: true
+
+      - key: DATABASE_URL
+        fromDatabase:
+          name: nsb-wholesale-db
+          property: connectionString
+
+      # No CDN or separate web server in front of Puma, so Rails serves the
+      # precompiled assets itself.
+      - key: RAILS_SERVE_STATIC_FILES
+        value: "true"
+      - key: RAILS_LOG_TO_STDOUT
+        value: "true"
+
+      # Host used to build links in emails. Also set Spree::Store#url to match
+      # (bin/rails nsb:import:store), which is what Solidus actually reads.
+      - key: APP_HOST
+        sync: false
+      - key: STORE_URL
+        sync: false
+
+      # --- Secrets: set these in the Render dashboard, never in this file ---
+
+      # Google Workspace OAuth for outbound mail. Obtain the refresh token with
+      # `bin/rails nsb:mail:authorize`. See EMAIL_SETUP.md.
+      - key: SMTP_USER_NAME
+        sync: false
+      - key: GMAIL_OAUTH_CLIENT_ID
+        sync: false
+      - key: GMAIL_OAUTH_CLIENT_SECRET
+        sync: false
+      - key: GMAIL_OAUTH_REFRESH_TOKEN
+        sync: false
+
+      # Square. Use PRODUCTION credentials here and set SQUARE_ENVIRONMENT to
+      # "production" -- the app defaults to Sandbox everywhere else so a laptop
+      # cannot reach the live account by accident. See docs/SQUARE_GO_LIVE.md.
+      - key: SQUARE_ACCESS_TOKEN
+        sync: false
+      - key: SQUARE_LOCATION_ID
+        sync: false
+      - key: SQUARE_APPLICATION_ID
+        sync: false
+      - key: SQUARE_ENVIRONMENT
+        sync: false
+
+      # Consumed by db/seeds.rb on the very first boot, when db:prepare creates
+      # the schema. Without them Solidus's seed task prompts for an admin email
+      # and password and would hang a container that has no terminal.
+      - key: AUTO_ACCEPT
+        value: "1"
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+
+databases:
+  - name: nsb-wholesale-db
+    databaseName: nsb_wholesale
+    user: nsb_wholesale
+    # basic-256mb is the smallest paid tier. Sizing: the whole catalog including
+    # product images is about 20MB today, because Active Storage blobs live in
+    # PostgreSQL here rather than on disk (see config/mail_delivery.rb's sibling
+    # decision in config/storage.yml). Headroom is ample; storage can be
+    # increased later, but never decreased.
+    plan: basic-256mb
+    region: ohio
+
+# ---------------------------------------------------------------------------
+# Why not the free plans
+#
+# Free PostgreSQL is deleted 30 days after creation (plus a 14-day grace
+# period) and has NO BACKUPS. This database holds 360 customer accounts, their
+# addresses, every order, and the product images themselves.
+#
+# Free web services sleep after 15 minutes idle and take ~1 minute to wake, so
+# at one order a day nearly every customer visit would be a cold start.
+#
+# The paid plans also unlock the two things that make this operable: shell
+# access (for running nsb:import:* by hand) and preDeployCommand (for
+# migrations).
+# ---------------------------------------------------------------------------

@@ -78,8 +78,17 @@ test:
 # Read https://guides.rubyonrails.org/configuring.html#configuring-a-database
 # for a full overview on how database connection configuration can be specified.
 #
+# Production takes everything from DATABASE_URL, which Render sets from the
+# database defined in render.yaml.
+#
+# The generated default hardcoded a database name, username, and a password from
+# NSB_WHOLESALE_DATABASE_PASSWORD. Rails merges DATABASE_URL over those, so it
+# worked -- but a partial DATABASE_URL would silently fall back to the hardcoded
+# values and connect somewhere unintended. Naming nothing here removes that trap.
+#
+# ENV[] rather than ENV.fetch: assets:precompile runs during the Docker build
+# with RAILS_ENV=production and no database, and fetch raises there, failing the
+# image build. Rails reads this file even for tasks that never open a connection.
 production:
   <<: *default
-  database: nsb_wholesale_production
-  username: nsb_wholesale
-  password: <%= ENV["NSB_WHOLESALE_DATABASE_PASSWORD"] %>
+  url: <%= ENV["DATABASE_URL"] %>

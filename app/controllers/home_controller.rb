@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
 class HomeController < StoreController
+  include Nsb::PreloadsProductImages
+
   helper 'spree/products'
   respond_to :html
 
   def index
     @searcher = build_searcher(params.merge(include_images: true))
-    @products = @searcher.retrieve_products
+    @products = preload_product_images(@searcher.retrieve_products)
 
     # Split products into groups of 3 for the homepage blocks.
     # You probably want to remove this logic and use your own!
