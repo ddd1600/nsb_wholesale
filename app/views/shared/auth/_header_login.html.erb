@@ -1,26 +1,32 @@
 <%#
-  Header login dropdown: email and password inputs revealed on hover/focus of
-  the user icon, so a returning wholesale customer can sign in from any page
-  without a detour through the login screen. Reordering is the whole job of this
-  portal, so saving that hop matters.
+  Header sign-in dropdown, revealed on hover of the user icon. A shortcut, not a
+  replacement: clicking the icon still goes to the full login page.
 
   Only rendered when signed out. Posts to the same Devise endpoint as the login
   page, so there is no second authentication path to keep secure -- same
   strength, same lockout, same CSRF protection.
 
-  Focus-within keeps it usable by keyboard: tabbing into the fields holds the
-  panel open, where a hover-only panel would vanish.
+  GEOMETRY MATTERS HERE. The panel used to sit at top-8 while the icon is only
+  h-6 tall, leaving 0.5rem of dead space between them. Moving the pointer toward
+  the panel crossed that gap, the group lost :hover, and the panel vanished
+  before you could type. The outer wrapper now starts flush at top-6 and creates
+  the visual gap with transparent padding instead, so the pointer never leaves
+  the hover area.
+
+  group-focus-within keeps it open while tabbing through the fields.
 %>
 <% return if spree_current_user %>
 
-<div class="absolute right-0 top-8 z-50 hidden w-72 rounded-lg border border-gray-mid bg-white p-4 shadow-lg group-hover:block group-focus-within:block dark:border-gray-400 dark:bg-black">
+<div class="absolute right-0 top-6 z-50 hidden pt-2 group-hover:block group-focus-within:block">
+<div class="w-72 rounded-lg border border-gray-mid bg-white p-4 shadow-lg dark:border-gray-400 dark:bg-black">
   <%= form_with url: create_new_session_path, method: :post, class: "space-y-3" do %>
     <div class="text-input">
       <%= label_tag "header_user_email", t("spree.email"), class: "text-body-xs" %>
       <%= email_field_tag "spree_user[email]", nil,
             id: "header_user_email",
             placeholder: "name@yourcompany.com",
-            autocomplete: "email" %>
+            autocomplete: "email",
+            data: { header_login_target: "email" } %>
     </div>
 
     <div class="text-input">
@@ -38,4 +44,5 @@
     <%= link_to "Set up account", claim_path, class: "underline hover:!text-red-500" %>
     <%= link_to t("spree.forgot_password"), recover_password_path, class: "underline hover:!text-red-500" %>
   </div>
+</div>
 </div>

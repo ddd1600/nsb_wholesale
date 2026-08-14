@@ -15,7 +15,9 @@
       </div>
     </div>
 
-    <%# `group` drives the sign-in dropdown revealed on hover or keyboard focus. %>
+    <%# Clicking the icon still goes to the login page (or the account page when
+        signed in); the dropdown is an additional shortcut on hover, not a
+        replacement for it. `group` drives that hover. %>
     <div class="relative w-6 h-6 group">
       <%= link_to spree_current_user ? account_path : login_path, title: spree_current_user ? 'Account' : 'Login' do %>
         <svg class='w-6 h-6 fill-black dark:fill-white'>
