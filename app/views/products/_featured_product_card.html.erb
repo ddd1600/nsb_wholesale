@@ -1,12 +1,37 @@
-<div class="relative bg-black overflow-hidden rounded-lg md:rounded-xl lg:rounded-2xl">
-  <% image = product.gallery.images.second || product.gallery.images.first %>
-  <%= render(ImageComponent.new(
-    image: image,
-    size: size,
-    class: 'w-full object-cover'
-  )) %>
-  <div class="absolute flex flex-col gap-y-2 lg:gap-y-4 inset-x-6 bottom-6 lg:inset-x-8 lg:bottom-8">
-    <span class="text-white drop-shadow-sm text-h6 font-serif md:text-h5 lg:text-h3"><%= product.name %></span>
-    <%= render partial: "shared/call_to_action", :locals => { :label => "Shop now", :url => product } %>
+<%#
+  Featured product tile.
+
+  Two changes from the starter template:
+
+  1. The whole card is a link, and the "Shop now" button is gone. A wholesale
+     buyer reordering knows what these are; the button was noise on every tile.
+
+  2. The product name sits BELOW the image instead of overlaying it in white.
+     The template assumed dark photography -- it shipped with black t-shirt
+     imagery -- but this catalog is white-background bottle shots, so white
+     overlay text was invisible against them. Putting the caption on the card
+     background makes it readable whatever the photo looks like.
+%>
+<%= link_to product_path(product), class: "group/card block h-full", title: product.name do %>
+  <div class="flex h-full flex-col overflow-hidden rounded-lg bg-gray-50 md:rounded-xl lg:rounded-2xl dark:bg-gray-900">
+    <div class="flex-1 overflow-hidden">
+      <% image = product.gallery.images.second || product.gallery.images.first %>
+      <%= render(ImageComponent.new(
+        image: image,
+        size: size,
+        class: 'w-full h-full object-cover transition-transform duration-300 group-hover/card:scale-105'
+      )) %>
+    </div>
+
+    <div class="flex items-end justify-between gap-x-3 p-4 lg:p-6">
+      <span class="font-serif text-body md:text-h6 lg:text-h5 text-black dark:text-sand">
+        <%= product.name %>
+      </span>
+      <% if product.display_price %>
+        <span class="price selling shrink-0 font-sans-md text-body-sm text-black dark:text-sand">
+          <%= product.display_price %>
+        </span>
+      <% end %>
+    </div>
   </div>
-</div>
+<% end %>

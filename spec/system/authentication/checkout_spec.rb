@@ -65,11 +65,10 @@ RSpec.feature 'Checkout', :js, type: :system do
       expect(page).to have_text(/Shipping Address/i)
 
       fill_addresses_fields_with(address)
-      click_button 'Save and Continue'
+      click_button I18n.t('spree.save_and_continue')
 
-      click_button 'Save and Continue'
-      click_button 'Save and Continue'
-      check 'Agree to Terms of Service'
+      click_button I18n.t('spree.save_and_continue')
+      click_button I18n.t('spree.save_and_continue')
       click_button 'Place Order'
 
       expect(page).to have_text 'Your order has been processed successfully'
@@ -92,11 +91,10 @@ RSpec.feature 'Checkout', :js, type: :system do
       click_button 'Checkout'
 
       fill_addresses_fields_with(address)
-      click_button 'Save and Continue'
+      click_button I18n.t('spree.save_and_continue')
 
-      click_button 'Save and Continue'
-      click_button 'Save and Continue'
-      check 'Agree to Terms of Service'
+      click_button I18n.t('spree.save_and_continue')
+      click_button I18n.t('spree.save_and_continue')
       click_button 'Place Order'
 
       expect(page).to have_text 'Your order has been processed successfully'
@@ -129,7 +127,7 @@ RSpec.feature 'Checkout', :js, type: :system do
       click_button 'Checkout'
 
       fill_addresses_fields_with(address)
-      click_button 'Save and Continue'
+      click_button I18n.t('spree.save_and_continue')
 
       expect(page).not_to have_text 'Email is invalid'
     end
@@ -151,11 +149,10 @@ RSpec.feature 'Checkout', :js, type: :system do
       expect(page).to have_text 'You have signed up successfully.'
 
       fill_addresses_fields_with(address)
-      click_button 'Save and Continue'
+      click_button I18n.t('spree.save_and_continue')
 
-      click_button 'Save and Continue'
-      click_button 'Save and Continue'
-      check 'Agree to Terms of Service'
+      click_button I18n.t('spree.save_and_continue')
+      click_button I18n.t('spree.save_and_continue')
       click_button 'Place Order'
 
       expect(page).to have_text 'Your order has been processed successfully'

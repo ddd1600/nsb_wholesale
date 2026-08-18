@@ -1,13 +1,22 @@
 <footer class="wrapper mx-auto grid-container w-full">
   <div class="col-span-full border-t-[1px] border-t-black dark:border-t-white py-16">
     <div class="text-center col-span-full md:flex md:items-center md:justify-between md:col-start-2 md:col-span-10">
+      <%#
+        Was the Solidus wordmark, a "Visit Solidus.io" button, and social icons
+        linking to Solidus's GitHub, Stack Overflow and Slack -- starter-template
+        boilerplate that was sending New South Botanicals' wholesale customers to
+        the ecommerce framework's community.
+
+        Replaced with the store's own name and contact address. Swap in a real
+        logo by dropping an SVG into app/assets/images and using image_tag here.
+      %>
       <div class="col-span-full mb-14 md:mb-0">
-        <%= image_tag "logo_full_with_label.svg", class: "mx-auto w-52 mb-7 dark:hidden" %>
-        <%= image_tag "logo_full_with_label_white.svg", class: "mx-auto w-52 mb-7 hidden dark:block" %>
-        <%= render partial: "shared/call_to_action", :locals => { :label => "Visit Solidus.io", :url => 'https://solidus.io', :target => '_blank', :additional_classes => "block mx-auto" } %>
-      </div>
-      <div class="col-span-full">
-        <%= render "shared/social_icons" %>
+        <div class="mx-auto mb-4 font-serif text-h5 uppercase tracking-wide">
+          <%= current_store.name %>
+        </div>
+        <% if current_store.mail_from_address.present? %>
+          <%= mail_to current_store.mail_from_address, class: "text-body-sm underline hover:!text-red-500" %>
+        <% end %>
       </div>
     </div>
     <%

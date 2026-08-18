@@ -1,7 +1,13 @@
 <section class="grid-container grid-cols-1 gap-7 wrapper py-4 lg:py-12 lg:grid-cols-3">
+  <%#
+    Was starter-template marketing copy ("Become the brand everyone talks
+    about.") with a "Get Started" button pointing at solidus.io -- i.e. the
+    storefront was sending New South Botanicals' wholesale customers to the
+    ecommerce framework's website. Replaced with something true of this store.
+  %>
   <div class="flex flex-col items-center justify-center py-10 px-3">
-    <span class="text-h2.5 text-center font-serif mb-5">Become the brand everyone talks about.</span>
-    <%= render "shared/call_to_action", { label: "Get Started", url: 'https://solidus.io/get-started', target: '_blank' } %>
+    <span class="text-h2.5 text-center font-serif mb-5">Wholesale, reordered in minutes.</span>
+    <%= render "shared/call_to_action", { label: "Browse the catalog", type: 'secondary', url: products_path } %>
   </div>
 
   <% products.each_with_index do |product, index| %>

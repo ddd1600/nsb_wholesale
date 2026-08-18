@@ -46,9 +46,9 @@ RSpec.describe 'Coupon code promotions', type: :system, js: true do
           fill_addresses_fields_with(address)
 
           # To shipping method screen
-          click_button "Save and Continue"
+          click_button I18n.t('spree.save_and_continue')
           # To payment screen
-          click_button "Save and Continue"
+          click_button I18n.t('spree.save_and_continue')
         end
 
         it "informs about an invalid coupon code" do
@@ -101,9 +101,9 @@ RSpec.describe 'Coupon code promotions', type: :system, js: true do
             click_button "Checkout"
             # To shipping method screen, address is auto-populated
             # with user's saved addresses
-            click_button "Save and Continue"
+            click_button I18n.t('spree.save_and_continue')
             # To payment screen
-            click_button "Save and Continue"
+            click_button I18n.t('spree.save_and_continue')
           end
 
           it "shows wallet payments on coupon code errors" do

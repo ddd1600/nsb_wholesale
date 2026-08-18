@@ -1,4 +1,5 @@
 require_relative "boot"
+require_relative "site_password_gate"
 
 require "rails"
 # Pick the frameworks you want:
@@ -57,6 +58,12 @@ module NsbWholesale
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+
+    # Temporary password gate for the whole site. Active only when
+    # SITE_PASSWORD is set, so development and test are unaffected. Inserted at
+    # the top of the stack so it also covers /admin, which does not inherit from
+    # this app's ApplicationController.
+    config.middleware.insert_before 0, SitePasswordGate
 
     # Don't generate system test files.
     config.generators.system_tests = nil

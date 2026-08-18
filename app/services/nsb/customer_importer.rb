@@ -48,9 +48,10 @@ module Nsb
     private
 
     def import_customer(record)
-      user = Spree.user_class.find_or_initialize_by(b2b_customer_id: record["b2b_customer_id"])
+      user = find_or_build_user(record)
       new_record = user.new_record?
 
+      user.b2b_customer_id = record["b2b_customer_id"]
       user.email = record["email"]
 
       # Only ever set a password on creation. Re-running the import must not
@@ -70,6 +71,25 @@ module Nsb
       import_address(user, record) if record["address"].present?
 
       new_record ? @result.created += 1 : @result.updated += 1
+    end
+
+    # b2b_customer_id first, then email.
+    #
+    # The email fallback matters because a user can already exist without a
+    # B2BWave id: the operator's own admin account is created from ADMIN_EMAIL at
+    # seed time, and he is also one of the 360 wholesale customers. Without this,
+    # the import tried to create a second account with the same address and died
+    # on the uniqueness validation.
+    #
+    # Attaching to the existing record is also what we want operationally --
+    # matching on email means the admin keeps their password and role and simply
+    # gains their customer history, rather than ending up with two accounts.
+    def find_or_build_user(record)
+      by_id = Spree.user_class.find_by(b2b_customer_id: record["b2b_customer_id"])
+      return by_id if by_id
+
+      Spree.user_class.find_by("lower(email) = ?", record["email"].to_s.downcase) ||
+        Spree.user_class.new
     end
 
     def import_address(user, record)

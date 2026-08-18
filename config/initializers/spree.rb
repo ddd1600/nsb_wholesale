@@ -9,8 +9,14 @@ Spree.config do |config|
   # Default currency for new sites
   config.currency = "USD"
 
-  # Uncomment to stop tracking inventory levels in the application
-  # config.track_inventory_levels = false
+  # Inventory is not tracked in this application.
+  #
+  # The operator manages stock outside the portal. Without this, every product
+  # sits at 0 on hand and only sells because each stock item happens to be
+  # backorderable -- which works, but means an accidental change to a single
+  # stock item silently makes a product unbuyable. Turning tracking off states
+  # the intent instead of relying on that side effect.
+  config.track_inventory_levels = false
 
   # When set, product caches are only invalidated when they fall below or rise
   # above the inventory_cache_threshold that is set. Default is to invalidate cache on
@@ -23,6 +29,13 @@ Spree.config do |config|
 
   # Uncomment to recalculate cart prices when the cart changes
   # config.recalculate_cart_prices = true
+
+  # Register the ShipStation fulfilment subscriber alongside Solidus's own.
+  #
+  # It only ENQUEUES a background job when an order is finalized -- the HTTP call
+  # to ShipStation never happens inside the order transaction, so an outage
+  # there cannot roll back an order Square has already charged.
+  config.environment.subscribers << "Nsb::ShipstationSubscriber"
 
   # Phone is not a required part of an address.
   #

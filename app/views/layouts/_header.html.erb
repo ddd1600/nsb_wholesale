@@ -12,9 +12,13 @@
       </button>
     </div>
     <div class="flex items-center gap-x-4 xl:gap-x-8 w-full justify-center lg:justify-start">
+      <%# The mark here was Solidus's logo, not the store's. Showing the store
+          name alone is at least accurate; drop a real logo into
+          app/assets/images and add an image_tag back when one exists.
+          current_store rather than Spree::Store.default: same record here, but
+          it is the helper Solidus intends and avoids a query per render. %>
       <%= link_to root_path, class: 'absolute lg:relative left-1/2 lg:left-0 lg:-translate-x-0 -translate-x-1/2 flex items-center space-x-3' do %>
-        <%= image_tag "logo_small_no_label.svg" %>
-        <span class="uppercase font-sans font-semibold mb-0 dark:text-sand text-body lg:text-body-sm xl:text-body-sm"><%= Spree::Store.default.name %></span>
+        <span class="uppercase font-sans font-semibold mb-0 dark:text-sand text-body lg:text-body-sm xl:text-body-sm"><%= current_store.name %></span>
       <% end %>
 
       <% categories = taxonomies.first %>
@@ -59,11 +63,12 @@
         <div class="flex justify-between">
           <%= render "shared/navigation/theme_switcher" %>
 
-          <%= link_to "https://solidus.io", class:"flex flex-row items-center gap-1" do %>
-            <span class="font-semibold text-black dark:text-white">solidus.io</span>
-            <svg class='w-5 h-5 fill-black dark:fill-white'>
-              <use xlink:href="<%= image_path('remixicon.symbol.svg') %>#ri-arrow-right-up-line"></use>
-            </svg>
+          <%# Mobile menu equivalent of the top-bar link: was solidus.io. %>
+          <% if current_store.mail_from_address.present? %>
+            <%= mail_to current_store.mail_from_address,
+                  class: "flex flex-row items-center gap-1 text-body-sm hover:!text-red-500" do %>
+              <span class="font-semibold text-black dark:text-white"><%= current_store.mail_from_address %></span>
+            <% end %>
           <% end %>
         </div>
         </div>

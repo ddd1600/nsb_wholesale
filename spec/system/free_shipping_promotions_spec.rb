@@ -45,9 +45,9 @@ RSpec.describe 'Free shipping promotions', type: :system, js: true do
       fill_in "Phone", with: "555-555-5555"
 
       # To shipping method screen
-      click_button "Save and Continue"
+      click_button I18n.t('spree.save_and_continue')
       # To payment screen
-      click_button "Save and Continue"
+      click_button I18n.t('spree.save_and_continue')
     end
 
     # Regression test for https://github.com/spree/spree/issues/4428

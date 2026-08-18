@@ -44,7 +44,7 @@ RSpec.describe 'First Order promotion', type: :system do
     checkout_as_guest
     fill_in "Customer email", with: "sam@tom.com"
     fill_in_address
-    click_on "Save and Continue"
+    click_on I18n.t('spree.save_and_continue')
     expect(page).to_not have_content("#summary-order-charges")
   end
 

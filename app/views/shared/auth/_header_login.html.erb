@@ -15,7 +15,21 @@
 
   group-focus-within keeps it open while tabbing through the fields.
 %>
-<% return if spree_current_user %>
+<%
+  # Not rendered when signed in, and not on pages that already carry their own
+  # spree_user email/password fields.
+  #
+  # Without the second guard every such page had TWO fields named
+  # spree_user[email] -- the real form plus this shortcut. Password managers and
+  # browser autofill then have two candidates and can fill the wrong one, and it
+  # broke 14 system specs with Capybara::Ambiguous. Showing a login shortcut on
+  # the login page is pointless anyway.
+  pages_with_their_own_auth_fields = %w[
+    user_sessions user_registrations user_passwords user_confirmations users
+  ]
+  return if spree_current_user
+  return if pages_with_their_own_auth_fields.include?(controller_name)
+%>
 
 <div class="absolute right-0 top-6 z-50 hidden pt-2 group-hover:block group-focus-within:block">
 <div class="w-72 rounded-lg border border-gray-mid bg-white p-4 shadow-lg dark:border-gray-400 dark:bg-black">

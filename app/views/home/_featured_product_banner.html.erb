@@ -1,14 +1,26 @@
-<section class="relative my-4 w-full lg:my-12 bg-red-500">
-  <div class="wrapper-mobile-fullwidth">
-    <%= render(ImageComponent.new(
-      image: product.gallery.images.last,
-      size: :full,
-      class: 'w-full object-cover aspect-square md:aspect-auto'
-    )) %>
-    <div class="absolute bottom-0 left-0 right-0 text-center pb-14">
-      <span class="rounded-full px-3 py-1 bg-white text-sm text-black mb-2">New</span>
-      <div class="text-h3 font-serif-md mb-6 text-white md:mb-9 md:text-h2.5"><%= product.name %></div>
-      <%= render "shared/call_to_action", { label: "Shop Now", type: 'secondary', url: product } %>
+<%#
+  Full-width featured product banner.
+
+  Links to the product instead of carrying a "Shop Now" button, and the caption
+  sits on a dark scrim rather than floating white text directly over the photo --
+  this catalog's images are white-background bottle shots, against which plain
+  white text is unreadable. Same problem as products/_featured_product_card.
+%>
+<section class="relative my-4 w-full overflow-hidden lg:my-12">
+  <%= link_to product_path(product), class: "group/banner block", title: product.name do %>
+    <div class="wrapper-mobile-fullwidth relative">
+      <%= render(ImageComponent.new(
+        image: product.gallery.images.last,
+        size: :full,
+        class: 'w-full object-cover aspect-square md:aspect-auto'
+      )) %>
+
+      <%# Gradient scrim: transparent over the product, solid enough at the
+          bottom for the caption to read on any photograph. %>
+      <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent pb-10 pt-24 text-center">
+        <span class="rounded-full bg-white px-3 py-1 text-sm text-black">New</span>
+        <div class="mt-3 font-serif-md text-h3 text-white md:text-h2.5"><%= product.name %></div>
+      </div>
     </div>
-  </div>
+  <% end %>
 </section>

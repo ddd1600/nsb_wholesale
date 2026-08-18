@@ -80,6 +80,43 @@ RSpec.describe Nsb::CustomerImporter do
     end
   end
 
+  describe "when a user with that email already exists" do
+    # The operator's own admin account is created from ADMIN_EMAIL at seed time,
+    # and he is also one of the 360 wholesale customers. This previously failed
+    # with "Email has already been taken" partway through the import.
+    let!(:existing) do
+      create(:user, email: "buyer@example.com").tap do |user|
+        user.update!(password: "already-chosen", password_confirmation: "already-chosen")
+      end
+    end
+
+    it "attaches the B2BWave id to the existing account instead of duplicating" do
+      write_customers([record])
+
+      result = importer.call
+
+      expect(result.failures).to be_empty
+      expect(Spree.user_class.where(email: "buyer@example.com").count).to eq(1)
+      expect(existing.reload.b2b_customer_id).to eq(5001)
+    end
+
+    it "does not disturb the password of the existing account" do
+      write_customers([record])
+
+      importer.call
+
+      expect(existing.reload.valid_password?("already-chosen")).to be(true)
+    end
+
+    it "matches regardless of the case in the export" do
+      write_customers([record("email" => "BUYER@Example.com")])
+
+      importer.call
+
+      expect(Spree.user_class.where(b2b_customer_id: 5001).count).to eq(1)
+    end
+  end
+
   it "updates in place rather than duplicating when re-run" do
     write_customers([record])
     importer.call
