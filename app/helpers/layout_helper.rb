@@ -15,9 +15,14 @@ module LayoutHelper
     collection_actions: %w[index],
     allowed_parameters: [:keywords, :page, :search, :taxon]
   )
+    # params[:format] is attacker-controlled (?format=...), and the starter
+    # frontend interpolated it straight into a Regexp -- a ReDoS vector flagged
+    # by Brakeman, on every page that renders a canonical tag. String suffix
+    # removal does the same job with no pattern compilation at all.
+    format = params[:format].to_s
     path_without_extension = request.path
-      .sub(/\.#{params[:format]}$/, "")
-      .sub(/\/$/, "")
+    path_without_extension = path_without_extension.delete_suffix(".#{format}") if format.present?
+    path_without_extension = path_without_extension.delete_suffix("/")
 
     href = "#{request.protocol}#{host}#{path_without_extension}"
 

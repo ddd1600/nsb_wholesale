@@ -1,0 +1,83 @@
+name: CI
+
+# Render deploys automatically on every push to main (autoDeploy in
+# render.yaml), so without this a broken commit goes straight to production.
+# This runs the suite on the same commit Render is about to build.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        # Without this the suite can start before Postgres accepts connections.
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      RAILS_ENV: test
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/nsb_wholesale_test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # The same native dependencies the Docker build needed, for the same
+      # reasons: libvips for Active Storage image variants, and the headers for
+      # gems that compile (zlib arrives via square.rb -> faraday-gzip).
+      - name: Install system packages
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install --no-install-recommends -y libvips libpq-dev zlib1g-dev
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          # Reads .ruby-version, so CI cannot drift from local development.
+          ruby-version-file: .ruby-version
+          bundler-cache: true
+
+      - name: Prepare database
+        run: bin/rails db:test:prepare
+
+      # System specs are excluded deliberately: they drive a real browser, take
+      # ~35 minutes, and carry a couple of known flakes. Run them locally with
+      # `bundle exec rspec spec/system` before anything risky.
+      - name: Run specs
+        run: bundle exec rspec spec --exclude-pattern "system/**/*"
+
+      # Catches autoloading mistakes that only surface when production eager
+      # loads -- exactly the class of bug that would 500 the whole site on boot.
+      - name: Check Zeitwerk eager loading
+        run: bin/rails zeitwerk:check
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version-file: .ruby-version
+          bundler-cache: true
+      # Static analysis for common Rails vulnerabilities. Cheap, and this app
+      # handles customer accounts and payment flows.
+      #
+      # `bundle exec`, not bin/brakeman: the binstub prepends --ensure-latest,
+      # which exits non-zero whenever a newer Brakeman has been released. That
+      # would fail CI for reasons unrelated to this codebase.
+      #
+      # -w2 reports medium and high confidence only. The weak-confidence set is
+      # currently just "Rails 8.0.5.1 reaches end of life on 2026-10-07", which
+      # is a real thing to track but not a reason to block a deploy.
+      - name: Brakeman
+        run: bundle exec brakeman --no-pager -w2

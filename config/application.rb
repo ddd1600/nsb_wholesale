@@ -56,7 +56,13 @@ module NsbWholesale
     # These settings can be overridden in specific environments using the files
     # in config/environments, which are processed later.
     #
-    # config.time_zone = "Central Time (US & Canada)"
+    # New South Botanicals operates from South Carolina. Without this, orders and
+    # emails render in UTC, so an order placed at 8pm Tuesday reads as Wednesday
+    # to both the customer and the operator.
+    #
+    # Only display is affected: Active Record still stores timestamps in UTC
+    # (default_timezone is untouched), so existing data needs no migration.
+    config.time_zone = "Eastern Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
 
     # Temporary password gate for the whole site. Active only when

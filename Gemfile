@@ -41,6 +41,13 @@ gem "solidus", "~> 4.7.0"
 # Devise-backed authentication for Solidus users (wholesale customers + admins).
 gem "solidus_auth_devise", "~> 2.6"
 
+# Error monitoring. Without it, a failed ShipStation push or a bounced email is
+# a line in a Render log nobody reads -- and this operator is deliberately
+# hands-off. Inert unless SENTRY_DSN is set, so development and test are
+# unaffected.
+gem "sentry-ruby"
+gem "sentry-rails"
+
 # Square's official Ruby SDK. Square is the payment processor for this store --
 # see CLAUDE.md. Do not add Stripe/Braintree/PayPal alternatives.
 gem "square.rb", "~> 46.0", require: "square"
