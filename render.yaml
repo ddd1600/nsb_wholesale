@@ -57,6 +57,15 @@ services:
       - key: RAILS_LOG_TO_STDOUT
         value: "true"
 
+      # Runs the Solid Queue supervisor inside this Puma process (see
+      # config/puma.rb) instead of paying for a second Render service to run
+      # bin/jobs. Jobs are rows in the primary database, so they survive the
+      # restarts and redeploys that used to discard them under the :async
+      # adapter. Unset this and nothing consumes the queue -- jobs would be
+      # enqueued and never run, which is worse than the problem it replaced.
+      - key: SOLID_QUEUE_IN_PUMA
+        value: "true"
+
       # Host used to build links in emails. Also set Spree::Store#url to match
       # (bin/rails nsb:import:store), which is what Solidus actually reads.
       - key: APP_HOST

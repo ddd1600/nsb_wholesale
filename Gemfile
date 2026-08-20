@@ -59,6 +59,20 @@ gem "square.rb", "~> 46.0", require: "square"
 # catalog images too. Viable here only because the catalog is ~6MB.
 gem "active_storage_db"
 
+# Durable background jobs. Rails 8 defaults ActiveJob to the :async adapter,
+# which keeps the queue in process memory -- every pending job is lost when
+# Render restarts or redeploys the service. That silently drops order
+# confirmation emails and ShipStation pushes, the two things this app does out
+# of band after a customer has already paid.
+#
+# Solid Queue stores jobs as rows in the PostgreSQL database we already have, in
+# the primary database rather than a separate queue database: one Render
+# database, no extra cost, and pg_dump covers the queue along with everything
+# else. The supervisor runs inside Puma (SOLID_QUEUE_IN_PUMA) rather than as a
+# second Render service, for the same reason. At roughly one order a day the
+# job load is negligible.
+gem "solid_queue"
+
 group :development, :test do
   # NOTE: rspec-rails, factory_bot, capybara et al. are added by the Solidus
   # starter frontend template. Do not declare them here — Bundler raises on a

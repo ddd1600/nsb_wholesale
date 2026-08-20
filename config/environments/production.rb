@@ -52,7 +52,18 @@ Rails.application.configure do
   # config.cache_store = :mem_cache_store
 
   # Replace the default in-process and non-durable queuing backend for Active Job.
-  # config.active_job.queue_adapter = :resque
+  #
+  # :async (the Rails default) keeps queued jobs in process memory, so every
+  # pending job is lost when Render restarts or redeploys this service. The two
+  # things this app defers to a job -- the order confirmation email and the
+  # ShipStation push -- both happen after the customer has already been charged,
+  # so losing one is silent and only discovered by a customer who never got
+  # their email.
+  #
+  # No connects_to here on purpose: the Solid Queue tables live in the primary
+  # database (see the CreateSolidQueueTables migration), not a separate queue
+  # database. The supervisor runs inside Puma -- see config/puma.rb.
+  config.active_job.queue_adapter = :solid_queue
 
   # Ignore bad email addresses and do not raise email delivery errors.
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.

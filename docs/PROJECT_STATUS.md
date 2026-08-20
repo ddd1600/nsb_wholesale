@@ -23,20 +23,41 @@ Admin at `/admin/login`. Customers claim accounts at `/claim`.
 | Email | Google Workspace OAuth2 SMTP, DKIM + SPF passing |
 | Payments | Square, **sandbox only** — all four verifications passed |
 | Fulfilment | ShipStation V1, pushes to store 104793, decoupled from checkout |
+| Background jobs | Solid Queue in the primary database, supervisor runs inside Puma |
 | CI | GitHub Actions: specs, Zeitwerk, Brakeman |
 | Monitoring | Sentry, production only, PII filtered |
-| Tests | 351 (excluding system specs) |
+| Tests | 359 (excluding system specs) |
 
 ## Deliberately deferred
 
-**Durable job queue.** ActiveJob is on `:async` — jobs live in process memory
-and are lost on restart. Affects order confirmation emails and ShipStation
-pushes; both have manual recovery (`nsb:shipstation:repush`, admin resend).
-CLAUDE.md says not to add job infrastructure unasked. Revisit if an email is
-ever lost, or if volume grows.
-
 **Render database backups.** Confirm what `basic-256mb` includes. This database
 holds 360 customers, every order, and all product images.
+
+## Background jobs
+
+Solid Queue, added 2026-08-20, replacing the `:async` adapter that lost every
+pending job on restart or redeploy. Two things run out of band after the
+customer has already paid — the order confirmation email and the ShipStation
+push — so a lost job was silent and only surfaced as a customer who never got
+their email.
+
+- Jobs are rows in the **primary** database (`solid_queue_*` tables), not a
+  separate queue database. One Render database, one `pg_dump`, no extra cost.
+- The supervisor runs **inside the Puma process**, in `:async` mode, enabled by
+  `SOLID_QUEUE_IN_PUMA=true` in `render.yaml`. No second Render service to pay
+  for, and no forked copy of the app to fit into the starter plan's 512MB.
+- If `SOLID_QUEUE_IN_PUMA` is ever unset, jobs are still enqueued but nothing
+  runs them. They pile up in `solid_queue_ready_executions` rather than
+  vanishing, so the failure is recoverable — but it is silent until noticed.
+- `config/queue.yml` sizes it: one worker, 3 threads, polling every second.
+  `config/recurring.yml` clears finished jobs hourly.
+- `config/database.yml` sets the connection pool above `RAILS_MAX_THREADS`
+  because the job threads and Puma's request threads share one pool.
+- Development still uses `:async` deliberately — no worker to remember to start.
+  To exercise the real queue locally, run `bin/jobs` alongside the server.
+
+Inspect the queue: `SolidQueue::Job.where(finished_at: nil).count` for pending
+work, `SolidQueue::FailedExecution.all` for jobs that gave up.
 
 ## Next: launch work
 

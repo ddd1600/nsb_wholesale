@@ -33,6 +33,28 @@ port ENV.fetch("PORT", 3000)
 # Allow puma to be restarted by `bin/rails restart` command.
 plugin :tmp_restart
 
+# Run the Solid Queue supervisor inside this Puma process rather than as a
+# separate Render service. One service, one bill, no worker to keep alive -- and
+# at roughly one order a day the job load is a few rows an hour.
+#
+# :async, not the plugin's default :fork. Fork mode starts a second copy of the
+# application, and Render's starter plan gives this service 512MB of RAM for a
+# Solidus app that is not small. Async mode runs the dispatcher and workers as
+# threads in the process that is already booted. It also avoids fork mode's
+# monitor, which kills Puma when the job process dies -- a crash-looping worker
+# would otherwise take the storefront down with it.
+#
+# Threads share this process's Active Record pool, which config/database.yml
+# sizes accordingly.
+#
+# Plain ENV[] rather than .present?: Puma evaluates this file before Rails, so
+# Active Support's core extensions do not exist here yet. Using them crashes the
+# boot with a bare NoMethodError before anything logs why.
+if ENV["SOLID_QUEUE_IN_PUMA"] == "true"
+  plugin :solid_queue
+  solid_queue_mode :async
+end
+
 # Specify the PID file. Defaults to tmp/pids/server.pid in development.
 # In other environments, only set the PID file if requested.
 pidfile ENV["PIDFILE"] if ENV["PIDFILE"]

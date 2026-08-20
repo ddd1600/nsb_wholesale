@@ -17,7 +17,14 @@ default: &default
   encoding: unicode
   # For details on connection pooling, see Rails configuration guide
   # https://guides.rubyonrails.org/configuring.html#database-pooling
-  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  #
+  # Deliberately larger than RAILS_MAX_THREADS. In production the Solid Queue
+  # supervisor runs inside the Puma process (config/puma.rb), so its worker
+  # threads, dispatcher, scheduler and heartbeat all draw connections from this
+  # same pool alongside Puma's request threads. Sized at Puma's threads plus
+  # headroom for those; leaving it at the default 5 would starve web requests
+  # whenever jobs are running.
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 }.to_i + 8 %>
 
 
 development:
