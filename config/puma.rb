@@ -47,6 +47,12 @@ plugin :tmp_restart
 # Threads share this process's Active Record pool, which config/database.yml
 # sizes accordingly.
 #
+# This assumes Puma runs in single mode, which it does: no `workers` directive
+# here and WEB_CONCURRENCY is unset on Render. Setting WEB_CONCURRENCY would put
+# Puma in clustered mode, where this plugin starts the supervisor in the master
+# process -- one queue, still correct, but the pool sizing above would then be
+# counting the wrong threads. Revisit both together if that ever changes.
+#
 # Plain ENV[] rather than .present?: Puma evaluates this file before Rails, so
 # Active Support's core extensions do not exist here yet. Using them crashes the
 # boot with a bare NoMethodError before anything logs why.

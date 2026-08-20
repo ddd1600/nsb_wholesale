@@ -26,7 +26,7 @@ Admin at `/admin/login`. Customers claim accounts at `/claim`.
 | Background jobs | Solid Queue in the primary database, supervisor runs inside Puma |
 | CI | GitHub Actions: specs, Zeitwerk, Brakeman |
 | Monitoring | Sentry, production only, PII filtered |
-| Tests | 359 (excluding system specs) |
+| Tests | 368 (excluding system specs) |
 
 ## Deliberately deferred
 
@@ -55,6 +55,17 @@ their email.
   because the job threads and Puma's request threads share one pool.
 - Development still uses `:async` deliberately — no worker to remember to start.
   To exercise the real queue locally, run `bin/jobs` alongside the server.
+
+Verify it after a deploy from the Render service Shell:
+
+```
+bin/rails nsb:monitoring:status
+```
+
+Expect `Running commit` to match what you pushed, `adapter: SolidQueue`, and
+`workers running: Dispatcher, Supervisor(async), Worker`. If `Running commit`
+is behind, the deploy has not finished. If workers say `NONE`, the code is live
+but `SOLID_QUEUE_IN_PUMA` did not reach the service.
 
 Check on it with `bin/rails nsb:monitoring:queue` (also included in
 `nsb:monitoring:status`). It reports the adapter in use, whether anything is

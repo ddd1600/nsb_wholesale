@@ -40,6 +40,10 @@ namespace :nsb do
       puts "Sentry initialised   : #{Sentry.initialized?}"
       puts "SENTRY_DSN set       : #{ENV['SENTRY_DSN'].present?}"
       puts "Rails env            : #{Rails.env}"
+      # Render sets this to the deployed commit. It is the only way from inside
+      # the running service to tell which code is actually live -- useful when a
+      # deploy is expected but the behaviour has not changed.
+      puts "Running commit       : #{ENV['RENDER_GIT_COMMIT'].presence || 'unknown (not on Render)'}"
       puts
       puts "Mail (order confirmations, account claims)"
       puts "  SMTP configured    : #{defined?(MailDelivery) ? MailDelivery.configured? : 'n/a'}"
@@ -62,30 +66,30 @@ namespace :nsb do
     # still accepted when nothing is draining them -- they simply accumulate,
     # and the order confirmation email that never arrives looks identical to a
     # mail problem. This is the command that tells the difference.
+    #
+    # The logic lives in Nsb::QueueHealth so it can be tested; this only prints.
     desc "Show background job queue health"
     task queue: :environment do
-      adapter = ActiveJob::Base.queue_adapter.class.name.demodulize.sub("Adapter", "")
+      health = Nsb::QueueHealth.new
 
       puts "Background jobs"
-      puts "  adapter            : #{adapter}"
+      puts "  adapter            : #{health.adapter}"
 
-      unless adapter == "SolidQueue"
+      unless health.solid_queue?
         puts "  NOTE: not Solid Queue, so pending jobs are held in memory and"
         puts "        lost on restart. Expected in development; a problem in production."
         next
       end
 
-      alive = SolidQueue::Process.where(last_heartbeat_at: 5.minutes.ago..).order(:kind)
-      pending = SolidQueue::Job.where(finished_at: nil).count
-      failed = SolidQueue::FailedExecution.count
-      oldest = SolidQueue::Job.where(finished_at: nil).minimum(:created_at)
+      oldest = health.oldest_pending_at
+      ago = ActionController::Base.helpers
 
-      puts "  workers running    : #{alive.any? ? alive.map(&:kind).join(', ') : 'NONE'}"
-      puts "  pending jobs       : #{pending}"
-      puts "  failed jobs        : #{failed}"
-      puts "  oldest pending     : #{oldest ? "#{oldest} (#{time_ago_in_words(oldest)} ago)" : 'none'}"
+      puts "  workers running    : #{health.draining? ? health.live_processes.join(', ') : 'NONE'}"
+      puts "  pending jobs       : #{health.pending_count}"
+      puts "  failed jobs        : #{health.failed_count}"
+      puts "  oldest pending     : #{oldest ? "#{oldest} (#{ago.time_ago_in_words(oldest)} ago)" : 'none'}"
 
-      if alive.none?
+      unless health.draining?
         puts
         puts "  NOTHING IS DRAINING THE QUEUE. Jobs are being stored but never run."
         puts "  In production this means SOLID_QUEUE_IN_PUMA is not set on the"
@@ -93,18 +97,14 @@ namespace :nsb do
         puts "  in the meantime; the jobs run as soon as a worker starts."
       end
 
-      if failed.positive?
+      if health.failed_count.positive?
         puts
         puts "  Failed jobs, most recent first:"
-        SolidQueue::FailedExecution.order(created_at: :desc).limit(5).each do |execution|
-          puts "    #{execution.job.class_name} -- #{execution.error.to_s.lines.first&.strip}"
+        health.recent_failures.each do |failure|
+          puts "    [#{failure[:id]}] #{failure[:job_class]} -- #{failure[:error]}"
         end
         puts "  Retry one with: SolidQueue::FailedExecution.find(<id>).retry"
       end
-    end
-
-    def time_ago_in_words(time)
-      ActionController::Base.helpers.time_ago_in_words(time)
     end
   end
 end
