@@ -56,8 +56,12 @@ their email.
 - Development still uses `:async` deliberately — no worker to remember to start.
   To exercise the real queue locally, run `bin/jobs` alongside the server.
 
-Inspect the queue: `SolidQueue::Job.where(finished_at: nil).count` for pending
-work, `SolidQueue::FailedExecution.all` for jobs that gave up.
+Check on it with `bin/rails nsb:monitoring:queue` (also included in
+`nsb:monitoring:status`). It reports the adapter in use, whether anything is
+actually draining the queue, pending and failed counts, and how old the oldest
+pending job is. If it says NOTHING IS DRAINING THE QUEUE, `SOLID_QUEUE_IN_PUMA`
+is missing from the Render service — nothing is lost, and the backlog runs as
+soon as a worker starts.
 
 ## Next: launch work
 
@@ -90,7 +94,8 @@ work, `SolidQueue::FailedExecution.all` for jobs that gave up.
 ## Operator commands
 
 ```
-bin/rails nsb:monitoring:status          # Sentry, mail, ShipStation, Square at a glance
+bin/rails nsb:monitoring:status          # Sentry, mail, ShipStation, Square, jobs at a glance
+bin/rails nsb:monitoring:queue           # background job queue health on its own
 bin/rails nsb:monitoring:test            # send a test error to Sentry
 bin/rails nsb:shipstation:status         # push state of recent orders
 bin/rails 'nsb:shipstation:repush[R123]' # re-push after an outage

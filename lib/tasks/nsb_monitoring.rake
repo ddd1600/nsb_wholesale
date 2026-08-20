@@ -54,6 +54,57 @@ namespace :nsb do
       square = Nsb::Square::Configuration.new
       puts "  configured         : #{square.configured?}"
       puts "  environment        : #{square.environment}"
+      puts
+      Rake::Task["nsb:monitoring:queue"].invoke
+    end
+
+    # The queue is the one piece here that can fail completely silently. Jobs are
+    # still accepted when nothing is draining them -- they simply accumulate,
+    # and the order confirmation email that never arrives looks identical to a
+    # mail problem. This is the command that tells the difference.
+    desc "Show background job queue health"
+    task queue: :environment do
+      adapter = ActiveJob::Base.queue_adapter.class.name.demodulize.sub("Adapter", "")
+
+      puts "Background jobs"
+      puts "  adapter            : #{adapter}"
+
+      unless adapter == "SolidQueue"
+        puts "  NOTE: not Solid Queue, so pending jobs are held in memory and"
+        puts "        lost on restart. Expected in development; a problem in production."
+        next
+      end
+
+      alive = SolidQueue::Process.where(last_heartbeat_at: 5.minutes.ago..).order(:kind)
+      pending = SolidQueue::Job.where(finished_at: nil).count
+      failed = SolidQueue::FailedExecution.count
+      oldest = SolidQueue::Job.where(finished_at: nil).minimum(:created_at)
+
+      puts "  workers running    : #{alive.any? ? alive.map(&:kind).join(', ') : 'NONE'}"
+      puts "  pending jobs       : #{pending}"
+      puts "  failed jobs        : #{failed}"
+      puts "  oldest pending     : #{oldest ? "#{oldest} (#{time_ago_in_words(oldest)} ago)" : 'none'}"
+
+      if alive.none?
+        puts
+        puts "  NOTHING IS DRAINING THE QUEUE. Jobs are being stored but never run."
+        puts "  In production this means SOLID_QUEUE_IN_PUMA is not set on the"
+        puts "  Render service -- set it to \"true\" and redeploy. Nothing is lost"
+        puts "  in the meantime; the jobs run as soon as a worker starts."
+      end
+
+      if failed.positive?
+        puts
+        puts "  Failed jobs, most recent first:"
+        SolidQueue::FailedExecution.order(created_at: :desc).limit(5).each do |execution|
+          puts "    #{execution.job.class_name} -- #{execution.error.to_s.lines.first&.strip}"
+        end
+        puts "  Retry one with: SolidQueue::FailedExecution.find(<id>).retry"
+      end
+    end
+
+    def time_ago_in_words(time)
+      ActionController::Base.helpers.time_ago_in_words(time)
     end
   end
 end
