@@ -47,6 +47,17 @@ jobs:
           ruby-version-file: .ruby-version
           bundler-cache: true
 
+      # app/assets/builds/tailwind.css is gitignored, so a fresh checkout does
+      # not have it -- and the storefront layout does stylesheet_link_tag
+      # "tailwind", which Sprockets refuses to resolve when the file is absent.
+      # Every request spec that renders a page then fails.
+      #
+      # This does not reproduce locally unless you also delete public/assets and
+      # tmp/cache: a previous assets:precompile leaves a compiled copy that
+      # Sprockets happily finds.
+      - name: Build Tailwind CSS
+        run: bin/rails tailwindcss:build
+
       - name: Prepare database
         run: bin/rails db:test:prepare
 
