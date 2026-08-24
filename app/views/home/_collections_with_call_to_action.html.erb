@@ -15,24 +15,29 @@
       product_image = product.gallery.images.second || product.gallery.images.first
     %>
 
-    <%= cache [I18n.locale, current_pricing_options, @taxon, product] do %>
-      <%= link_to product_path(product) do %>
-        <div class="relative bg-gray-50 overflow-hidden rounded-lg h-full md:rounded-xl lg:rounded-2xl">
-          <%= render(ImageComponent.new(
-            image: product_image,
-            class: 'w-full h-full object-cover',
-            size: :full,
-          )) %>
-          <div class="absolute bottom-0 left-0 right-0 flex flex-col items-start w-full gap-y-1 p-3 !pt-0 md:p-6 md:flex-row md:justify-between md:items-center md:gap-y-0 md:gap-x-2">
-            <span class="w-full text-body-sm md:text-body">
-              <%= product.name %>
-            </span>
-            <span class="text-body-sm md:text-body font-sans-md price selling">
-              <%= product.display_price %>
-            </span>
-          </div>
+    <%# Not fragment-cached on purpose: the cached HTML would freeze Active
+        Storage's signed image URLs, which expire after minutes -- the cache
+        outlived them and every product image 404'd. At ~1 order/day there is
+        nothing to gain from caching this anyway. %>
+    <%= link_to product_path(product) do %>
+      <div class="relative bg-gray-50 overflow-hidden rounded-lg h-full md:rounded-xl lg:rounded-2xl">
+        <%= render(ImageComponent.new(
+          image: product_image,
+          class: 'w-full h-full object-cover',
+          size: :full,
+        )) %>
+        <%# The caption sits ON the product photo, which in this catalog is a
+            white-background bottle shot. It must stay dark in both themes --
+            inheriting the dark-mode sand body color made it invisible here. %>
+        <div class="absolute bottom-0 left-0 right-0 flex flex-col items-start w-full dark:text-black gap-y-1 p-3 !pt-0 md:p-6 md:flex-row md:justify-between md:items-center md:gap-y-0 md:gap-x-2">
+          <span class="w-full text-body-sm md:text-body">
+            <%= product.name %>
+          </span>
+          <span class="text-body-sm md:text-body font-sans-md price selling">
+            <%= product.display_price %>
+          </span>
         </div>
-      <% end %>
+      </div>
     <% end %>
   <% end %>
 </section>

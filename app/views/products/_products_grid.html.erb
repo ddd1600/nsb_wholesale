@@ -1,11 +1,13 @@
 <ul class="grid-container gap-7 products-grid">
   <% products.each do |product| %>
-    <% cache [I18n.locale, current_pricing_options, taxon, product] do %>
-      <%= render ProductCardComponent.new(
-        product,
-        price: product.price_for_options(current_pricing_options),
-        additional_classes: "col-span-full md:col-span-6 lg:col-span-4"
-      ) %>
-    <% end %>
+    <%# Not fragment-cached on purpose: the cached HTML would freeze Active
+        Storage's signed image URLs, which expire after minutes -- the cache
+        outlived them and every product image 404'd. At ~1 order/day there is
+        nothing to gain from caching this anyway. %>
+    <%= render ProductCardComponent.new(
+      product,
+      price: product.price_for_options(current_pricing_options),
+      additional_classes: "col-span-full md:col-span-6 lg:col-span-4"
+    ) %>
   <% end %>
 </ul>

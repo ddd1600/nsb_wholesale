@@ -10,14 +10,16 @@
 
     <ul class="<%= mobile_classes %> <%= desktop_classes %> no-scrollbar">
       <% products.each do |product| %>
-        <%= cache [I18n.locale, current_pricing_options, @taxon, product] do %>
-          <%= render ProductCardComponent.new(
-            product,
-            price: product.price_for_options(current_pricing_options),
-            additional_classes: 'snap-start shrink-0 md:w-collection-card h-min-content',
-            home_collection: true
-          ) %>
-        <% end %>
+        <%# Not fragment-cached on purpose: the cached HTML would freeze Active
+            Storage's signed image URLs, which expire after minutes -- the cache
+            outlived them and every product image 404'd. At ~1 order/day there is
+            nothing to gain from caching this anyway. %>
+        <%= render ProductCardComponent.new(
+          product,
+          price: product.price_for_options(current_pricing_options),
+          additional_classes: 'snap-start shrink-0 md:w-collection-card h-min-content',
+          home_collection: true
+        ) %>
       <% end %>
     </ul>
   </section>

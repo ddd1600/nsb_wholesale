@@ -31,8 +31,8 @@
       <main>
         <%= render BreadcrumbsComponent.new(
           taxon: @product&.primary_taxon || @taxon,
-          item_classes: 'text-body-xs text-gray-500',
-          separator_classes: 'text-body-xs text-gray-500 ml-2',
+          item_classes: 'text-body-xs text-gray-700 dark:text-gray-300',
+          separator_classes: 'text-body-xs text-gray-700 dark:text-gray-300 ml-2',
           container_classes: 'flex gap-2',
           wrapper_classes: 'wrapper mt-4',
           order: @order

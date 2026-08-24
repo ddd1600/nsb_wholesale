@@ -170,3 +170,25 @@
     @apply grid-cols-none;
   }
 }
+
+@layer components {
+  /* ImageComponent emits `.image-placeholder <size>` whenever a product has no
+     image. The class was never styled anywhere, so the div collapsed to 0px --
+     which silently broke any layout built around the image. The featured
+     product banner is the visible case: its wrapper collapsed too, and the
+     section's `overflow-hidden` then clipped away the gradient scrim and the
+     white caption sitting on it. Giving the placeholder real size restores the
+     scrim the white text is meant to be read against. */
+  .image-placeholder {
+    @apply block w-full bg-gray-200 dark:bg-gray-800;
+  }
+
+  .image-placeholder.full {
+    @apply aspect-square md:aspect-[3/1];
+  }
+
+  .image-placeholder.small,
+  .image-placeholder.mini {
+    @apply aspect-square;
+  }
+}
