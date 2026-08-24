@@ -1,0 +1,21 @@
+<%#
+  This product's share of total historical demand, on the currently selected
+  metric. The bar is scaled against the leader rather than against 100%.
+
+  Used on the podium only. Demand here is extremely top-heavy -- the leading
+  product is around half of all units, and nothing below rank 3 clears 3% -- so
+  further down the page every bar is a 2px stub that says less than the
+  percentage beside it. Rescaling per section would make them readable but would
+  put two different scales on one page, which misleads more than it shows.
+
+  locals: share (0.0..1.0), max_share
+%>
+<%
+  scale = max_share.to_f.positive? ? max_share.to_f : 1.0
+  width = [[(share / scale * 100).round, 100].min, 2].max
+%>
+<div class="flex items-center gap-x-3">
+  <div class="h-1.5 flex-1 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+    <div class="h-full rounded-full bg-red-500" style="width: <%= width %>%"></div>
+  </div>
+</div>

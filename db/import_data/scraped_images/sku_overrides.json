@@ -1,0 +1,13 @@
+{
+  "_comment": [
+    "Hand-verified links from a wholesale SKU to a product on newsouthbotanicals.com,",
+    "for cases the public site does not expose a SKU we can match on.",
+    "The value is the public product's exact `name` in manifest.json.",
+    "Keep this list short and only add entries you have eyeballed -- fuzzy name",
+    "matching was tried and rejected here, because 'Mint Chocolate ... Original",
+    "Hemp Flower Extract (450MG)' and our 'Advanced Hemp Flower Extract 1400MG -",
+    "Mint Chocolate' are different products that a similarity score happily confuses."
+  ],
+  "E-D8Gummies10Ct": "Delta-8 THC Infused Gummies",
+  "E-D8Gummies30Ct": "Delta-8 THC Infused Gummies"
+}

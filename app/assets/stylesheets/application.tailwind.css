@@ -192,3 +192,27 @@
     @apply aspect-square;
   }
 }
+
+@layer components {
+  /* A fixed-size box to render a product image into. Give it a height
+     (e.g. `product-frame h-64`) and both a real photo and the missing-image
+     placeholder will occupy exactly that box.
+
+     The placeholder needs the explicit override: ImageComponent renders it as a
+     bare `div.image-placeholder`, dropping whatever classes the caller passed,
+     and `.image-placeholder.small` is `aspect-square w-full` -- so in a wide
+     column it sizes itself off the width and grew a 700px hole in the homepage
+     ranking. 11 of the 41 catalog products currently have no image, including
+     the two best sellers, so this is the common case here, not an edge case. */
+  .product-frame {
+    @apply flex items-center justify-center overflow-hidden;
+  }
+
+  .product-frame img {
+    @apply max-h-full max-w-full object-contain;
+  }
+
+  .product-frame .image-placeholder {
+    @apply h-full w-full aspect-auto rounded;
+  }
+}

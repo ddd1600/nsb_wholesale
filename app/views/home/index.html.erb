@@ -1,5 +1,26 @@
-<%= render 'featured_products', { products: @featured_products } if @featured_products.try(:any?) %>
-<%= render 'collection', { title: "Shop Collection", products: @collection_products } if @collection_products.try(:any?) %>
-<%= render 'collections_with_call_to_action', { products: @cta_collection_products[0..1] } if @cta_collection_products.try(:any?) %>
-<%= render 'featured_product_banner', { product: @cta_collection_products[2] } if @cta_collection_products && @cta_collection_products.size > 2 %>
-<%= render 'collection', { title: "New Arrivals", products: @new_arrivals } if @new_arrivals.try(:any?) %>
+<%#
+  Prototype homepage: the catalog ranked by historical demand, measured in units
+  sold or dollar sales. See Nsb::OrderFrequencyRanking.
+
+  Products with no order history at all are absent by construction -- the
+  ranking only knows about products the legacy export saw.
+
+  The stock starter-frontend homepage partials (_featured_products, _collection,
+  _collections_with_call_to_action, _featured_product_banner) are still in this
+  directory unused, so reverting is a matter of restoring this file.
+%>
+<%= render 'bestsellers_intro', ranking: @ranking %>
+
+<%= render 'bestsellers_podium',
+      entries: @podium,
+      max_share: @ranking.max_share,
+      suffix: @ranking.share_suffix if @podium.any? %>
+
+<%= render 'bestsellers_spotlight',
+      entries: @spotlight,
+      suffix: @ranking.share_suffix if @spotlight.any? %>
+
+<%= render 'bestsellers_list',
+      title: 'The rest of the catalog, by demand',
+      entries: @remaining,
+      suffix: @ranking.share_suffix if @remaining.any? %>

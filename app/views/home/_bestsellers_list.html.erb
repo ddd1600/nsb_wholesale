@@ -1,0 +1,41 @@
+<%#
+  The long tail. A wholesale buyer reordering knows what they want by name, so
+  past rank ~12 a dense scannable list beats another wall of product photos.
+%>
+<section class="wrapper pb-12 md:pb-16">
+  <h2 class="font-serif text-h5 md:text-h4 mb-7"><%= title %></h2>
+
+  <ol class="divide-y divide-gray-200 dark:divide-gray-700 border-y border-gray-200 dark:border-gray-700">
+    <% entries.each do |entry| %>
+      <li>
+        <%# Every fixed-width column here is narrower on mobile on purpose. A grid
+            item will not shrink below its content's min-content width, and the
+            wide desktop columns pushed that to 452px -- 62px past a 390px phone,
+            which scrolled the whole page sideways. %>
+        <%= link_to product_path(entry.product),
+              class: 'flex items-center gap-x-3 py-3 md:gap-x-6 md:py-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-150' do %>
+          <span class="w-5 shrink-0 text-body-sm font-sans-md text-gray-500 tabular-nums md:w-10">
+            <%= entry.rank %>
+          </span>
+
+          <span class="product-frame w-10 h-10 shrink-0 md:w-14 md:h-14">
+            <%= render(ImageComponent.new(image: entry.product.gallery.images.first, size: :mini)) %>
+          </span>
+
+          <span class="flex-1 min-w-0 text-body-sm md:text-body">
+            <%= entry.product.name %>
+          </span>
+
+          <span class="w-14 shrink-0 text-right text-body-xs text-gray-600 dark:text-gray-300 tabular-nums md:w-44 md:text-body-sm">
+            <%= demand_share(entry.share) %>
+            <span class="hidden md:inline"><%= suffix %></span>
+          </span>
+
+          <span class="w-16 shrink-0 text-right text-body-sm font-sans-md price selling md:w-28">
+            <%= entry.product.price_for_options(current_pricing_options)&.money&.to_html %>
+          </span>
+        <% end %>
+      </li>
+    <% end %>
+  </ol>
+</section>

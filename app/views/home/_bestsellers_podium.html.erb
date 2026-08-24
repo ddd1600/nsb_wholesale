@@ -1,0 +1,45 @@
+<%#
+  The top three, given more room than the rest. Rank #1 gets a full-height card;
+  #2 and #3 stack beside it -- the same shape as the stock _featured_products
+  block, so it reads as part of the starter frontend rather than a bolt-on.
+%>
+<section class="wrapper pb-12 md:pb-16">
+  <ul class="grid-container">
+    <% entries.each_with_index do |entry, index| %>
+      <%
+        product = entry.product
+        image = product.gallery.images.first
+        lead = index.zero?
+        column_classes = lead ? 'col-span-full md:col-span-6 md:row-span-2' : 'col-span-full md:col-span-6'
+      %>
+      <li class="<%= column_classes %> bg-gray-50 dark:bg-gray-800 rounded-lg md:rounded-xl lg:rounded-2xl overflow-hidden">
+        <%= link_to product_path(product), class: 'flex h-full gap-4 p-4 md:gap-6 md:p-6 ' + (lead ? 'flex-col' : 'flex-row items-center') do %>
+          <div class="product-frame <%= lead ? 'order-2 w-full h-56 md:h-72' : 'w-24 h-24 shrink-0 md:w-32 md:h-32' %>">
+            <%= render(ImageComponent.new(image: image, size: :small)) %>
+          </div>
+
+          <div class="<%= lead ? 'order-1' : 'min-w-0' %> flex flex-col gap-y-2 dark:text-sand">
+            <div class="flex items-baseline gap-x-3">
+              <span class="font-serif <%= lead ? 'text-h3 md:text-h2' : 'text-h5 md:text-h4' %> text-red-500 leading-none">
+                #<%= entry.rank %>
+              </span>
+              <span class="text-body-xs uppercase tracking-wider text-gray-600 dark:text-gray-300">
+                <%= demand_share(entry.share) %> <%= suffix %>
+              </span>
+            </div>
+
+            <span class="font-sans-md <%= lead ? 'text-body-20 md:text-body-22' : 'text-body-sm md:text-body' %>">
+              <%= product.name %>
+            </span>
+
+            <%= render 'home/bestsellers_frequency_bar', share: entry.share, max_share: max_share %>
+
+            <span class="text-body-sm md:text-body font-sans-md price selling mt-1">
+              <%= product.price_for_options(current_pricing_options)&.money&.to_html %>
+            </span>
+          </div>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+</section>

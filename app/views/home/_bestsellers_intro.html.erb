@@ -1,0 +1,21 @@
+<%#
+  Headline plus the metric selector. The date range is read from the ranking data
+  rather than hardcoded, so re-running script/rank_products_by_orders.py against a
+  fresh export updates the copy too.
+%>
+<section class="wrapper pt-6 pb-10 md:pt-10 md:pb-14">
+  <div class="grid-container items-end">
+    <div class="col-span-full md:col-span-7">
+      <h1 class="font-serif text-h4 md:text-h3">Most-ordered products</h1>
+      <p class="text-body md:text-body-md mt-4 max-w-xl text-gray-700 dark:text-gray-200">
+        Ranked by <%= ranking.metric_label.downcase %> across every wholesale order placed between
+        <%= l ranking.first_order_date, format: "%B %Y" %> and
+        <%= l ranking.last_order_date, format: "%B %Y" %>.
+      </p>
+    </div>
+
+    <div class="col-span-full md:col-span-5 mt-6 md:mt-0 md:justify-self-end">
+      <%= render "home/bestsellers_metric_selector", ranking: ranking %>
+    </div>
+  </div>
+</section>

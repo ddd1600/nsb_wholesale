@@ -1,0 +1,40 @@
+<%#
+  Ranks 4 through 12 -- still worth a picture, but no longer worth the podium's
+  real estate. Reuses ProductCardComponent so these stay visually identical to
+  the cards on the catalog and taxon pages; the rank badge and share sit above
+  each card rather than being crammed inside it.
+%>
+<section class="wrapper pb-12 md:pb-16">
+  <h2 class="font-serif text-h5 md:text-h4 mb-7">Also ordered often</h2>
+
+  <ul class="grid-container gap-7">
+    <% entries.each do |entry| %>
+      <%# Deliberately not a flex column. The ul below is display:contents, so
+          ProductCardComponent's <li> becomes a direct child here -- as a flex
+          item its aspect-square is overridden by the flex sizing and the card's
+          internal h-full image chain collapses to 0px. As blocks it behaves. %>
+      <li class="col-span-2 md:col-span-4">
+        <div class="flex items-baseline justify-between mb-2">
+          <span class="font-sans-md text-body-sm text-red-500">#<%= entry.rank %></span>
+          <span class="text-body-xs text-gray-600 dark:text-gray-300">
+            <%= demand_share(entry.share) %> <%= suffix %>
+          </span>
+        </div>
+
+        <ul class="contents">
+          <%# home_collection: true is the component's compact variant (p-3 instead
+              of p-6, price stacked under the name on small screens). Without it a
+              two-up mobile card is 184px wide, the name wraps to five 28px lines
+              and squeezes the image section to 0px. %>
+          <%= render ProductCardComponent.new(
+            entry.product,
+            price: entry.product.price_for_options(current_pricing_options),
+            additional_classes: 'w-full',
+            home_collection: true
+          ) %>
+        </ul>
+
+      </li>
+    <% end %>
+  </ul>
+</section>

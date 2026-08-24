@@ -1,0 +1,25 @@
+<%#
+  Switches what "most ordered" means. Plain links with a query param rather than
+  Stimulus: there are two options and no state to keep, so a round trip is
+  simpler than JavaScript and leaves the choice in a shareable URL.
+%>
+<fieldset class="inline-flex flex-col gap-y-2">
+  <legend class="text-body-xs uppercase tracking-wider text-gray-600 dark:text-gray-300 mb-2">
+    Rank by
+  </legend>
+
+  <div class="inline-flex rounded-full bg-gray-100 p-1 dark:bg-gray-800">
+    <% Nsb::OrderFrequencyRanking::METRICS.each do |key, metric| %>
+      <%
+        selected = ranking.metric == key
+        classes = selected ?
+          'bg-red-500 text-white' :
+          'text-gray-700 hover:text-black dark:text-gray-300 dark:hover:text-white'
+      %>
+      <%= link_to metric[:label],
+            root_path(rank_by: key),
+            class: "px-5 py-2 rounded-full text-body-sm font-sans-md whitespace-nowrap transition-colors duration-200 #{classes}",
+            aria: { current: selected ? 'true' : nil } %>
+    <% end %>
+  </div>
+</fieldset>

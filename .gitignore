@@ -48,3 +48,12 @@
 # product_images/ ARE committed -- they hold no personal data.
 /db/import_data/customers.json
 /db/import_data/orders.json
+
+# Product photos pulled from the public site by
+# script/scrape_public_site_images.py. No personal data -- these are ignored for
+# size: 83MB against 6MB for product_images/, and a git repo never forgets a
+# blob. The manifest and the hand-checked SKU overrides ARE committed, so
+# re-running the script reproduces the same import.
+/db/import_data/scraped_images/*
+!/db/import_data/scraped_images/manifest.json
+!/db/import_data/scraped_images/sku_overrides.json
