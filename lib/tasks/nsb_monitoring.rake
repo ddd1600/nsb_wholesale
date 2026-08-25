@@ -45,6 +45,21 @@ namespace :nsb do
       # deploy is expected but the behaviour has not changed.
       puts "Running commit       : #{ENV['RENDER_GIT_COMMIT'].presence || 'unknown (not on Render)'}"
       puts
+      puts "Domain (where emailed links point)"
+      domain = Nsb::DomainStatus.new
+      puts "  APP_HOST           : #{domain.app_host.inspect}#{' (default, not set in env)' unless domain.app_host_from_env?}"
+      puts "  Spree::Store#url   : #{domain.store_url.inspect}#{' (default, not set in env)' unless domain.store_url_from_env?}"
+      if domain.consistent?
+        puts "  agree              : yes#{domain.cut_over? ? ' -- on the custom domain' : ''}"
+      else
+        puts "  agree              : NO -- emailed links would point at two different hosts."
+        if Rails.env.production?
+          puts "                       Fix with STORE_URL / APP_HOST, then bin/rails nsb:import:store."
+        else
+          puts "                       Expected outside production: APP_HOST is localhost here."
+        end
+      end
+      puts
       puts "Mail (order confirmations, account claims)"
       puts "  SMTP configured    : #{defined?(MailDelivery) ? MailDelivery.configured? : 'n/a'}"
       puts

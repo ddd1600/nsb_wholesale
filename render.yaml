@@ -33,6 +33,23 @@ services:
     healthCheckPath: /up
     autoDeploy: true
 
+    # The portal's own hostname. The retail WordPress site owns the apex
+    # newsouthbotanicals.com (an A record to SiteGround), so the portal takes a
+    # subdomain rather than sharing it.
+    #
+    # Declaring it here makes Render create the domain on Blueprint sync and
+    # show the DNS target to point at. It does NOT complete the setup: the
+    # matching CNAME still has to be created at SiteGround, which holds the
+    # nameservers, and then verified in the Render dashboard before Render will
+    # issue the TLS certificate.
+    #
+    # A subdomain, so Render's automatic "www variant" behaviour does not apply
+    # -- that is only for root domains. The service also keeps its
+    # nsb-wholesale.onrender.com address; adding a custom domain does not
+    # retire it, which is what makes a safe cutover possible.
+    domains:
+      - wholesale.newsouthbotanicals.com
+
     envVars:
       - key: RAILS_ENV
         value: production
@@ -68,6 +85,19 @@ services:
 
       # Host used to build links in emails. Also set Spree::Store#url to match
       # (bin/rails nsb:import:store), which is what Solidus actually reads.
+      #
+      # Deliberately still set by hand rather than given a value here, because
+      # these two decide where emailed links POINT, and that must lag the DNS
+      # rather than lead it. Pointing them at wholesale.newsouthbotanicals.com
+      # before the certificate is issued sends customers a link that does not
+      # resolve. Switch them only once the domain actually serves the site --
+      # docs/PROJECT_STATUS.md has the order of operations.
+      #
+      # Note the app already DEFAULTS to wholesale.newsouthbotanicals.com when
+      # these are unset (config/environments/production.rb and
+      # Nsb::StoreConfigurator), so leaving them blank is not neutral -- it
+      # picks the new domain. Keep them set to the onrender.com host until the
+      # cutover.
       - key: APP_HOST
         sync: false
       - key: STORE_URL
