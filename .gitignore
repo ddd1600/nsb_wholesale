@@ -57,3 +57,12 @@
 /db/import_data/scraped_images/*
 !/db/import_data/scraped_images/manifest.json
 !/db/import_data/scraped_images/sku_overrides.json
+
+# Square retail exports. Same reason as the B2BWave order export above, and
+# then some: these carry retail customer names (4,708 rows), customer ids,
+# payment tokens and card PAN suffixes. Card data must never reach the repo.
+# The aggregates derived from them -- product_retail_frequency.json and
+# docs/product_retail_frequency.xlsx -- hold units, dollars and dates only, and
+# ARE committed, along with the hand-checked retail_item_map.json needed to
+# reproduce them.
+/retail sales data/

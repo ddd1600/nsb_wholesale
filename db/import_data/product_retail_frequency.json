@@ -1,0 +1,490 @@
+{
+  "channel": "retail",
+  "source": "Square item exports, retail sales data/items-*.csv",
+  "source_files": 7,
+  "first_sale_date": "2020-07-10",
+  "last_sale_date": "2026-08-24",
+  "total_units": 6958.0,
+  "total_sales": 302400.54,
+  "products": [
+    {
+      "rank": 1,
+      "sku": "E-D8Gummies30Ct",
+      "name": "DELTA 8 THC and Hemp Flower Extract Infused Gummies (30CT)",
+      "units": 1853.0,
+      "sales": 92566.97,
+      "units_share": 0.26631215866628344,
+      "sales_share": 0.3061071584065291,
+      "first_sold": "2020-09-03",
+      "last_sold": "2026-08-22",
+      "source_names": [
+        "D8 Gummies 30CT",
+        "Delta-8 THC Infused Gummies",
+        "Delta-8 THC Infused Gummies - 30 Count"
+      ],
+      "category": "Edibles/Delta 8 Gummies"
+    },
+    {
+      "rank": 2,
+      "sku": "E-D8Gummies10Ct",
+      "name": "DELTA 8 THC and Hemp Flower Extract Infused Gummies (10CT)",
+      "units": 633.0,
+      "sales": 11288.37,
+      "units_share": 0.09097441793618856,
+      "sales_share": 0.03732919921373154,
+      "first_sold": "2020-08-25",
+      "last_sold": "2026-04-21",
+      "source_names": [
+        "D8 Gummies 10CT",
+        "Delta-8 THC Infused Gummies",
+        "Delta-8 THC Infused Gummies - 10 Count"
+      ],
+      "category": "Edibles/Delta 8 Gummies"
+    },
+    {
+      "rank": 3,
+      "sku": "2202",
+      "name": "2oz (2800MG) Advanced Hemp Flower Extract",
+      "units": 396.0,
+      "sales": 40895.73,
+      "units_share": 0.05691290600747341,
+      "sales_share": 0.13523696088637904,
+      "first_sold": "2020-07-17",
+      "last_sold": "2026-08-10",
+      "source_names": [
+        "2 oz. Advanced Hemp Flower Extract (2800mg cannabinoids)",
+        "2800"
+      ],
+      "category": "Tinctures/Advanced Formula"
+    },
+    {
+      "rank": 4,
+      "sku": "2301",
+      "name": "1oz Supreme Formula Tincture (3900MG)",
+      "units": 278.0,
+      "sales": 41314.7,
+      "units_share": 0.03995400977292325,
+      "sales_share": 0.13662244121654005,
+      "first_sold": "2020-07-23",
+      "last_sold": "2026-08-20",
+      "source_names": [
+        "3900",
+        "Supreme Hemp Flower Extract Formula (130 mg/mL) - 1oz (3900MG)"
+      ],
+      "category": "Tinctures/Supreme Formula"
+    },
+    {
+      "rank": 5,
+      "sku": "E-CBDGum10Ct",
+      "name": "10 Ct CBD Infused Chewing Gum (22MG/piece)",
+      "units": 196.0,
+      "sales": 1426.13,
+      "units_share": 0.028169014084507043,
+      "sales_share": 0.004716029938306324,
+      "first_sold": "2021-11-12",
+      "last_sold": "2026-07-25",
+      "source_names": [
+        "CBD Infused Chewing Gum (22MG/piece)"
+      ],
+      "category": "Edibles/Chewing Gum"
+    },
+    {
+      "rank": 6,
+      "sku": "6231",
+      "name": "Lotion Bar (100mg)",
+      "units": 177.0,
+      "sales": 4519.84,
+      "units_share": 0.025438344351825237,
+      "sales_share": 0.014946534156321271,
+      "first_sold": "2020-07-20",
+      "last_sold": "2026-07-12",
+      "source_names": [
+        "Full Spectrum CBD Oil Infused Lotion Bar (100MG)",
+        "Lotion Bar"
+      ],
+      "category": "Skincare"
+    },
+    {
+      "rank": 7,
+      "sku": "E-Supreme Gummies30Ct",
+      "name": "Supreme Formula Gummies (30ct)",
+      "units": 160.0,
+      "sales": 8001.23,
+      "units_share": 0.022995113538373097,
+      "sales_share": 0.02645904666704628,
+      "first_sold": "2023-03-16",
+      "last_sold": "2026-08-21",
+      "source_names": [
+        "Supreme Gummies (30ct)",
+        "Supreme Gummies (60mg CBD per gummy) - 30 Count"
+      ],
+      "category": "Edibles/CBD Gummies"
+    },
+    {
+      "rank": 8,
+      "sku": "T-1825",
+      "name": "1oz 4:1 CBD:D8 THC Advanced Tincture (1825mg)",
+      "units": 134.0,
+      "sales": 9195.28,
+      "units_share": 0.01925840758838747,
+      "sales_share": 0.030407617658354685,
+      "first_sold": "2021-11-27",
+      "last_sold": "2026-08-24",
+      "source_names": [
+        "4:1 Delta 8 tincture",
+        "Delta 8 THC Infused Advanced Hemp Flower Extract",
+        "Delta 8 THC Infused Advanced Hemp Flower Extract (4:1 CBD to D8 THC)"
+      ],
+      "category": "Tinctures/Delta 8 THC Infused Tinctures"
+    },
+    {
+      "rank": 9,
+      "sku": "2102",
+      "name": "2oz (900MG) Hemp Flower Extract",
+      "units": 132.0,
+      "sales": 6897.0,
+      "units_share": 0.018970968669157803,
+      "sales_share": 0.022807498954862962,
+      "first_sold": "2020-12-14",
+      "last_sold": "2026-08-23",
+      "source_names": [
+        "2 oz. Original Hemp Flower Extract (900mg cannabinoids)",
+        "900"
+      ],
+      "category": "Tinctures/Original Formula"
+    },
+    {
+      "rank": 10,
+      "sku": "6221",
+      "name": "Hot Muscle Rub",
+      "units": 118.0,
+      "sales": 2946.5,
+      "units_share": 0.016958896234550158,
+      "sales_share": 0.009743699531753474,
+      "first_sold": "2020-07-20",
+      "last_sold": "2026-06-27",
+      "source_names": [
+        "Full Spectrum CBD Oil Infused Hot Muscle Rub (100MG)",
+        "Hot Muscle Rub"
+      ],
+      "category": "Skincare"
+    },
+    {
+      "rank": 11,
+      "sku": "E-Gelcaps30",
+      "name": "Advanced Gelcaps (30 count)",
+      "units": 111.0,
+      "sales": 4465.31,
+      "units_share": 0.015952860017246336,
+      "sales_share": 0.014766210404253896,
+      "first_sold": "2020-09-11",
+      "last_sold": "2023-12-20",
+      "source_names": [
+        "Advanced Hemp Flower Extract Infused Gelcaps - 30",
+        "Gelcaps (30ct)"
+      ],
+      "category": "Gelcaps"
+    },
+    {
+      "rank": 12,
+      "sku": "2201",
+      "name": "1oz (1400MG) Advanced Hemp Flower Extract",
+      "units": 100.0,
+      "sales": 6838.5,
+      "units_share": 0.014371945961483185,
+      "sales_share": 0.022614046919360645,
+      "first_sold": "2020-07-30",
+      "last_sold": "2024-12-28",
+      "source_names": [
+        "1 oz. Advanced Hemp Flower Extract (1400mg cannabinoids)",
+        "1400"
+      ],
+      "category": "Tinctures/Advanced Formula"
+    },
+    {
+      "rank": 13,
+      "sku": "3112",
+      "name": "(20 Pack) Honey Sticks",
+      "units": 98.0,
+      "sales": 4121.58,
+      "units_share": 0.014084507042253521,
+      "sales_share": 0.013629539153600708,
+      "first_sold": "2020-08-04",
+      "last_sold": "2026-07-24",
+      "source_names": [
+        "Hemp Honey Sticks (20 Pack, 15mg per stick)",
+        "Honeysticks (20ct)"
+      ],
+      "category": "Edibles/Honey"
+    },
+    {
+      "rank": 14,
+      "sku": "2203",
+      "name": "0.5oz (700MG) Advanced Hemp Flower Extract",
+      "units": 81.0,
+      "sales": 3231.69,
+      "units_share": 0.01164127622880138,
+      "sales_share": 0.010686786472008285,
+      "first_sold": "2020-08-06",
+      "last_sold": "2025-09-16",
+      "source_names": [
+        "700",
+        "Travel Size (1/2 oz.) Advanced Hemp Flower Extract (700mg cannabinoids)"
+      ],
+      "category": "Tinctures/Advanced Formula"
+    },
+    {
+      "rank": 15,
+      "sku": "T-D8AdvancedFormula",
+      "name": "1oz Delta 8 Advanced Tincture (40 mg/mL)",
+      "units": 67.0,
+      "sales": 2185.2,
+      "units_share": 0.009629203794193734,
+      "sales_share": 0.007226177572301948,
+      "first_sold": "2022-07-01",
+      "last_sold": "2026-05-26",
+      "source_names": [
+        "Delta 8 Advanced Tincture (1200mg/oz)",
+        "Delta 8 Advanced Tincture (40mg D8 THC/mL)"
+      ],
+      "category": "Tinctures/Delta 8 THC Infused Tinctures"
+    },
+    {
+      "rank": 16,
+      "sku": "2401",
+      "name": "1oz (1400MG) Advanced THC-Free Hemp Flower Extract",
+      "units": 59.0,
+      "sales": 4125.0,
+      "units_share": 0.008479448117275079,
+      "sales_share": 0.01364084865721469,
+      "first_sold": "2021-02-17",
+      "last_sold": "2026-08-24",
+      "source_names": [
+        "1400 THC-Free",
+        "THC Free Advanced Hemp Flower Extract - 1oz (1400MG)"
+      ],
+      "category": "Tinctures/CBD Isolate Only (THC-Free)"
+    },
+    {
+      "rank": 17,
+      "sku": "3111",
+      "name": "Honey Stick Sample (1X)",
+      "units": 36.0,
+      "sales": 103.5,
+      "units_share": 0.005173900546133947,
+      "sales_share": 0.0003422612935810231,
+      "first_sold": "2020-07-31",
+      "last_sold": "2023-09-13",
+      "source_names": [
+        "Honeystick (1ct)"
+      ],
+      "category": "Edibles/Honey"
+    },
+    {
+      "rank": 18,
+      "sku": "E-Supreme Gummies10Ct",
+      "name": "Supreme Formula Gummies (10ct)",
+      "units": 30.0,
+      "sales": 692.5,
+      "units_share": 0.004311583788444955,
+      "sales_share": 0.0022900091382111933,
+      "first_sold": "2023-03-13",
+      "last_sold": "2026-02-12",
+      "source_names": [
+        "Supreme Gummies (10ct)",
+        "Supreme Gummies (60mg CBD per gummy) - 10 Count"
+      ],
+      "category": "Edibles/CBD Gummies"
+    },
+    {
+      "rank": 19,
+      "sku": "2302",
+      "name": "1/2oz Supreme Formula Tincture (1950MG)",
+      "units": 28.0,
+      "sales": 2414.4,
+      "units_share": 0.004024144869215292,
+      "sales_share": 0.007984112726782823,
+      "first_sold": "2020-07-31",
+      "last_sold": "2026-04-14",
+      "source_names": [
+        "1950",
+        "Supreme Hemp Flower Extract Formula (130 mg/mL) - 1/2oz (1950MG)"
+      ],
+      "category": "Tinctures/Supreme Formula"
+    },
+    {
+      "rank": 20,
+      "sku": "T-1PetsPB",
+      "name": "Pet Tincture (Peanut Butter Flavor)",
+      "units": 23.0,
+      "sales": 850.0,
+      "units_share": 0.0033055475711411325,
+      "sales_share": 0.0028108415414866634,
+      "first_sold": "2021-12-12",
+      "last_sold": "2026-02-24",
+      "source_names": [
+        "1 oz. Original Hemp Flower Extract for Large and Small Pets (425 mg cannabinoids) - Peanut Butter Flavored"
+      ],
+      "category": "Tinctures/Original Formula"
+    },
+    {
+      "rank": 21,
+      "sku": "7211",
+      "name": "Pet Tincture 425MG",
+      "units": 21.0,
+      "sales": 764.0,
+      "units_share": 0.0030181086519114686,
+      "sales_share": 0.002526450514936248,
+      "first_sold": "2020-07-16",
+      "last_sold": "2025-06-08",
+      "source_names": [
+        "1 oz. Original Hemp Flower Extract for Large and Small Pets (425 mg cannabinoids) - Unflavored",
+        "Pet Tincture 1oz"
+      ],
+      "category": "Tinctures/Original Formula"
+    },
+    {
+      "rank": 22,
+      "sku": "2111",
+      "name": "1oz (450MG) Hemp Flower Extract - Mint Chocolate Flavor",
+      "units": 21.0,
+      "sales": 457.8,
+      "units_share": 0.0030181086519114686,
+      "sales_share": 0.0015138861855206994,
+      "first_sold": "2021-03-26",
+      "last_sold": "2026-06-24",
+      "source_names": [
+        "450MC",
+        "Mint Chocolate Or Peanut Butter Flavored Original Hemp Flower Extract (450MG/oz) - Mint Chocolate"
+      ],
+      "category": "Tinctures/Original Formula"
+    },
+    {
+      "rank": 23,
+      "sku": "2103",
+      "name": "0.5oz (225MG) Hemp Flower Extract",
+      "units": 17.0,
+      "sales": 372.0,
+      "units_share": 0.0024432308134521414,
+      "sales_share": 0.0012301565334506338,
+      "first_sold": "2020-07-16",
+      "last_sold": "2024-09-26",
+      "source_names": [
+        "225",
+        "Travel Size (1/2 oz.) Original Hemp Flower Extract (225mg cannabinoids)"
+      ],
+      "category": "Tinctures/Original Formula"
+    },
+    {
+      "rank": 24,
+      "sku": "3214",
+      "name": "Infused Salt Water Taffies (50 Count, Caramel Flavor)",
+      "units": 12.0,
+      "sales": 992.5,
+      "units_share": 0.0017246335153779822,
+      "sales_share": 0.003282070858735898,
+      "first_sold": "2020-07-14",
+      "last_sold": "2025-10-07",
+      "source_names": [
+        "Caramel Taffies (50ct)",
+        "Full Spectrum Hemp Flower Extract Infused Salt Water Taffies - 50 Count, Caramel"
+      ],
+      "category": "Edibles/CBD Taffy"
+    },
+    {
+      "rank": 25,
+      "sku": "2211",
+      "name": "1oz (1400MG) Advanced Hemp Flower Extract - Mint Chocolate Flavor",
+      "units": 9.0,
+      "sales": 645.25,
+      "units_share": 0.0012934751365334866,
+      "sales_share": 0.0021337594172285523,
+      "first_sold": "2020-11-09",
+      "last_sold": "2023-03-01",
+      "source_names": [
+        "1400MC",
+        "Mint Chocolate or Peanut Butter Flavored Advanced Hemp Flower Extract - Mint Chocolate"
+      ],
+      "category": "Tinctures/Advanced Formula"
+    },
+    {
+      "rank": 26,
+      "sku": "2101",
+      "name": "1oz (450MG) Hemp Flower Extract",
+      "units": 9.0,
+      "sales": 378.4,
+      "units_share": 0.0012934751365334866,
+      "sales_share": 0.0012513205168218275,
+      "first_sold": "2020-07-22",
+      "last_sold": "2025-01-05",
+      "source_names": [
+        "1 oz. Original Hemp Flower Extract (450mg cannabinoids)",
+        "450"
+      ],
+      "category": "Tinctures/Original Formula"
+    },
+    {
+      "rank": 27,
+      "sku": "3213",
+      "name": "Infused Salt Water Taffies (20 count, Caramel Flavor)",
+      "units": 8.0,
+      "sales": 294.0,
+      "units_share": 0.0011497556769186547,
+      "sales_share": 0.0009722204861142106,
+      "first_sold": "2020-11-02",
+      "last_sold": "2026-07-10",
+      "source_names": [
+        "Caramel Taffies (20ct)",
+        "Full Spectrum Hemp Flower Extract Infused Salt Water Taffies - 20 Count, Caramel"
+      ],
+      "category": "Edibles/CBD Taffy"
+    },
+    {
+      "rank": 28,
+      "sku": "2121",
+      "name": "1oz (450MG) Hemp Flower Extract - Peanut Butter Flavor",
+      "units": 5.0,
+      "sales": 189.2,
+      "units_share": 0.0007185972980741593,
+      "sales_share": 0.0006256602584109139,
+      "first_sold": "2021-11-29",
+      "last_sold": "2022-07-27",
+      "source_names": [
+        "450PB",
+        "Mint Chocolate Or Peanut Butter Flavored Original Hemp Flower Extract (450MG/oz) - Peanut Butter"
+      ],
+      "category": "Tinctures/Original Formula"
+    },
+    {
+      "rank": 29,
+      "sku": "3224",
+      "name": "Infused THC-Free Salt Water Taffies (50 Count, Caramel Flavor)",
+      "units": 4.0,
+      "sales": 365.0,
+      "units_share": 0.0005748778384593274,
+      "sales_share": 0.0012070084266383907,
+      "first_sold": "2020-10-02",
+      "last_sold": "2025-12-01",
+      "source_names": [
+        "THC-Free CBD Infused Salt Water Taffies (Caramel Flavor, 50ct) - 50 Count, Caramel",
+        "THC-Free Caramel Taffies (50ct)"
+      ],
+      "category": "Edibles/CBD Taffy"
+    },
+    {
+      "rank": 30,
+      "sku": "6131",
+      "name": "Lip Balm (50mg)",
+      "units": 2.0,
+      "sales": 30.0,
+      "units_share": 0.0002874389192296637,
+      "sales_share": 9.920617205247047e-05,
+      "first_sold": "2020-07-21",
+      "last_sold": "2020-12-07",
+      "source_names": [
+        "Spot Treatment"
+      ],
+      "category": "Skincare"
+    }
+  ]
+}

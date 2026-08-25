@@ -77,7 +77,9 @@ def main():
                 "name": name,
                 "orders": len(row["orders"]),
                 "units": round(row["units"], 2),
-                "revenue": round(row["revenue"], 2),
+                # Named "sales" to match the retail export, so the storefront
+                # can read either channel through one code path.
+                "sales": round(row["revenue"], 2),
                 "customers": len(row["customers"]),
                 "first_ordered": row["first"],
                 "last_ordered": row["last"],
@@ -96,7 +98,7 @@ def main():
         ("Product", "name", 58),
         ("Times ordered", "orders", 14),
         ("Units sold", "units", 12),
-        ("Revenue (USD)", "revenue", 14),
+        ("Net sales (USD)", "sales", 16),
         ("Distinct customers", "customers", 18),
         ("First ordered", "first_ordered", 14),
         ("Last ordered", "last_ordered", 14),
@@ -113,7 +115,7 @@ def main():
     for rec in records:
         ws.append([
             rec["rank"], rec["sku"], rec["name"], rec["orders"], rec["units"],
-            rec["revenue"], rec["customers"], rec["first_ordered"], rec["last_ordered"],
+            rec["sales"], rec["customers"], rec["first_ordered"], rec["last_ordered"],
             "yes" if rec["in_catalog"] else "no", rec["category"],
         ])
     for row in ws.iter_rows(min_row=2, min_col=6, max_col=6):
@@ -126,11 +128,18 @@ def main():
     JSON_OUT.write_text(
         json.dumps(
             {
+                "channel": "wholesale",
                 "source_file": ORDERS.name,
                 "total_orders": total_orders,
                 "total_line_items": len(items),
                 "first_order_date": all_dates[0],
                 "last_order_date": all_dates[-1],
+                # Denominators for the storefront percentages. Every product in
+                # the export counts, discontinued ones included -- a share of
+                # demand should not be inflated by dropping what we stopped
+                # selling.
+                "total_units": round(sum(r["units"] for r in records), 2),
+                "total_sales": round(sum(r["sales"] for r in records), 2),
                 "products": records,
             },
             indent=2,
@@ -148,7 +157,7 @@ def main():
     print(f"{'#':>3}  {'orders':>6}  {'units':>8}  {'revenue':>10}  product")
     for rec in records[:15]:
         print(f"{rec['rank']:>3}  {rec['orders']:>6}  {rec['units']:>8.0f}  "
-              f"{rec['revenue']:>10,.0f}  {rec['name'][:60]}")
+              f"{rec['sales']:>10,.0f}  {rec['name'][:60]}")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,96 @@
+{
+  "_comment": [
+    "Maps Square retail item names to wholesale catalog SKUs.",
+    "",
+    "The retail export names the same product two different ways: short",
+    "point-of-sale names that carry a SKU ('2800', 'D8 Gummies 30CT') and long",
+    "WooCommerce names that carry none ('2 oz. Advanced Hemp Flower Extract",
+    "(2800mg cannabinoids)'). Between 70% and 94% of rows per year have no SKU,",
+    "so name matching is unavoidable -- but it is done from this hand-checked",
+    "list, not by similarity scoring, because the catalog is full of near-names",
+    "that differ only in strength or formula (Original 450MG vs Advanced 1400MG,",
+    "Mint Chocolate vs Peanut Butter).",
+    "",
+    "Resolution order in script/rank_retail_sales.py: exclude list, then the",
+    "row's own SKU, then by_name, then by_name_and_unit_price. Anything left is",
+    "reported as unmapped and still counts toward the denominator -- it is real",
+    "demand, just not for a product we currently sell.",
+    "",
+    "Reviewed by the operator; safe to commit (no personal data)."
+  ],
+  "_exclude_why": "Shipping, fees, and test rows. Not products. 'Free Shipping' alone is 1,282 units and would otherwise top the retail ranking.",
+  "exclude": [
+    "Free Shipping",
+    "Flat rate",
+    "Local pickup",
+    "Local pickup in Aynor, SC",
+    "USPS - Priority Mail",
+    "USPS - Priority Mail Flat Rate",
+    "Custom Amount",
+    "Adjustment",
+    "Test Item",
+    "Test Product"
+  ],
+  "by_name": {
+    "2 oz. Advanced Hemp Flower Extract (2800mg cannabinoids)": "2202",
+    "1 oz. Advanced Hemp Flower Extract (1400mg cannabinoids)": "2201",
+    "Travel Size (1/2 oz.) Advanced Hemp Flower Extract (700mg cannabinoids)": "2203",
+    "2 oz. Original Hemp Flower Extract (900mg cannabinoids)": "2102",
+    "1 oz. Original Hemp Flower Extract (450mg cannabinoids)": "2101",
+    "Travel Size (1/2 oz.) Original Hemp Flower Extract (225mg cannabinoids)": "2103",
+    "Supreme Hemp Flower Extract Formula (130 mg/mL) - 1oz (3900MG)": "2301",
+    "Supreme Hemp Flower Extract Formula (130 mg/mL) - 1/2oz (1950MG)": "2302",
+    "THC Free Advanced Hemp Flower Extract - 1oz (1400MG)": "2401",
+    "Mint Chocolate Or Peanut Butter Flavored Original Hemp Flower Extract (450MG/oz) - Mint Chocolate": "2111",
+    "Mint Chocolate Or Peanut Butter Flavored Original Hemp Flower Extract (450MG/oz) - Peanut Butter": "2121",
+    "Mint Chocolate or Peanut Butter Flavored Advanced Hemp Flower Extract - Mint Chocolate": "2211",
+    "Delta-8 THC Infused Gummies - 30 Count": "E-D8Gummies30Ct",
+    "Delta-8 THC Infused Gummies - 10 Count": "E-D8Gummies10Ct",
+    "Supreme Gummies (60mg CBD per gummy) - 30 Count": "E-Supreme Gummies30Ct",
+    "Supreme Gummies (60mg CBD per gummy) - 10 Count": "E-Supreme Gummies10Ct",
+    "THC-Free Green Apple Gummies (70mg-CBD/gummy) - 10 Count": "E-IsoSupremeGummies10Ct",
+    "Delta 8 THC Infused Advanced Hemp Flower Extract (4:1 CBD to D8 THC)": "T-1825",
+    "Delta 8 THC Infused Advanced Hemp Flower Extract": "T-1825",
+    "Delta 8 Advanced Tincture (40mg D8 THC/mL)": "T-D8AdvancedFormula",
+    "1 oz. Original Hemp Flower Extract for Large and Small Pets (425 mg cannabinoids) - Peanut Butter Flavored": "T-1PetsPB",
+    "1 oz. Original Hemp Flower Extract for Large and Small Pets (425 mg cannabinoids) - Unflavored": "7211",
+    "Full Spectrum Hemp Flower Extract Infused Salt Water Taffies - 50 Count, Caramel": "3214",
+    "Full Spectrum Hemp Flower Extract Infused Salt Water Taffies - 20 Count, Caramel": "3213",
+    "THC-Free CBD Infused Salt Water Taffies (Caramel Flavor, 50ct) - 50 Count, Caramel": "3224",
+    "Full Spectrum CBD Oil Infused Hot Muscle Rub (100MG)": "6221",
+    "Full Spectrum CBD Oil Infused Lotion Bar (100MG)": "6231",
+    "CBD Infused Chewing Gum (22MG/piece)": "E-CBDGum10Ct",
+    "Hemp Honey Sticks (20 Pack, 15mg per stick)": "3112",
+    "Advanced Hemp Flower Extract Infused Gelcaps - 30": "E-Gelcaps30"
+  },
+  "_by_name_and_unit_price_why": [
+    "Items whose name alone is ambiguous, split on the gross price per unit.",
+    "'Delta-8 THC Infused Gummies' with no count suffix is the single largest",
+    "retail line (962 units, $44.9k). The sibling rows that DO carry a suffix",
+    "price at exactly $60.00 for 30 Count and $20.00 for 10 Count, which is what",
+    "these keys are read off -- not guessed from the average.",
+    "Prices not listed here stay unmapped rather than being assigned a best fit."
+  ],
+  "by_name_and_unit_price": {
+    "Delta-8 THC Infused Gummies": {
+      "60.00": "E-D8Gummies30Ct",
+      "20.00": "E-D8Gummies10Ct"
+    },
+    "THC Free Green Apple Gummies": {
+      "25.00": "E-IsoSupremeGummies10Ct"
+    }
+  },
+  "_known_unmapped": [
+    "Deliberately left unmapped -- real retail sales of things the wholesale",
+    "catalog does not carry, so they have no product to rank against:",
+    "single-count taffies, 50ct lemon-cream and peanut-butter taffies, 20ct",
+    "Delta-8 taffies, 60-count gelcaps, CBG-D8 gummies, vape carts/pods/juice,",
+    "the Good Friend Pack and the Gold/Silver/Bronze bundles, the 2x 1/2oz",
+    "Supreme two-pack, the 30-count Green Apple gummies, and the Advanced",
+    "Peanut Butter 1400MG tincture.",
+    "Also ambiguous and left alone on purpose: 'CBD gummies 10 ct' and 'CBD",
+    "gummies 30 ct' (in-store names whose price matches Delta-8 for the 10ct and",
+    "Supreme for the 30ct -- the name and the price disagree), and the 12 units",
+    "of bare Delta-8 gummies sold at $25.00."
+  ]
+}
