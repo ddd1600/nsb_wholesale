@@ -25,18 +25,12 @@ services:
     # deploy, before the new instance starts taking traffic. Putting them in the
     # entrypoint would re-run them on every restart and, worse, race if the
     # service ever runs more than one instance.
-    # The catalog import runs here too. It is idempotent, and it is the only
-    # thing that applies db/import_data/product_overrides.json -- including the
-    # "discontinued" flags that take a product off sale. Without it, retiring a
-    # product is a code change that does nothing in production until someone
-    # remembers to open a shell, which is exactly how the gelcaps and the gallon
-    # tinctures stayed visible on the live site after being discontinued.
-    #
-    # Product photography is deliberately NOT here: Nsb::SiteImageImporter
-    # fetches from newsouthbotanicals.com when the scraped files are absent, and
-    # a deploy should not fail because that site is briefly down. Run
-    # `nsb:images:import` by hand instead; it is a no-op once the images land.
-    preDeployCommand: ./bin/rails db:prepare && ./bin/rails nsb:import:catalog
+    # Kept to migrations alone. Chaining the catalog import here
+    # (`db:prepare && ./bin/rails nsb:import:catalog`) failed the deploy, and a
+    # blocked deploy is worse than a manual import step -- run
+    # `nsb:import:catalog` from a shell after deploying instead, which is what
+    # applies db/import_data/product_overrides.json and its discontinued flags.
+    preDeployCommand: ./bin/rails db:prepare
     # The Dockerfile's default CMD wraps Puma in Thruster, which binds port 80.
     # Render expects $PORT, which config/puma.rb already honours, so we bypass
     # Thruster and run Puma directly.
