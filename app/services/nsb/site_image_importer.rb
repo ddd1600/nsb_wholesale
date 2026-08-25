@@ -67,7 +67,10 @@ module Nsb
         end
 
         attached = import(product, digests)
-        @result.products_matched << { sku: sku_for(product), name: product.name, attached: attached }
+        reordered = reorder(product, digests)
+        @result.products_matched << {
+          sku: sku_for(product), name: product.name, attached: attached, reordered: reordered
+        }
       rescue StandardError => e
         @result.failures << { sku: sku_for(product), name: product.name, error: e.message }
       end
@@ -143,6 +146,30 @@ module Nsb
       end
 
       attached
+    end
+
+    # Put the product's images back into the order the public site shows them,
+    # so the site's featured image is the one the storefront leads with.
+    #
+    # Worth doing on every run, not just on first import: Nsb::CatalogImporter
+    # attaches the B2BWave copy of a photo, and a prune of that copy afterwards
+    # leaves whatever survives in an order nobody chose. Anything not in the
+    # manifest keeps its relative order, after the site images.
+    def reorder(product, digests)
+      wanted = digests.filter_map { |digest| manifest.fetch("blobs")[digest]&.fetch("file") }
+      images = product.master.images.select { |image| image.attachment.attached? }
+
+      ranked = images.sort_by do |image|
+        index = wanted.index(image.attachment.blob.filename.to_s)
+        [ index ? 0 : 1, index || 0, image.position ]
+      end
+      return false if ranked.map(&:id) == images.sort_by(&:position).map(&:id)
+      return true if dry_run
+
+      ranked.each_with_index do |image, index|
+        image.update_column(:position, index + 1)
+      end
+      true
     end
 
     def manifest

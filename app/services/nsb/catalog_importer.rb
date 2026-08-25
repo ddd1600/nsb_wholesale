@@ -78,6 +78,12 @@ module Nsb
       # requires a non-null price, so they import at 0.0 rather than being skipped.
       product.price = record["price"] || 0.0
       product.available_on = record["active"] ? (product.available_on || Time.current) : nil
+      # Products we no longer make. Spree::Product.available -- which the
+      # storefront searcher builds on -- already filters on discontinue_on, so
+      # setting it is all that is needed to take a line off the store. Nothing
+      # is deleted: the order history still references these products, and the
+      # admin can still see them.
+      product.discontinue_on = record["discontinued"] ? (product.discontinue_on || Time.current) : nil
       product.save!
 
       # SKU lives on the master variant. Kept as-is from B2BWave, including the
@@ -111,7 +117,7 @@ module Nsb
       end
 
       # Assignment rather than <<, so re-running cannot pile up duplicates.
-      product.taxons = [taxon] unless product.taxons.include?(taxon)
+      product.taxons = [ taxon ] unless product.taxons.include?(taxon)
     end
 
     def attach_image(product, image_info)
@@ -121,18 +127,28 @@ module Nsb
       raise "image file missing: #{path}" unless path.exist?
 
       master = product.master
-      existing = master.images.first
+      attached = master.images.select { |image| image.attachment.attached? }
 
       # Idempotency without a checksum column: same filename and same byte
       # count means we already imported this exact file.
-      if existing&.attachment&.attached? &&
-         existing.attachment.blob.filename.to_s == image_info["file"] &&
-         existing.attachment.blob.byte_size == image_info["bytes"]
+      if attached.any? { |image|
+           image.attachment.blob.filename.to_s == image_info["file"] &&
+             image.attachment.blob.byte_size == image_info["bytes"]
+         }
         @result.images_skipped += 1
         return
       end
 
-      existing&.destroy
+      # Leave the product alone if some other pipeline already gave it
+      # photography. Nsb::SiteImageImporter attaches the originals from
+      # newsouthbotanicals.com, which are higher resolution than the Cloudinary
+      # copies in the B2BWave export; this importer used to destroy
+      # images.first and put the low-res copy back, so running the two in the
+      # wrong order silently downgraded the catalog.
+      if attached.any?
+        @result.images_skipped += 1
+        return
+      end
       # Pass an explicit hash rather than a File. Solidus normalises a bare IO
       # to {io:, filename: <absolute path>}, which stores the full local path as
       # the blob filename and leaves the handle's lifetime tied to this block --

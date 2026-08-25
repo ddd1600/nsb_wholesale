@@ -37,6 +37,12 @@ namespace :nsb do
         puts "  +#{row[:attached].to_s.rjust(2)}  #{row[:sku].ljust(24)} #{row[:name]}"
       end
 
+      reordered = result.products_matched.select { |row| row[:reordered] }
+      if reordered.any?
+        puts "\nRE-ORDERED to match the public site's gallery (#{reordered.size}):"
+        reordered.each { |row| puts "  #{row[:sku].ljust(24)} #{row[:name]}" }
+      end
+
       report_failures(result)
     end
 

@@ -4,9 +4,9 @@
     "products.json is regenerated from the B2BWave export by script/extract_b2bwave.py,",
     "so it must stay a faithful copy of that export. Anything we know to be wrong in the",
     "source data is fixed here instead, where the reason is visible and survives re-extraction.",
-    "Reviewed by the operator; safe to commit (no personal data)."
+    "Reviewed by the operator; safe to commit (no personal data).",
+    "A \"discontinued\": true entry takes a product off the storefront without deleting it."
   ],
-
   "320": {
     "_why": [
       "B2BWave shipped this product with the placeholder SKU '-'. The operator's master",
@@ -18,5 +18,40 @@
     ],
     "sku": "E-IsoSupremeGummies10Ct",
     "price": 12.5
+  },
+  "304": {
+    "_why": [
+      "Advanced Gelcaps (30 count) is no longer manufactured (operator, 2026-08-25).",
+      "Discontinued rather than deleted: it appears in five years of wholesale order",
+      "history and in the retail sales data, and deleting the product would orphan",
+      "those line items. Spree::Product.available filters on discontinue_on, so this",
+      "removes it from the storefront, the search index and the homepage ranking.",
+      "The 60-count gelcaps are already absent from the B2BWave catalog export."
+    ],
+    "discontinued": true
+  },
+  "246": {
+    "_why": [
+      "Taken off the storefront at the operator's request (2026-08-25).",
+      "Discontinued rather than deleted, for the same reason as 304: the product",
+      "stays referenced by history and stays visible in the admin.",
+      "Neither gallon size has any wholesale order history or retail sales, so",
+      "hiding them changes no ranking -- they only ever appeared in the catalog",
+      "listing and the Tinctures nav.",
+      "1 Gallon/3785mL Advanced Tincture, SKU 2229."
+    ],
+    "discontinued": true
+  },
+  "254": {
+    "_why": [
+      "Taken off the storefront at the operator's request (2026-08-25).",
+      "Discontinued rather than deleted, for the same reason as 304: the product",
+      "stays referenced by history and stays visible in the admin.",
+      "Neither gallon size has any wholesale order history or retail sales, so",
+      "hiding them changes no ranking -- they only ever appeared in the catalog",
+      "listing and the Tinctures nav.",
+      "1 Gallon/3785mL (~52,000mg) Original Tincture, SKU 2230."
+    ],
+    "discontinued": true
   }
 }

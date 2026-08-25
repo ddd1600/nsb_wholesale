@@ -3,18 +3,26 @@ require "solidus_starter_frontend_spec_helper"
 RSpec.describe TaxonsTreeComponent, type: :component do
   let(:taxon_without_descendants) { create(:taxon, children: []) }
 
+  # Every taxon here gets a product on purpose: the component hides categories
+  # with nothing available to buy, so a bare taxon tree renders as empty.
   let(:taxon_with_descendants) do
     root = create(:taxon)
 
     children = [
-      create(:taxon, name: 'child 1', parent: root),
-      create(:taxon, name: 'child 2', parent: root)
+      stocked_taxon(name: 'child 1', parent: root),
+      stocked_taxon(name: 'child 2', parent: root)
     ]
 
     # child 1 grandchild
-    create(:taxon, name: 'grandchild 1', parent: children[0])
+    stocked_taxon(name: 'grandchild 1', parent: children[0])
 
     root
+  end
+
+  def stocked_taxon(name:, parent:)
+    create(:taxon, name: name, parent: parent).tap do |taxon|
+      create(:product, taxons: [taxon])
+    end
   end
 
   let(:title) { 'some_title' }
@@ -135,6 +143,23 @@ RSpec.describe TaxonsTreeComponent, type: :component do
           expect(page).to_not have_content('some title')
         end
       end
+    end
+  end
+  describe 'categories with nothing available to buy' do
+    # Discontinuing the last product in a category used to leave its nav link
+    # pointing at an empty page -- which is how "Gelcaps" survived being taken
+    # off sale.
+    let(:root) { create(:taxon) }
+    let!(:stocked) { stocked_taxon(name: 'in stock', parent: root) }
+    let!(:emptied) { stocked_taxon(name: 'discontinued', parent: root) }
+
+    before do
+      emptied.products.each { |product| product.update!(discontinue_on: 1.day.ago) }
+      render_inline(described_class.new(root_taxon: root, max_level: 1))
+    end
+
+    it 'are left out of the tree' do
+      expect(page.all('li').map(&:text)).to eq(['in stock'])
     end
   end
 end

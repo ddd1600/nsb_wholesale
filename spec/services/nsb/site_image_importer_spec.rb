@@ -116,6 +116,38 @@ RSpec.describe Nsb::SiteImageImporter do
     end
   end
 
+  describe 'ordering' do
+    it 'puts images back into the manifest order' do
+      # Nsb::CatalogImporter attaches the B2BWave copy of a photo and a later
+      # prune removes it, which leaves the survivors in an order nobody chose.
+      matched.master.images.create!(
+        attachment: { io: StringIO.new(blobs['bbb']), filename: 'bbb.png', content_type: 'image/png' }
+      )
+
+      described_class.new.call
+
+      expect(matched.reload.master.images.order(:position).map { |i| i.attachment.blob.filename.to_s })
+        .to eq([ 'aaa.png', 'bbb.png' ])
+    end
+
+    it 'leaves images the manifest does not know about at the end' do
+      matched.master.images.create!(
+        attachment: { io: StringIO.new(png(60)), filename: 'stranger.png', content_type: 'image/png' }
+      )
+
+      described_class.new.call
+
+      expect(matched.reload.master.images.order(:position).map { |i| i.attachment.blob.filename.to_s })
+        .to eq([ 'aaa.png', 'bbb.png', 'stranger.png' ])
+    end
+
+    it 'reports nothing to reorder on a second run' do
+      described_class.new.call
+
+      expect(described_class.new.call.products_matched.map { |row| row[:reordered] }).to all(be false)
+    end
+  end
+
   describe 'dry run' do
     it 'writes nothing' do
       result = described_class.new(dry_run: true).call

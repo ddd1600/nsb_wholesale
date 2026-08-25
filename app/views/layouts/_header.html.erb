@@ -49,15 +49,17 @@
           <%= render 'shared/search/search_bar', taxons: taxons, taxon: taxon, :locals => { :additional_classes => 'lg:hidden', search_input_id: 'mobile-search-input-area', results_list_id: 'autocomplete-results-mobile' } %>
         </div>
 
-        <% cache [I18n.locale, categories, taxon] do %>
-          <%= render(TaxonsTreeComponent.new(
-            root_taxon: categories.root,
-            current_taxon: taxon,
-            max_level: 1,
-            item_classes: 'font-sans-md',
-            current_item_classes: 'text-solidus-red',
-            )) if categories %>
-        <% end %>
+        <%# Not fragment-cached: the key is the taxonomy record, which does not
+            change when a product is discontinued, so a category that just went
+            empty would keep its nav link until something else expired the
+            entry. Five links at ~1 order/day is not worth caching anyway. %>
+        <%= render(TaxonsTreeComponent.new(
+          root_taxon: categories.root,
+          current_taxon: taxon,
+          max_level: 1,
+          item_classes: 'font-sans-md',
+          current_item_classes: 'text-solidus-red',
+          )) if categories %>
 
         <div class="lg:hidden mt-auto">
         <div class="flex justify-between">

@@ -178,4 +178,55 @@ RSpec.describe Nsb::CatalogImporter do
       expect(Spree::Product.find_by(b2b_product_id: 241).master.sku).to eq("2302")
     end
   end
+  describe "discontinued products" do
+    it "takes a discontinued product off the storefront without deleting it" do
+      write_catalog([record])
+      (data_dir / "product_overrides.json").write(JSON.generate("241" => { "discontinued" => true }))
+
+      importer.call
+
+      product = Spree::Product.find_by(b2b_product_id: 241)
+      expect(product).to be_discontinued
+      expect(Spree::Product.available).not_to include(product)
+      expect(product.deleted_at).to be_nil
+    end
+
+    it "leaves a product on sale when nothing says otherwise" do
+      write_catalog([record])
+
+      importer.call
+
+      expect(Spree::Product.find_by(b2b_product_id: 241).discontinue_on).to be_nil
+    end
+  end
+
+  describe "images another pipeline already supplied" do
+    # Nsb::SiteImageImporter attaches higher-resolution originals from the
+    # public site. This importer used to destroy images.first and put the
+    # B2BWave copy back, so running the two in the wrong order downgraded the
+    # catalog silently.
+    it "does not replace them" do
+      write_catalog([record("image" => write_image("241.jpg"))])
+      importer.call
+      product = Spree::Product.find_by(b2b_product_id: 241)
+      product.master.images.destroy_all
+      product.master.images.create!(
+        attachment: { io: StringIO.new(ONE_PIXEL_PNG), filename: "from-the-site.png", content_type: "image/png" }
+      )
+
+      result = described_class.new(data_dir: data_dir).call
+
+      expect(product.reload.master.images.map { |i| i.attachment.blob.filename.to_s }).to eq(["from-the-site.png"])
+      expect(result.images_attached).to eq(0)
+    end
+
+    it "still supplies an image when the product has none" do
+      write_catalog([record("image" => write_image("241.jpg"))])
+
+      result = importer.call
+
+      expect(result.images_attached).to eq(1)
+      expect(Spree::Product.find_by(b2b_product_id: 241).master.images.count).to eq(1)
+    end
+  end
 end
