@@ -1,12 +1,21 @@
 # frozen_string_literal: true
 
+require "net/http"
+
 module Nsb
   # Attaches product photos scraped from the public newsouthbotanicals.com
   # storefront to the matching wholesale products.
   #
-  # Input is db/import_data/scraped_images/, produced by
-  # script/scrape_public_site_images.py -- image files plus a manifest mapping
-  # public SKUs to them. Nothing here talks to the network.
+  # Input is db/import_data/scraped_images/manifest.json, produced by
+  # script/scrape_public_site_images.py. The manifest maps public SKUs to images
+  # and records, for each image, both a local filename and the URLs it came from.
+  #
+  # The image files themselves are NOT in the repo -- 83MB against 6MB for
+  # product_images/, and a git repo never forgets a blob. So when the local file
+  # is absent, which is the normal state on Render, the image is fetched from the
+  # source URL the manifest recorded and checked against the SHA-256 the manifest
+  # keys it by. That is what lets production get the same photography without
+  # python3 in the runtime image or the binaries in git.
   #
   # Matching is by SKU only. The public site and the wholesale catalog share SKUs
   # for everything sold in both places, and the alternative -- matching on product
@@ -23,6 +32,10 @@ module Nsb
     MANIFEST_PATH = DATA_DIR.join("manifest.json")
     OVERRIDES_PATH = DATA_DIR.join("sku_overrides.json")
 
+    # A descriptive bot user agent is rejected outright by the site's WAF.
+    BROWSER_USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) " \
+                         "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+
     # Deduplication here is byte-exact only, and deliberately so. Visual
     # near-duplicates do exist -- several products already carry a Cloudinary
     # resize of the very shot we just downloaded -- but on this catalog a
@@ -35,12 +48,13 @@ module Nsb
     # nominates candidates for a person to review instead.
 
     Result = Struct.new(
-      :attached, :skipped_identical,
+      :attached, :skipped_identical, :downloaded,
       :products_matched, :products_unmatched, :failures,
       keyword_init: true
     ) do
       def to_s
-        "attached=#{attached} skipped_identical=#{skipped_identical} " \
+        "attached=#{attached} downloaded=#{downloaded} " \
+          "skipped_identical=#{skipped_identical} " \
           "products_matched=#{products_matched.size} " \
           "products_unmatched=#{products_unmatched.size} failures=#{failures.size}"
       end
@@ -50,7 +64,7 @@ module Nsb
       @dry_run = dry_run
       @logger = logger
       @result = Result.new(
-        attached: 0, skipped_identical: 0,
+        attached: 0, skipped_identical: 0, downloaded: 0,
         products_matched: [], products_unmatched: [], failures: []
       )
     end
@@ -113,12 +127,21 @@ module Nsb
 
       attached = 0
 
+      # Filenames are content-derived (the SHA-256 prefix), so a product that
+      # already carries this filename already carries these exact bytes. Checked
+      # before fetching, so a re-run costs no downloads.
+      seen_filenames = master.images.filter_map { |image| image.attachment.blob&.filename&.to_s }
+
       digests.each do |digest|
         blob = manifest.fetch("blobs").fetch(digest)
-        path = DATA_DIR.join(blob.fetch("file"))
-        raise "image file missing: #{path}" unless path.exist?
+        filename = blob.fetch("file")
 
-        bytes = path.binread
+        if seen_filenames.include?(filename)
+          @result.skipped_identical += 1
+          next
+        end
+
+        bytes = bytes_for(digest, blob)
 
         checksum = Digest::MD5.base64digest(bytes)
         if seen_checksums.include?(checksum)
@@ -134,18 +157,60 @@ module Nsb
           master.images.create!(
             attachment: {
               io: StringIO.new(bytes),
-              filename: blob.fetch("file"),
-              content_type: Marcel::MimeType.for(path)
+              filename: filename,
+              content_type: Marcel::MimeType.for(StringIO.new(bytes))
             }
           )
         end
 
         seen_checksums << checksum
+        seen_filenames << filename
         @result.attached += 1
         attached += 1
       end
 
       attached
+    end
+
+    # The image bytes, from disk when the scrape output is present and from the
+    # public site when it is not.
+    def bytes_for(digest, blob)
+      path = DATA_DIR.join(blob.fetch("file"))
+      return path.binread if path.exist?
+
+      url = blob.fetch("sources").first
+      raise "no local file and no source URL for image #{digest}" if url.blank?
+
+      bytes = download(url)
+
+      # The manifest keys images by SHA-256, so this both detects a truncated
+      # download and catches the source URL having been repointed at a different
+      # picture since the scrape. Attaching the wrong photo silently is worse
+      # than failing.
+      actual = Digest::SHA256.hexdigest(bytes)
+      unless actual == digest
+        raise "#{url} no longer matches the manifest (expected #{digest[0, 12]}, got #{actual[0, 12]})"
+      end
+
+      @result.downloaded += 1
+      bytes
+    end
+
+    def download(url)
+      uri = URI.parse(url)
+      # The site sits behind a WAF that 403s anything not shaped like a browser.
+      request = Net::HTTP::Get.new(uri, "User-Agent" => BROWSER_USER_AGENT)
+
+      response = Net::HTTP.start(
+        uri.host, uri.port, use_ssl: uri.scheme == "https",
+        open_timeout: 10, read_timeout: 60
+      ) { |http| http.request(request) }
+
+      unless response.is_a?(Net::HTTPSuccess)
+        raise "GET #{url} returned #{response.code}"
+      end
+
+      response.body
     end
 
     # Put the product's images back into the order the public site shows them,
