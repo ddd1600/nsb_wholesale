@@ -80,12 +80,60 @@ soon as a worker starts.
    `SQUARE_ENVIRONMENT=production`, then work through `docs/SQUARE_GO_LIVE.md`
    with a real small-dollar order. The store cannot take a real card until this
    is done.
-2. **Custom domain** — DNS at SiteGround (nameservers are SiteGround, registrar
-   is IONOS), plus `APP_HOST` and `STORE_URL` updated so email links match.
+2. **Custom domain** — `wholesale.newsouthbotanicals.com`. Render side is
+   prepared; see "Custom domain" below for the order of operations.
 3. **11 products have no image** in the B2BWave export.
 4. **Historical orders** — 1,154 line items still in the spreadsheet, undecided.
    The old Handshake wholesale history may already be in ShipStation, in which
    case importing them into Solidus may be unnecessary.
+
+## Custom domain
+
+`wholesale.newsouthbotanicals.com`. The retail WordPress site owns the apex
+`newsouthbotanicals.com` (an A record to SiteGround at 34.174.207.184), so the
+portal takes a subdomain. Nameservers are SiteGround's (`ns1/ns2.siteground.net`),
+registrar is IONOS — DNS records are edited at **SiteGround**, not IONOS.
+
+`render.yaml` declares the domain, so a Blueprint sync creates it on the Render
+side. That is only step one; the rest is DNS and cannot be done from the repo.
+
+**Order of operations. Do not reorder — steps 4 and 5 are what send customers a
+working link rather than a broken one.**
+
+1. Deploy, so Render picks up the `domains:` entry. Render Dashboard → the
+   `nsb-wholesale` service → Settings → Custom Domains should then list
+   `wholesale.newsouthbotanicals.com` as unverified, with the DNS target to use.
+2. At **SiteGround** (Site Tools → Domain → DNS Zone Editor) add a CNAME:
+   - Name/host: `wholesale`
+   - Value: `nsb-wholesale.onrender.com`
+   Leave the apex and `www` records alone — they point at the retail site.
+3. Back in Render, click **Verify**. Render issues the TLS certificate once the
+   record resolves; propagation can take a few minutes to a few hours. Confirm
+   from a laptop: `dig +short wholesale.newsouthbotanicals.com` returns Render
+   addresses, then `curl -sI https://wholesale.newsouthbotanicals.com/up`
+   returns 200 with no certificate warning.
+4. **Only once step 3 passes**, point the app at the new host: set `APP_HOST`
+   and `STORE_URL` to `wholesale.newsouthbotanicals.com` in the Render
+   dashboard, redeploy, then run `bin/rails nsb:import:store` from the Render
+   shell so `Spree::Store#url` matches.
+5. Verify with `bin/rails nsb:monitoring:status`. The Domain section should show
+   both values agreeing, and say `on the custom domain`.
+
+**The trap.** Both settings already DEFAULT to
+`wholesale.newsouthbotanicals.com` in code (`config/environments/production.rb`
+and `Nsb::StoreConfigurator`). Leaving them unset is therefore not neutral — it
+selects the new domain. Keep them explicitly set to `nsb-wholesale.onrender.com`
+until step 4, or emails sent in the meantime will link somewhere that does not
+resolve.
+
+The `onrender.com` address keeps working after the cutover; adding a custom
+domain does not retire it. That is what makes backing out of step 4 safe.
+
+Host authorization (`config.hosts`) is deliberately left off. Emailed links are
+built from `Spree::Store#url` and `APP_HOST`, never from the request's `Host`
+header, so the usual Host-header poisoning payoff is not available here. Turning
+it on is available hardening, but it can 403 the whole site if the health check
+is not excluded — not something to bundle into a DNS cutover.
 
 ## Known quirks, so they are not rediscovered
 
