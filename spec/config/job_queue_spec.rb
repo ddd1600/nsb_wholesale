@@ -81,6 +81,17 @@ RSpec.describe "Background job durability" do
       expect(puma).to include("solid_queue_mode :async")
     end
 
+    # Regression: Render sets WEB_CONCURRENCY=1 on its own, which put Puma in
+    # cluster mode. The cluster master never loads the Rails app, so the
+    # plugin's after_booted hook raised `uninitialized constant SolidQueue` and
+    # the service crash-looped on boot. `workers 0` overrides Puma's own
+    # WEB_CONCURRENCY default and forces single mode.
+    it "forces Puma into single mode, which the plugin requires" do
+      puma = Rails.root.join("config/puma.rb").read
+
+      expect(puma).to match(/^workers 0$/)
+    end
+
     it "sets SOLID_QUEUE_IN_PUMA on Render, which is what enables that plugin" do
       render_config = YAML.load_file(Rails.root.join("render.yaml"))
       web = render_config["services"].find { |service| service["name"] == "nsb-wholesale" }

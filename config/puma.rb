@@ -30,6 +30,25 @@ threads threads_count, threads_count
 # Specifies the `port` that Puma will listen on to receive requests; default is 3000.
 port ENV.fetch("PORT", 3000)
 
+# Single mode, explicitly, overriding Puma's own default of WEB_CONCURRENCY.
+#
+# Render sets WEB_CONCURRENCY=1 automatically ("based on available CPUs in the
+# instance"), which silently puts Puma in cluster mode. That breaks the Solid
+# Queue plugin below: in cluster mode the master process never loads the Rails
+# application, only the workers do, so the plugin's after_booted hook runs in a
+# process where the SolidQueue constant does not exist. Boot dies with
+# `uninitialized constant SolidQueue (NameError)` and the service crash-loops.
+#
+# Cluster mode with one worker is pure overhead anyway -- Puma itself logs
+# "often a misconfiguration" and recommends single mode to reduce memory, which
+# matters on a 512MB instance running Solidus. At roughly one order a day there
+# is nothing to gain from a second process.
+#
+# If this app ever genuinely needs multiple web workers, do NOT just delete this
+# line: the Solid Queue supervisor would have to move to its own Render service
+# first, or every worker would run its own copy of the queue.
+workers 0
+
 # Allow puma to be restarted by `bin/rails restart` command.
 plugin :tmp_restart
 
@@ -47,11 +66,8 @@ plugin :tmp_restart
 # Threads share this process's Active Record pool, which config/database.yml
 # sizes accordingly.
 #
-# This assumes Puma runs in single mode, which it does: no `workers` directive
-# here and WEB_CONCURRENCY is unset on Render. Setting WEB_CONCURRENCY would put
-# Puma in clustered mode, where this plugin starts the supervisor in the master
-# process -- one queue, still correct, but the pool sizing above would then be
-# counting the wrong threads. Revisit both together if that ever changes.
+# Single mode is REQUIRED for this, not merely preferred -- see `workers 0`
+# below. The pool sizing above also assumes it.
 #
 # Plain ENV[] rather than .present?: Puma evaluates this file before Rails, so
 # Active Support's core extensions do not exist here yet. Using them crashes the
