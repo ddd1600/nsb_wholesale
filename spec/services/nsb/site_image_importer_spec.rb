@@ -11,6 +11,7 @@ RSpec.describe Nsb::SiteImageImporter do
   end
 
   let(:tmp_dir) { Pathname.new(Dir.mktmpdir) }
+  let(:photos_dir) { Pathname.new(Dir.mktmpdir) }
 
   # Keyed by real SHA-256, exactly as the manifest is: the importer verifies
   # downloaded bytes against the key before attaching them.
@@ -53,11 +54,16 @@ RSpec.describe Nsb::SiteImageImporter do
     tmp_dir.join('sku_overrides.json').write(overrides.to_json)
 
     stub_const("#{described_class}::DATA_DIR", tmp_dir)
+    stub_const("#{described_class}::PHOTOS_DIR", photos_dir)
+    stub_const("#{described_class}::PHOTO_INDEX_PATH", photos_dir.join('index.json'))
     stub_const("#{described_class}::MANIFEST_PATH", tmp_dir.join('manifest.json'))
     stub_const("#{described_class}::OVERRIDES_PATH", tmp_dir.join('sku_overrides.json'))
   end
 
-  after { FileUtils.remove_entry(tmp_dir) }
+  after do
+    FileUtils.remove_entry(tmp_dir)
+    FileUtils.remove_entry(photos_dir)
+  end
 
   let!(:matched) { create(:product, name: 'Matched', sku: 'MATCHED-SKU') }
   let!(:overridden) { create(:product, name: 'Overridden', sku: 'OVERRIDE-SKU') }
@@ -154,7 +160,11 @@ RSpec.describe Nsb::SiteImageImporter do
       result = described_class.new.call
 
       expect(result.attached).to eq(0)
-      expect(result.failures.first[:error]).to include('no longer matches the manifest')
+      expect(result.failures.first[:error]).to include('did not return the expected image')
+      # The message has to say what actually arrived: a WAF challenge page comes
+      # back as HTTP 200, and a bare "checksum mismatch" sends you hunting for a
+      # changed image instead of a blocked request.
+      expect(result.failures.first[:error]).to include('looks like PNG')
     end
 
     it 'reports a failed fetch rather than attaching nothing quietly' do
@@ -177,6 +187,50 @@ RSpec.describe Nsb::SiteImageImporter do
       expect(result.skipped_identical).to be_positive
       expect(matched.reload.master.images.map { |i| i.attachment.blob.filename.to_s })
         .to include(filename_of(:first))
+    end
+  end
+
+  describe 'the committed derivatives, which is what production reads' do
+    # Nsb::SitePhotoPreparer writes these; they are smaller than the scrape
+    # output and, unlike it, they are in the repo.
+    let(:derivative) { png(77) }
+
+    before do
+      # One derivative per image, as nsb:images:prepare produces.
+      index = images.keys.each_with_index.to_h do |key, position|
+        bytes = position.zero? ? derivative : png(60 + position)
+        photos_dir.join("prepared-#{key}.jpg").binwrite(bytes)
+        [ digest_of(key),
+          { file: "prepared-#{key}.jpg", bytes: bytes.bytesize,
+            sha256: Digest::SHA256.hexdigest(bytes) } ]
+      end
+      photos_dir.join('index.json').write(index.to_json)
+    end
+
+    it 'is preferred over the full-size scrape output' do
+      described_class.new.call
+
+      attached = matched.reload.master.images.first.attachment.blob
+      expect(attached.byte_size).to eq(derivative.bytesize)
+    end
+
+    it 'works with the scrape output absent and the network unreachable' do
+      images.each_key { |key| tmp_dir.join(filename_of(key)).delete }
+      allow(Net::HTTP).to receive(:start).and_raise('network must not be used')
+
+      result = described_class.new.call
+
+      expect(result.downloaded).to eq(0)
+      expect(result.failures.map { |f| f[:sku] }).not_to include('MATCHED-SKU')
+      expect(matched.reload.master.images.count).to be_positive
+    end
+
+    it 'refuses a derivative that does not match its own index' do
+      photos_dir.join('prepared-first.jpg').binwrite(png(88))
+
+      result = described_class.new.call
+
+      expect(result.failures.first[:error]).to include('does not match site_photos/index.json')
     end
   end
 

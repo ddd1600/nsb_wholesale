@@ -6,16 +6,22 @@ module Nsb
   # Attaches product photos scraped from the public newsouthbotanicals.com
   # storefront to the matching wholesale products.
   #
-  # Input is db/import_data/scraped_images/manifest.json, produced by
-  # script/scrape_public_site_images.py. The manifest maps public SKUs to images
-  # and records, for each image, both a local filename and the URLs it came from.
+  # db/import_data/scraped_images/manifest.json says which images a SKU gets and
+  # in what order. The bytes come from the first of these that has them:
   #
-  # The image files themselves are NOT in the repo -- 83MB against 6MB for
-  # product_images/, and a git repo never forgets a blob. So when the local file
-  # is absent, which is the normal state on Render, the image is fetched from the
-  # source URL the manifest recorded and checked against the SHA-256 the manifest
-  # keys it by. That is what lets production get the same photography without
-  # python3 in the runtime image or the binaries in git.
+  #   1. db/import_data/site_photos/ -- 1600px derivatives, committed, produced
+  #      by Nsb::SitePhotoPreparer. This is what production uses.
+  #   2. db/import_data/scraped_images/ -- the full-size scrape output, gitignored
+  #      because it is 87MB and a git repo never forgets a blob.
+  #   3. The source URL the manifest recorded, verified against the SHA-256 it
+  #      keys the image by.
+  #
+  # Fetching (3) was tried as production's path and does not work: the site's WAF
+  # answers Render's IP with a bot-challenge page rather than the image, served
+  # as HTTP 200 with a fresh body every request. The checksum guard caught it --
+  # 28 challenge pages refused rather than attached as product photos -- which is
+  # why the committed derivatives exist. The URL path is kept for machines the
+  # site will actually talk to.
   #
   # Matching is by SKU only. The public site and the wholesale catalog share SKUs
   # for everything sold in both places, and the alternative -- matching on product
@@ -29,6 +35,8 @@ module Nsb
   # duplicated.
   class SiteImageImporter
     DATA_DIR = Rails.root.join("db/import_data/scraped_images")
+    PHOTOS_DIR = Rails.root.join("db/import_data/site_photos")
+    PHOTO_INDEX_PATH = PHOTOS_DIR.join("index.json")
     MANIFEST_PATH = DATA_DIR.join("manifest.json")
     OVERRIDES_PATH = DATA_DIR.join("sku_overrides.json")
 
@@ -172,9 +180,24 @@ module Nsb
       attached
     end
 
-    # The image bytes, from disk when the scrape output is present and from the
-    # public site when it is not.
+    # The image bytes, from the committed derivative, then the full-size scrape
+    # output, then the network.
     def bytes_for(digest, blob)
+      prepared = photo_index[digest]
+      if prepared
+        path = PHOTOS_DIR.join(prepared.fetch("file"))
+        if path.exist?
+          bytes = path.binread
+          actual = Digest::SHA256.hexdigest(bytes)
+          unless actual == prepared.fetch("sha256")
+            raise "#{path.basename} does not match site_photos/index.json " \
+                  "(expected #{prepared.fetch('sha256')[0, 12]}, got #{actual[0, 12]})"
+          end
+
+          return bytes
+        end
+      end
+
       path = DATA_DIR.join(blob.fetch("file"))
       return path.binread if path.exist?
 
@@ -189,11 +212,29 @@ module Nsb
       # than failing.
       actual = Digest::SHA256.hexdigest(bytes)
       unless actual == digest
-        raise "#{url} no longer matches the manifest (expected #{digest[0, 12]}, got #{actual[0, 12]})"
+        # Say what actually arrived. A WAF challenge page comes back as HTTP 200
+        # with a body that differs every request, and "checksum mismatch" alone
+        # sends you looking for a changed image instead of a blocked request.
+        raise "#{url} did not return the expected image " \
+              "(expected sha #{digest[0, 12]}, got #{actual[0, 12]}; " \
+              "#{bytes.bytesize} bytes, looks like #{sniff(bytes)})"
       end
 
       @result.downloaded += 1
       bytes
+    end
+
+    # Enough to tell an image from an error page in a failure message.
+    def sniff(bytes)
+      head = bytes[0, 16].to_s
+      return "JPEG" if head.start_with?("\xFF\xD8\xFF".b)
+      return "PNG" if head.start_with?("\x89PNG".b)
+      return "GIF" if head.start_with?("GIF8")
+      return "WEBP" if head[8, 4] == "WEBP"
+      return "HTML (an error or challenge page, not an image)" if head.downcase.include?("<!doctype") ||
+                                                                  head.downcase.include?("<html")
+
+      "unrecognised data"
     end
 
     def download(url)
@@ -239,6 +280,10 @@ module Nsb
 
     def manifest
       @manifest ||= JSON.parse(MANIFEST_PATH.read)
+    end
+
+    def photo_index
+      @photo_index ||= PHOTO_INDEX_PATH.exist? ? JSON.parse(PHOTO_INDEX_PATH.read) : {}
     end
 
     def overrides

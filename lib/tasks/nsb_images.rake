@@ -2,6 +2,17 @@
 
 namespace :nsb do
   namespace :images do
+    desc "Downscale the scrape output into the committed db/import_data/site_photos"
+    task prepare: :environment do
+      result = Nsb::SitePhotoPreparer.new.call
+
+      puts
+      puts "=" * 72
+      puts "site photos: #{result}"
+      puts "wrote #{Nsb::SitePhotoPreparer::INDEX_PATH.relative_path_from(Rails.root)}"
+      puts "These are committed -- production reads them instead of the public site."
+    end
+
     desc "Report what nsb:images:import would do, without writing anything"
     task report: :environment do
       result = Nsb::SiteImageImporter.new(dry_run: true).call
