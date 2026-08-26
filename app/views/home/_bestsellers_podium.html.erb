@@ -15,7 +15,15 @@
       <li class="<%= column_classes %> bg-gray-50 dark:bg-gray-800 rounded-lg md:rounded-xl lg:rounded-2xl overflow-hidden">
         <%= link_to product_path(product), class: 'flex h-full gap-4 p-4 md:gap-6 md:p-6 ' + (lead ? 'flex-col' : 'flex-row items-center') do %>
           <div class="product-frame <%= lead ? 'order-2 w-full h-56 md:h-72' : 'w-24 h-24 shrink-0 md:w-32 md:h-32' %>">
-            <%= render(ImageComponent.new(image: image, size: :small)) %>
+            <%# The lead image is the largest paint above the fold, so it is
+                fetched eagerly and with priority; the other two can wait. %>
+            <%= render(ImageComponent.new(
+              image: image,
+              size: :small,
+              loading: lead ? "eager" : "lazy",
+              fetchpriority: lead ? "high" : "auto",
+              decoding: "async"
+            )) %>
           </div>
 
           <div class="<%= lead ? 'order-1' : 'min-w-0' %> flex flex-col gap-y-2 dark:text-sand">

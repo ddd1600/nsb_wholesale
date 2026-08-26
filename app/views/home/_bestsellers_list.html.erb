@@ -19,7 +19,12 @@
           </span>
 
           <span class="product-frame w-10 h-10 shrink-0 md:w-14 md:h-14">
-            <%= render(ImageComponent.new(image: entry.product.gallery.images.first, size: :mini)) %>
+            <%= render(ImageComponent.new(
+              image: entry.product.gallery.images.first,
+              size: :mini,
+              loading: "lazy",
+              decoding: "async"
+            )) %>
           </span>
 
           <span class="flex-1 min-w-0 text-body-sm md:text-body">

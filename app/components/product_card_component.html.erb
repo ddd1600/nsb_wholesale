@@ -26,11 +26,16 @@
   <article class="h-full flex flex-col <%= padding_classes %>">
     <section class="product-card_image h-full">
       <%= link_to product_path(product), itemprop: 'url' do %>
+        <%# Lazy + async: the homepage renders ~50 of these, and the browser
+            should paint the ranking without waiting on images the reader has
+            not scrolled to yet. %>
         <%= render(
           ImageComponent.new(
             image: main_image,
-            size: :small, 
+            size: :small,
             itemprop: "image",
+            loading: "lazy",
+            decoding: "async",
             classes: 'h-0 min-h-full mx-auto object-contain'
           )
         ) %>

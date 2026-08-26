@@ -48,6 +48,12 @@ namespace :nsb do
         puts "  +#{row[:attached].to_s.rjust(2)}  #{row[:sku].ljust(24)} #{row[:name]}"
       end
 
+      # Chained deliberately. Attaching an image is only half the job: until its
+      # variants exist, the next person to open the homepage generates all ~500
+      # of them and waits about 15 seconds. Making that a second command to
+      # remember is how it gets forgotten.
+      Rake::Task["nsb:images:warm"].invoke
+
       reordered = result.products_matched.select { |row| row[:reordered] }
       if reordered.any?
         puts "\nRE-ORDERED to match the public site's gallery (#{reordered.size}):"
@@ -55,6 +61,20 @@ namespace :nsb do
       end
 
       report_failures(result)
+    end
+
+    desc "Pre-generate the storefront's image variants (safe to re-run)"
+    task warm: :environment do
+      result = Nsb::ImageVariantWarmer.new.call
+
+      puts
+      puts "=" * 72
+      puts "image variants: #{result}"
+      result.failures.first(10).each do |row|
+        puts "  image #{row[:image_id]} #{row[:style]}: #{row[:error]}"
+      end
+      puts "Run this after nsb:images:import; without it the first visitor"
+      puts "generates every variant and waits about 13 seconds for the homepage."
     end
 
     desc "List visually similar images within each product, for review (deletes nothing)"
