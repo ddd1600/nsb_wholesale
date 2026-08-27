@@ -135,6 +135,57 @@ header, so the usual Host-header poisoning payoff is not available here. Turning
 it on is available hardening, but it can 403 the whole site if the health check
 is not excluded — not something to bundle into a DNS cutover.
 
+## Memory ceiling, and the image-variant rule
+
+The web service is Render's `starter` plan: **512MB and 0.5 CPU**, shared by
+Puma and the Solid Queue supervisor. Solidus is not a small application and that
+ceiling is real, not theoretical.
+
+**What happened on 2026-08-27.** Product images were imported without
+pre-generating their variants, so Active Storage built each variant inline,
+inside the web request, using libvips. `/admin/stock_items` took 9.9 seconds,
+storefront product pages took 4-5 seconds, and the instance OOM-killed itself
+repeatedly — a 502 to the browser and several minutes down each time. The tell
+in the logs is an `ActiveStorage::AnalyzeJob` taking 18,007ms against a normal
+10-200ms, immediately before `==> Instance restarted`.
+
+**The rule: run the variant warmer after any image import.** Without it, the
+first visitor to each page generates every variant and waits — and on this
+instance may take the whole service down instead.
+
+```
+bin/rails nsb:images:import
+bin/rails nsb:images:warm     # NOT optional
+```
+
+**Warming cannot be done from the Render shell.** It needs more memory than the
+instance has spare, so it dies within seconds, takes the whole instance with it,
+and you lose the shell output. Because blobs live in PostgreSQL rather than on
+disk, run it from a laptop against the production database instead — the
+variants land in the same `db` service the live site reads, because Active
+Storage creates variant blobs with the parent blob's `service_name`.
+
+Get the **External** Database URL from Render (the internal one only resolves
+inside Render), then:
+
+```
+DATABASE_URL='<external url>' bin/rails runner 'Spree::Image.order(:id).pluck(:id).each { |id| img = Spree::Image.find(id); next unless img.attachment.attached?; %i[mini small product large].each { |s| img.attachment.variant(s) }; print "."; $stdout.flush }'
+```
+
+This only ever creates rows — variant blobs and variant records. It modifies and
+deletes nothing. Safe to re-run; it skips what already exists. Check progress
+with:
+
+```
+bin/rails runner 'puts "#{ActiveStorage::VariantRecord.count} of ~#{Spree::Image.joins(:attachment_attachment).count * 4}"'
+```
+
+**Other things that push against the ceiling.** The job worker runs on one
+thread deliberately (`config/queue.yml`) for this reason. Bulk admin actions and
+large imports are the other candidates. If this happens again and there is no
+un-warmed image import to blame, the answer is the 2GB Render plan rather than
+another workaround — this one is already at the end of what tuning can buy.
+
 ## Known quirks, so they are not rediscovered
 
 - A partially refunded order shows `balance_due`. Expected: the order total is
@@ -160,4 +211,6 @@ bin/rails nsb:shipstation:status         # push state of recent orders
 bin/rails 'nsb:shipstation:repush[R123]' # re-push after an outage
 bin/rails nsb:import:catalog             # re-import products (safe to re-run)
 bin/rails nsb:import:store               # store name/url/from-address
+bin/rails nsb:images:import              # attach product photos (safe to re-run)
+bin/rails nsb:images:warm                # pre-generate variants -- REQUIRED after an import
 ```
