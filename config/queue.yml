@@ -3,8 +3,20 @@ default: &default
     - polling_interval: 1
       batch_size: 500
   workers:
+    # One thread, not the generated default of 3.
+    #
+    # The supervisor runs inside the Puma process (config/puma.rb) on Render's
+    # 512MB starter instance, so every job thread competes for memory with the
+    # web requests. That ceiling is real: generating image variants inline
+    # OOM-killed the instance repeatedly on 2026-08-27, and each concurrent
+    # ActiveStorage::AnalyzeJob was adding to the pressure.
+    #
+    # Nothing is lost by serialising them. This store takes roughly one order a
+    # day; the queue exists so the confirmation email and the ShipStation push
+    # survive a restart, not to move volume. Jobs wait a second longer and the
+    # storefront stops falling over.
     - queues: "*"
-      threads: 3
+      threads: 1
       processes: <%= ENV.fetch("JOB_CONCURRENCY", 1) %>
       polling_interval: 1
 
