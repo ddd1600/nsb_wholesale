@@ -1,0 +1,10 @@
+An existing wholesale customer has activated their account and can now order.
+
+<% if @company_name.present? -%>
+Company:  <%= @company_name %>
+<% end -%>
+Email:    <%= @user.email %>
+Activated: <%= @user.nsb_activated_at&.strftime("%-d %B %Y at %H:%M %Z") %>
+
+This is one of the accounts migrated from the old wholesale site. They set
+their own password just now -- no action is needed from you.

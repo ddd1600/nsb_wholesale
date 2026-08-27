@@ -34,7 +34,7 @@
             <%= product.name %>
           </span>
           <span class="text-body-sm md:text-body font-sans-md price selling">
-            <%= product.display_price %>
+            <% if show_wholesale_prices? %><%= product.display_price %><% end %>
           </span>
         </div>
       </div>

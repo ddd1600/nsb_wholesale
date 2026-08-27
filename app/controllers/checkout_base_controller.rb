@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class CheckoutBaseController < StoreController
+  include Nsb::RequiresWholesaleAccount
   before_action :load_order
   around_action :lock_order
 

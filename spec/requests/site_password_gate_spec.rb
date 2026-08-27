@@ -34,13 +34,16 @@ RSpec.describe "Site password gate", type: :request do
       expect(response).to have_http_status(:unauthorized)
     end
 
+    # /welcome rather than "/": root now redirects a signed-out visitor to the
+    # welcome page, so a 200 there would be testing the wrong thing. What is
+    # being asserted is that the middleware did not answer the request itself.
     it "lets the correct password through" do
-      get "/", headers: basic_auth("biscuits")
+      get "/welcome", headers: basic_auth("biscuits")
       expect(response).to have_http_status(:ok)
     end
 
     it "accepts any username, since only the password is checked" do
-      get "/", headers: basic_auth("biscuits", user: "whoever")
+      get "/welcome", headers: basic_auth("biscuits", user: "whoever")
       expect(response).to have_http_status(:ok)
     end
 
@@ -71,7 +74,7 @@ RSpec.describe "Site password gate", type: :request do
     let(:password) { nil }
 
     it "does not gate anything, so development and test are unaffected" do
-      get "/"
+      get "/welcome"
       expect(response).to have_http_status(:ok)
     end
   end

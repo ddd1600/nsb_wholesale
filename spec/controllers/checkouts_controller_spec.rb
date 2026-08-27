@@ -24,30 +24,24 @@ RSpec.describe CheckoutsController, type: :controller do
         end
       end
 
-      context 'when not authenticated as guest' do
-        it 'redirects to registration step' do
+      # Guest checkout is closed. Wholesale accounts are approval-gated, so
+      # there is no such thing as a guest wholesale customer -- and pricing is
+      # not shown to anyone signed out, which is most of what checkout is for.
+      #
+      # Nsb::RequiresWholesaleAccount turns the request away before Solidus's
+      # own guest handling is reached, so allow_guest_checkout and the
+      # registration step no longer decide anything here.
+      context 'when not signed in' do
+        it 'is sent to the welcome page rather than the registration step' do
           get :edit, params: { state: 'address' }
-          expect(response).to redirect_to new_checkout_session_path
-        end
-      end
-
-      context 'when authenticated as guest' do
-        before { order.email = 'guest@solidus.io' }
-
-        it 'proceeds to the first checkout step' do
-          get :edit, params: { state: 'address' }
-          expect(response).to render_template :edit
+          expect(response).to redirect_to '/welcome'
         end
 
-        context 'when guest checkout not allowed' do
-          before do
-            stub_spree_preferences(allow_guest_checkout: false)
-          end
+        it 'is still turned away when the order has a guest email' do
+          order.email = 'guest@solidus.io'
 
-          it 'redirects to registration step' do
-            get :edit, params: { state: 'address' }
-            expect(response).to redirect_to new_checkout_session_path
-          end
+          get :edit, params: { state: 'address' }
+          expect(response).to redirect_to '/welcome'
         end
       end
     end
@@ -66,10 +60,10 @@ RSpec.describe CheckoutsController, type: :controller do
         end
       end
 
-      context 'when authenticated as guest' do
-        it 'proceeds to the first checkout step' do
+      context 'when not signed in' do
+        it 'is turned away even with the registration step disabled' do
           get :edit, params: { state: 'address' }
-          expect(response).to render_template :edit
+          expect(response).to redirect_to '/welcome'
         end
       end
     end
@@ -84,14 +78,19 @@ RSpec.describe CheckoutsController, type: :controller do
         allow(order).to receive(:payment_required?) { false }
       end
 
-      context 'with a token' do
+      # Completing an order on a guest token alone is part of the same closed
+      # path: the order could only have been built by someone signed in, and
+      # they are asked to sign in again rather than finish anonymously. Reading
+      # a finished order by token still works -- OrdersController is
+      # deliberately not gated, because that link is in the customer's own
+      # confirmation email.
+      context 'with a token but not signed in' do
         before { allow(order).to receive(:guest_token) { 'ABC' } }
 
-        it 'redirects to the tokenized order view' do
+        it 'does not complete the order' do
           request.cookie_jar.signed[:guest_token] = 'ABC'
           post :update, params: { state: 'confirm' }
-          expect(response).to redirect_to token_order_path(order, 'ABC')
-          expect(flash.notice).to eq I18n.t('spree.order_processed_successfully')
+          expect(response).to redirect_to '/welcome'
         end
       end
 

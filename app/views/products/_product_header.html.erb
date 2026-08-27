@@ -3,7 +3,11 @@
     <%= product.name %>
   </h1>
 
-  <% if product.price_for_options(current_pricing_options)&.money and !product.price.nil? %>
+  <% if !show_wholesale_prices? %>
+    <p class="font-sans-md text-body-md" id="product-price">
+      <%= link_to t("nsb.pricing.sign_in_for_pricing"), login_path, class: "underline" %>
+    </p>
+  <% elsif product.price_for_options(current_pricing_options)&.money and !product.price.nil? %>
     <h2 class="font-sans-md text-body-md" id="product-price">
       <%= content_tag(
         :span,

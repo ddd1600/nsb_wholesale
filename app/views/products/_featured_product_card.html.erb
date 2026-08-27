@@ -27,7 +27,7 @@
       <span class="font-serif text-body md:text-h6 lg:text-h5 text-black dark:text-sand">
         <%= product.name %>
       </span>
-      <% if product.display_price %>
+      <% if show_wholesale_prices? && product.display_price %>
         <span class="price selling shrink-0 font-sans-md text-body-sm text-black dark:text-sand">
           <%= product.display_price %>
         </span>

@@ -1,0 +1,31 @@
+<%# The whole point of this page is the fork. 360 businesses already have an
+    account waiting; sending one of them down the application path creates a
+    duplicate the operator has to reconcile, so the question comes first. %>
+<div class="wrapper py-12 lg:py-20">
+  <div class="max-w-2xl mx-auto flex flex-col gap-10">
+    <header class="flex flex-col gap-3">
+      <h1 class="font-serif-md text-h4 lg:text-h3"><%= t("nsb.welcome.title") %></h1>
+      <p class="text-body"><%= t("nsb.welcome.intro") %></p>
+    </header>
+
+    <section class="flex flex-col gap-3 border-t pt-8">
+      <h2 class="font-sans-md text-body-md"><%= t("nsb.welcome.existing_heading") %></h2>
+      <p class="text-body-sm"><%= t("nsb.welcome.existing_body") %></p>
+      <div><%= link_to t("nsb.welcome.existing_cta"), claim_path, class: "btn-primary inline-block" %></div>
+    </section>
+
+    <section class="flex flex-col gap-3 border-t pt-8">
+      <h2 class="font-sans-md text-body-md"><%= t("nsb.welcome.new_heading") %></h2>
+      <p class="text-body-sm"><%= t("nsb.welcome.new_body") %></p>
+      <div><%= link_to t("nsb.welcome.new_cta"), apply_path, class: "btn-primary inline-block" %></div>
+    </section>
+
+    <section class="flex flex-col gap-2 border-t pt-8 text-body-sm">
+      <p>
+        <%= t("nsb.welcome.signed_in_already") %>
+        <%= link_to t("nsb.welcome.sign_in"), login_path, class: "underline" %>
+      </p>
+      <p><%= link_to t("nsb.welcome.browse"), products_path, class: "underline" %></p>
+    </section>
+  </div>
+</div>

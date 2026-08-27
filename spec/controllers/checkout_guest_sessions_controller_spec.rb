@@ -2,82 +2,50 @@
 
 require 'solidus_starter_frontend_spec_helper'
 
+# This controller exists to let someone check out as a guest: it takes an email
+# and attaches it to an order that has no user.
+#
+# That path is closed. Wholesale accounts are approval-gated -- existing
+# customers claim the account already created for them, everyone else applies
+# and waits -- so there is no such thing as a guest wholesale customer. Pricing
+# is not shown to anyone signed out either, which is most of what checkout is
+# for.
+#
+# The controller and its route are left in place rather than removed: checkout
+# is the highest-stakes area in this application, and deleting paths through it
+# is a change to make deliberately and on its own, not as a side effect of
+# adding a welcome page. Nsb::RequiresWholesaleAccount closes the door; these
+# examples are what says the door is shut.
 RSpec.describe CheckoutGuestSessionsController, type: :controller do
   let(:order) { create(:order_with_line_items, email: nil, user: nil, guest_token: token) }
-  let(:user)  { build(:user, spree_api_key: 'fake') }
   let(:token) { 'some_token' }
-  let(:cookie_token) { token }
 
   before do
-    request.cookie_jar.signed[:guest_token] = cookie_token
+    request.cookie_jar.signed[:guest_token] = token
     allow(controller).to receive(:current_order) { order }
   end
 
   context '#create' do
-    subject { post :create, params: { order: { email: email } } }
-    let(:email) { 'foo@example.com' }
+    subject { post :create, params: { order: { email: 'foo@example.com' } } }
 
-    it 'does not check registration' do
-      expect(controller).not_to receive(:check_registration)
+    it 'refuses an anonymous visitor and sends them to the welcome page' do
       subject
+
+      expect(response).to redirect_to '/welcome'
     end
 
-    it 'redirects to the checkout_path after saving' do
+    it 'does not attach a guest email to the order' do
+      expect { subject }.not_to change { order.reload.email }
+    end
+
+    # The gate runs before the controller's own logic, so a valid guest token
+    # buys nothing here.
+    it 'refuses even with a matching order token' do
+      request.cookie_jar.signed[:guest_token] = token
+
       subject
-      expect(response).to redirect_to checkout_path
-    end
 
-    # Regression test for https://github.com/solidusio/solidus/issues/1588
-    context 'order in address state' do
-      let(:order) do
-        create(
-          :order_with_line_items,
-          email: nil,
-          user: nil,
-          guest_token: token,
-          bill_address: nil,
-          ship_address: nil,
-          state: 'address'
-        )
-      end
-
-      # This may seem out of left field, but previously there was an issue
-      # where address would be built in a before filter and then would be saved
-      # when trying to update the email.
-      it "doesn't create addresses" do
-        expect {
-          subject
-        }.not_to change { Spree::Address.count }
-        expect(response).to redirect_to checkout_path
-      end
-    end
-
-    context 'invalid email' do
-      let(:email) { 'invalid' }
-
-      it 'renders the registration view' do
-        subject
-        expect(flash[:registration_error]).to eq I18n.t(:email_is_invalid, scope: [:errors, :messages])
-        expect(response).to render_template 'checkout_sessions/new'
-      end
-    end
-
-    context 'with wrong order token' do
-      let(:cookie_token) { 'lol_no_access' }
-
-      it 'redirects to login' do
-        subject
-        expect(response).to redirect_to(login_path)
-      end
-    end
-
-    context 'without order token' do
-      let(:cookie_token) { nil }
-
-      it 'redirects to login' do
-        subject
-        expect(response).to redirect_to(login_path)
-      end
+      expect(response).to redirect_to '/welcome'
     end
   end
 end

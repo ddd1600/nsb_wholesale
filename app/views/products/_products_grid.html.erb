@@ -6,7 +6,7 @@
         nothing to gain from caching this anyway. %>
     <%= render ProductCardComponent.new(
       product,
-      price: product.price_for_options(current_pricing_options),
+      price: show_wholesale_prices? ? product.price_for_options(current_pricing_options) : nil,
       additional_classes: "col-span-full md:col-span-6 lg:col-span-4"
     ) %>
   <% end %>

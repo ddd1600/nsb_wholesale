@@ -1,0 +1,27 @@
+A business has applied for a wholesale account.
+
+Business:        <%= @application.business_name %>
+Contact:         <%= @application.contact_name %>
+Email:           <%= @application.email %>
+Phone:           <%= @application.phone %>
+
+Retail licence:  <%= @application.retail_license_number %> (<%= @application.retail_license_state %>)
+
+Address:
+<%= @application.address %>
+
+What they sell:
+<%= @application.sells %>
+
+What they're interested in:
+<%= @application.interested_in %>
+
+How they found us:
+<%= @application.heard_about_us %>
+
+Review and approve:
+
+<%= @review_url %>
+
+Approving creates their account and emails them a link to set a password.
+Nothing is sent to them until you do.

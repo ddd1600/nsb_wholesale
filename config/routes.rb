@@ -16,6 +16,25 @@ Rails.application.routes.draw do
   #
   # If you would like to change where this engine is mounted, simply change the :at option to something different.
   # We ask that you don't use the :as option here, as Solidus relies on it being the default of "spree"
+  # Declared in the host app, but served by a controller that inherits
+  # Spree::Admin::BaseController -- so review and approval sit behind Solidus's
+  # own admin authentication rather than a second door this app would have to
+  # get right. Must come BEFORE the engine mount: Solidus is mounted at '/' and
+  # routes match in order.
+  # scope, not namespace: namespace would prefix the controller MODULE as well
+  # as the path, and go looking for Admin::Nsb::Admin::WholesaleApplications.
+  # The path and the route helper names are what we want prefixed; the class
+  # lives under Nsb::Admin.
+  scope :admin, as: :admin do
+    resources :wholesale_applications, only: [ :index, :show ],
+      controller: "nsb/admin/wholesale_applications" do
+      member do
+        post :approve
+        post :decline
+      end
+    end
+  end
+
   mount Spree::Core::Engine, at: '/'
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

@@ -1,4 +1,11 @@
+<%# The price facet is Solidus's own range filter, and its labels are wholesale
+    figures ("Under $10.00", "$10.00 - $15.00") even though no product is named
+    beside them. Dropped for a visitor who is not signed in -- otherwise the
+    catalog hides every price and then prints the price bands in the sidebar
+    next to it. Filtered here rather than in applicable_filters_for, so the
+    helper stays a plain list of the filters that exist. %>
 <% filters = applicable_filters_for(taxon) %>
+<% filters = filters.reject { |filter| filter[:name] == "Price Range" } unless show_wholesale_prices? %>
 
 <% unless filters.empty? %>
   <%= form_tag '', method: :get, id: 'sidebar_products_search', class: "mt-8" do %>

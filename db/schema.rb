@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_08_20_142411) do
+ActiveRecord::Schema[8.0].define(version: 2026_08_27_182602) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -70,6 +70,27 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_20_142411) do
     t.index ["slug", "sluggable_type"], name: "index_friendly_id_slugs_on_slug_and_sluggable_type"
     t.index ["sluggable_id"], name: "index_friendly_id_slugs_on_sluggable_id"
     t.index ["sluggable_type"], name: "index_friendly_id_slugs_on_sluggable_type"
+  end
+
+  create_table "nsb_wholesale_applications", force: :cascade do |t|
+    t.string "business_name", null: false
+    t.string "contact_name", null: false
+    t.string "email", null: false
+    t.string "phone", null: false
+    t.text "address", null: false
+    t.string "retail_license_state", null: false
+    t.string "retail_license_number", null: false
+    t.text "sells", null: false
+    t.text "interested_in", null: false
+    t.text "heard_about_us", null: false
+    t.string "status", default: "pending", null: false
+    t.datetime "reviewed_at"
+    t.bigint "user_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index "lower((email)::text)", name: "index_nsb_wholesale_applications_on_lower_email"
+    t.index ["status", "created_at"], name: "index_nsb_wholesale_applications_on_status_and_created_at"
+    t.index ["user_id"], name: "index_nsb_wholesale_applications_on_user_id"
   end
 
   create_table "solid_queue_blocked_executions", force: :cascade do |t|
@@ -1281,6 +1302,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_20_142411) do
     t.datetime "confirmation_sent_at", precision: nil
     t.string "unconfirmed_email"
     t.integer "b2b_customer_id"
+    t.datetime "nsb_activated_at"
     t.index ["b2b_customer_id"], name: "index_spree_users_on_b2b_customer_id", unique: true
     t.index ["deleted_at"], name: "index_spree_users_on_deleted_at"
     t.index ["email"], name: "email_idx_unique", unique: true
@@ -1373,6 +1395,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_20_142411) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "nsb_wholesale_applications", "spree_users", column: "user_id"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_failed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade

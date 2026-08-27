@@ -1,0 +1,15 @@
+Hello <%= @application.contact_name %>,
+
+Your wholesale account for <%= @application.business_name %> has been approved.
+
+Choose a password to finish setting up your account:
+
+<%= @set_password_url %>
+
+This link is valid for <%= @expires_in_days %> days. If it expires, you can request a
+new one at <%= @recover_url %>.
+
+Once you've set a password you'll be able to see wholesale pricing and place
+orders.
+
+If the link doesn't work, copy and paste it into your browser's address bar.

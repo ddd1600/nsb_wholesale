@@ -1,0 +1,41 @@
+<% admin_breadcrumb(link_to("Wholesale applications", admin_wholesale_applications_path)) %>
+<% admin_breadcrumb(@application.business_name) %>
+
+<div class="row">
+  <div class="col-8">
+    <h1><%= @application.business_name %></h1>
+
+    <dl>
+      <dt>Contact</dt><dd><%= @application.contact_name %></dd>
+      <dt>Email</dt><dd><%= mail_to @application.email %></dd>
+      <dt>Phone</dt><dd><%= @application.phone %></dd>
+      <dt>Retail licence</dt>
+      <dd><%= @application.retail_license_number %> (<%= @application.retail_license_state %>)</dd>
+      <dt>Address</dt><dd><%= simple_format @application.address %></dd>
+      <dt>What they sell</dt><dd><%= simple_format @application.sells %></dd>
+      <dt>Interested in</dt><dd><%= simple_format @application.interested_in %></dd>
+      <dt>How they found us</dt><dd><%= simple_format @application.heard_about_us %></dd>
+      <dt>Applied</dt><dd><%= @application.created_at.to_fs(:long) %></dd>
+      <dt>Status</dt><dd><%= @application.status.capitalize %></dd>
+      <% if @application.user %>
+        <dt>Account</dt>
+        <dd><%= link_to @application.user.email, spree.edit_admin_user_path(@application.user) %></dd>
+      <% end %>
+    </dl>
+
+    <% if @application.pending? %>
+      <div class="mt-4 d-flex gap-2">
+        <%# Approve creates the account and emails them a set-password link.
+            Decline is silent -- nothing reaches the applicant. %>
+        <%= button_to "Approve and email them",
+                      approve_admin_wholesale_application_path(@application),
+                      method: :post, class: "btn btn-primary",
+                      data: { turbo_confirm: "Approve #{@application.business_name}? This creates their account and emails them a link to set a password." } %>
+        <%= button_to "Decline",
+                      decline_admin_wholesale_application_path(@application),
+                      method: :post, class: "btn btn-danger",
+                      data: { turbo_confirm: "Decline #{@application.business_name}? Nothing is sent to them." } %>
+      </div>
+    <% end %>
+  </div>
+</div>

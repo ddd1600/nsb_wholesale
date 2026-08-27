@@ -26,3 +26,47 @@ en:
         retry: "Entered the wrong address?"
         retry_link: "Try a different email"
       claiming_for: "Setting up the portal for %{company}."
+    pricing:
+      # Shown wherever a price would be, to a visitor who is not signed in. The
+      # catalog is public so a prospect can see what we sell; the wholesale sheet
+      # is not.
+      sign_in_for_pricing: "Sign in to see wholesale pricing"
+      sign_in_to_order: "Sign in to see pricing and place an order."
+      sign_in: "Sign in"
+      apply: "apply for an account"
+      no_account_html: "Not a wholesale customer yet? You can %{apply}."
+    welcome:
+      title: "Wholesale ordering for New South Botanicals"
+      intro: "This portal is for approved wholesale customers. Sign in to see pricing and place orders."
+      existing_heading: "Already a New South Botanicals wholesale customer?"
+      existing_body: "Your account and order history have already been moved over. Enter your email address and we'll send you a link to choose a password."
+      existing_cta: "Set up my account"
+      new_heading: "New to New South Botanicals?"
+      new_body: "Tell us about your business and we'll review your application for a wholesale account."
+      new_cta: "Apply for an account"
+      signed_in_already: "Already have a password?"
+      sign_in: "Sign in"
+      browse: "Browse the catalog"
+    applications:
+      title: "Apply for a wholesale account"
+      intro: "Wholesale is for licensed retailers. Tell us about your business and we'll be in touch once we've reviewed your application."
+      submit: "Submit application"
+      # The 360 accounts migrated from the old portal make this likely enough to
+      # be worth handling rather than creating a duplicate.
+      already_a_customer_html: "It looks like %{email} already has an account with us. %{claim} instead."
+      already_a_customer_link: "Set up your existing account"
+      duplicate_pending: "We've already got an application from %{email} and are reviewing it. We'll be in touch."
+      received:
+        title: "Application received"
+        body: "Thanks — we've got your application and will review it shortly. If approved, you'll get an email with a link to set your password."
+      fields:
+        business_name: "Business name"
+        contact_name: "Your name"
+        email: "Email address"
+        phone: "Phone number"
+        address: "Business address"
+        retail_license_state: "Retail licence state"
+        retail_license_number: "Retail licence number"
+        sells: "What does your business sell?"
+        interested_in: "What are you interested in?"
+        heard_about_us: "How did you hear about us?"

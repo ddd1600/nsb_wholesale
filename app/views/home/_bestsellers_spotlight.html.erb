@@ -28,7 +28,7 @@
               and squeezes the image section to 0px. %>
           <%= render ProductCardComponent.new(
             entry.product,
-            price: entry.product.price_for_options(current_pricing_options),
+            price: show_wholesale_prices? ? entry.product.price_for_options(current_pricing_options) : nil,
             additional_classes: 'w-full',
             home_collection: true
           ) %>

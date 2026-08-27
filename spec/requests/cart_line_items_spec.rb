@@ -5,8 +5,13 @@ require 'solidus_starter_frontend_spec_helper'
 RSpec.describe 'Cart Line Items', type: :request do
   let!(:store) { create(:store) }
   let(:variant) { create(:variant) }
+  let(:user) { create(:user) }
 
-  context "#create" do
+  # Signed in throughout: adding to the cart now requires a wholesale account
+  # (Nsb::RequiresWholesaleAccount). These examples cover the cart mechanics,
+  # which are unchanged; spec/requests/wholesale_gate_spec.rb covers the door
+  # being shut on anonymous visitors.
+  context "#create", with_signed_in_user: true do
     it "creates a new order when none specified" do
       expect do
         post cart_line_items_path, params: { variant_id: variant.id }

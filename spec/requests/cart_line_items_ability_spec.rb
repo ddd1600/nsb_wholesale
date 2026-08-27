@@ -11,9 +11,15 @@ RSpec.describe 'Cart line item permissions', type: :request do
     before { order.update(guest_token: nil) }
 
     context '#create' do
-      it 'checks if user is authorized for :update' do
+      # Still refused, and now refused earlier: Nsb::RequiresWholesaleAccount
+      # turns away anonymous requests before Solidus's ability check on the
+      # mismatched guest token is reached, so the destination is the welcome
+      # page rather than the login form. The property under test -- that an
+      # anonymous visitor cannot add to an order that is not theirs -- is
+      # unchanged.
+      it 'refuses an anonymous request, before the ability check is reached' do
         post cart_line_items_path, params: { variant_id: variant.id }
-        expect(response).to redirect_to(login_path)
+        expect(response).to redirect_to(welcome_path)
       end
     end
   end

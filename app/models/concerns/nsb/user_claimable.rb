@@ -23,10 +23,36 @@ module Nsb
       admin_metadata&.dig("b2bwave", "company_name")
     end
 
+    # Called when this account is used for the first time -- the moment a
+    # migrated customer finishes setting a password and can actually order.
+    #
+    # Idempotent on purpose. Every activation goes through Devise's
+    # reset-password flow, and so does every ordinary "I forgot my password"
+    # later on; without the timestamp guard the operator would be told the
+    # customer activated again each time, which is wrong twice over.
+    def record_activation!
+      return false if nsb_activated_at.present?
+
+      update_column(:nsb_activated_at, Time.current)
+      Nsb::OperatorMailer.customer_activated(self).deliver_later
+      true
+    end
+
+    # Mints a Devise reset token and returns the raw value, for a caller that
+    # carries the link in its own message rather than the claim email -- an
+    # approved application is being told something different from a migrated
+    # customer, even though both land on the same set-password page.
+    #
+    # Public wrapper because Devise keeps set_reset_password_token protected, so
+    # it can only be reached from inside the user.
+    def issue_password_setup_token
+      set_reset_password_token
+    end
+
     # Mints a fresh token and emails the claim link. Returns the raw token so
     # specs can follow the link without parsing the email body.
     def send_claim_instructions
-      raw_token = set_reset_password_token
+      raw_token = issue_password_setup_token
       Nsb::ClaimMailer.claim_instructions(self, raw_token).deliver_later
       raw_token
     end

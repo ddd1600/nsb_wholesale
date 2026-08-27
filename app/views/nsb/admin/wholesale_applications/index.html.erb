@@ -1,0 +1,49 @@
+<% admin_breadcrumb("Wholesale applications") %>
+
+<div class="row">
+  <div class="col-12">
+    <h1>Pending applications</h1>
+
+    <% if @pending.empty? %>
+      <p>No applications waiting for review.</p>
+    <% else %>
+      <table class="index">
+        <thead>
+          <tr>
+            <th>Business</th><th>Contact</th><th>Retail licence</th><th>Applied</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @pending.each do |application| %>
+            <tr>
+              <td><%= link_to application.business_name, admin_wholesale_application_path(application) %></td>
+              <td><%= application.contact_name %><br><%= application.email %></td>
+              <td><%= application.retail_license_number %> (<%= application.retail_license_state %>)</td>
+              <td><%= application.created_at.to_date.to_fs(:long) %></td>
+              <td><%= link_to "Review", admin_wholesale_application_path(application), class: "btn btn-primary" %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% end %>
+
+    <% if @reviewed.any? %>
+      <h2 class="mt-4">Already reviewed</h2>
+      <table class="index">
+        <thead>
+          <tr><th>Business</th><th>Email</th><th>Outcome</th><th>Reviewed</th></tr>
+        </thead>
+        <tbody>
+          <% @reviewed.each do |application| %>
+            <tr>
+              <td><%= link_to application.business_name, admin_wholesale_application_path(application) %></td>
+              <td><%= application.email %></td>
+              <td><%= application.status.capitalize %></td>
+              <td><%= application.reviewed_at&.to_date&.to_fs(:long) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% end %>
+  </div>
+</div>

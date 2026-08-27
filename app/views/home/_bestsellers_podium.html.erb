@@ -43,7 +43,7 @@
             <%= render 'home/bestsellers_frequency_bar', share: entry.share, max_share: max_share %>
 
             <span class="text-body-sm md:text-body font-sans-md price selling mt-1">
-              <%= product.price_for_options(current_pricing_options)&.money&.to_html %>
+              <% if show_wholesale_prices? %><%= product.price_for_options(current_pricing_options)&.money&.to_html %><% end %>
             </span>
           </div>
         <% end %>

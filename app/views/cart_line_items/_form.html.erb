@@ -6,7 +6,18 @@
   }
 %>
 
+<% unless show_wholesale_prices? %>
+  <div class="signed-out-cta flex flex-col gap-3">
+    <p><%= t("nsb.pricing.sign_in_to_order") %></p>
+    <%= link_to t("nsb.pricing.sign_in"), login_path, class: "btn-primary" %>
+    <p class="text-body-sm">
+      <%= t("nsb.pricing.no_account_html", apply: link_to(t("nsb.pricing.apply"), apply_path, class: "underline")).html_safe %>
+    </p>
+  </div>
+<% end %>
+
 <%= form_for :order, url: cart_line_items_path, html: schema_properties, :onload => "setupToCartBtnPriceChangeEvt(#{product.price})" do |f| %>
+  <% if show_wholesale_prices? %>
   <% if product_variants_with_options(product).any? %>
     <div class="variant-container">
       <% sorted_option_types(product).each_with_index do |option_type, i| %>
@@ -27,5 +38,6 @@
         <%= t('spree.product_not_available_in_this_currency') %>
       </p>
     </div>
+  <% end %>
   <% end %>
 <% end %>

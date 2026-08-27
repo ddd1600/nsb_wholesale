@@ -42,6 +42,13 @@ class UserPasswordsController < Devise::PasswordsController
       render :edit
     else
       super
+
+      # The moment a wholesale account becomes usable. Devise has no callback for
+      # "a password was successfully set", and the model cannot tell a first
+      # activation from a later reset on its own -- record_activation! is
+      # idempotent, so calling it on every successful reset is safe and only the
+      # first one notifies.
+      resource.record_activation! if resource.persisted? && resource.errors.empty?
     end
   end
 

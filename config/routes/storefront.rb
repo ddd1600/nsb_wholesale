@@ -22,6 +22,15 @@ resources :users, only: [:edit, :update]
 # never be mounted in production, where real mail goes to real customers.
 mount LetterOpenerWeb::Engine, at: '/letter_opener' if Rails.env.development?
 
+# The page an anonymous visitor lands on: are you already a customer, or new?
+get  '/welcome',    to: 'welcome#index', as: :welcome
+
+# Applications from businesses that are not customers yet. Reviewed by hand;
+# approval is what creates the account.
+get  '/apply',          to: 'wholesale_applications#new',      as: :apply
+post '/apply',          to: 'wholesale_applications#create',   as: :create_application
+get  '/apply/received', to: 'wholesale_applications#received', as: :application_received
+
 get  '/claim',      to: 'claims#new',    as: :claim
 post '/claim',      to: 'claims#create', as: :create_claim
 get  '/claim/sent', to: 'claims#sent',   as: :claim_sent

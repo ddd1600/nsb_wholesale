@@ -135,6 +135,67 @@ header, so the usual Host-header poisoning payoff is not available here. Turning
 it on is available hardening, but it can 403 the whole site if the health check
 is not excluded — not something to bundle into a DNS cutover.
 
+## Who can see what, and how someone gets an account
+
+The storefront is half-open. A visitor with no account can see the catalog --
+product names, descriptions and photos -- so a prospect can decide whether
+applying is worth their time. Everything commercial requires an account:
+
+| Signed out | Signed in |
+|---|---|
+| Welcome page at `/`, catalog, product pages | Catalog with wholesale pricing |
+| No prices anywhere, including Solidus's price-range filter | Cart, checkout, order history |
+| No add-to-cart; a prompt to sign in or apply | |
+
+`ApplicationHelper#show_wholesale_prices?` guards every view that renders a
+price; `Nsb::RequiresWholesaleAccount` closes the cart, checkout, orders and
+coupon controllers. Both halves matter: hiding prices while leaving the cart open
+would let someone read the same numbers back out of it.
+
+**The price assertions in `spec/requests/wholesale_gate_spec.rb` scan rendered
+HTML, not helpers.** That is deliberate. Prices reach the page through several
+partials plus a Solidus filter facet, and a guard added to four of five leaks
+nothing visible until a competitor reads the fifth. The spec strips tags without
+a separator, because Solidus renders money as split spans -- a regex over raw
+HTML matches nothing and the assertion passes for the wrong reason.
+
+### Two ways in
+
+**Existing customers** (the 360 migrated from B2BWave) claim the account already
+created for them: `/claim`, email verified, Devise reset token, set a password.
+Unchanged from before, except that finishing it now emails the operator --
+`spree_users.nsb_activated_at` makes that fire exactly once, so a later forgotten
+password is not reported as another activation.
+
+**Everyone else** applies at `/apply`. The form is all-required, including phone
+and retail licence state and number, because that is what the operator vets on.
+Submitting emails the operator with a link to review it. An applicant whose email
+already has an account is sent to `/claim` instead -- with 360 migrated accounts,
+that mistake is likely, and a duplicate is work to reconcile.
+
+Nothing creates a `Spree::User` until approval. An unvetted applicant never
+appears in the customer list, the admin user search, or any customer count.
+
+### Reviewing applications
+
+Solidus admin -> `/admin/wholesale_applications`. Inherits Solidus's own admin
+authentication, so it is the same login, not a second one.
+
+- **Approve** creates the account and emails them a link to set a password --
+  the same page migrated customers land on.
+- **Decline** is silent by the operator's choice: it clears the pending list and
+  the applicant hears nothing.
+
+Both are one-way; an application that has been reviewed cannot be reviewed again.
+
+`OPERATOR_NOTIFICATION_EMAILS` (comma-separated) sets who gets the notifications,
+defaulting to david@newsouthbotanicals.com and ddd1600@gmail.com. Changeable in
+Render without a deploy.
+
+**`SITE_PASSWORD` must be removed before any of this is reachable.** The gate is
+Rack middleware that blocks everything except `/up`, so while it is set no
+applicant can reach the welcome page at all.
+
 ## Catalog pipeline, and the order it runs in
 
 The catalog is built from committed files in `db/import_data/` by four steps that

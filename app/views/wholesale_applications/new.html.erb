@@ -1,0 +1,46 @@
+<div class="wrapper py-12">
+  <div class="max-w-2xl mx-auto flex flex-col gap-8">
+    <header class="flex flex-col gap-3">
+      <h1 class="font-serif-md text-h4 lg:text-h3"><%= t("nsb.applications.title") %></h1>
+      <p class="text-body"><%= t("nsb.applications.intro") %></p>
+    </header>
+
+    <%= form_for @application, as: :wholesale_application, url: create_application_path do |f| %>
+      <% if @application.errors.any? %>
+        <div class="errors mb-6" role="alert">
+          <ul>
+            <% @application.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="flex flex-col gap-5">
+        <%# Every field is required: a half-filled application cannot be judged,
+            and chasing the rest by email is worse for both sides. %>
+        <% {
+             business_name: :text_field,
+             contact_name: :text_field,
+             email: :email_field,
+             phone: :telephone_field,
+             address: :text_area,
+             retail_license_state: :text_field,
+             retail_license_number: :text_field,
+             sells: :text_area,
+             interested_in: :text_area,
+             heard_about_us: :text_area
+           }.each do |field, input| %>
+          <div class="flex flex-col gap-1">
+            <%= f.label field, t("nsb.applications.fields.#{field}"), class: "font-sans-md text-body-sm" %>
+            <%= f.public_send(input, field, required: true, class: "form-input") %>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="mt-8">
+        <%= f.submit t("nsb.applications.submit"), class: "btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+</div>
