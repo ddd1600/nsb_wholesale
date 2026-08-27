@@ -18,6 +18,22 @@ namespace :nsb do
       end
     end
 
+    desc "Fold B2BWave's separate pack sizes into one product with variants (safe to re-run)"
+    task consolidate: :environment do
+      result = Nsb::ProductConsolidator.new.call
+
+      puts
+      puts "=" * 60
+      puts "consolidation: #{result}"
+      puts "Run this AFTER nsb:import:catalog -- it reorganises what that imports."
+
+      if result.failures.any?
+        puts "\nFAILURES:"
+        result.failures.each { |failure| puts "  #{failure[:name]}  -- #{failure[:error]}" }
+        abort "consolidation finished with #{result.failures.size} failure(s)"
+      end
+    end
+
     desc "Add the refund reasons the operator actually needs (safe to re-run)"
     task refund_reasons: :environment do
       Nsb::RefundReasonSeeder.new.call.each { |name| puts "  #{name}" }

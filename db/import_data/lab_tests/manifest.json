@@ -1,0 +1,113 @@
+{
+  "_comment": [
+    "Current certificates of analysis, supplied by the operator as PDFs in the",
+    "repository's 'lab tests' folder and converted to JPEG here -- Solidus product",
+    "galleries hold images, and Active Storage would refuse to build variants of a",
+    "PDF. Each COA is two pages, converted at 150 DPI and kept as two images so the",
+    "certificate stays complete; page 2 carries the disclaimers and the lab's",
+    "signature block.",
+    "",
+    "Keyed by b2b_product_id, which is stable across renames and consolidation --",
+    "unlike SKU, which product_variants.json moves off the master.",
+    "",
+    "Several COAs cover a whole formula line. The operator confirmed on 2026-08-27",
+    "that these attach to every size and flavour of their formula, so a customer",
+    "looking at the 2oz sees the same current test results as one looking at the 1oz.",
+    "",
+    "Discontinued products are deliberately absent: both gallon tinctures are off",
+    "the storefront, and storing two more images against each costs database space",
+    "for a page nobody can reach.",
+    "",
+    "Not listed, and deliberately: the THC-Free Advanced tincture (b2b 248) is a",
+    "different formulation from the Advanced tincture and no COA in the batch names",
+    "it. It keeps its existing lab test image until the operator supplies one.",
+    "",
+    "Applied by Nsb::LabTestImporter via bin/rails nsb:images:lab_tests.",
+    "Safe to re-run."
+  ],
+
+  "certificates": [
+    {
+      "coa": "supreme formula tincture",
+      "files": [ "supreme-formula-tincture-1.jpg", "supreme-formula-tincture-2.jpg" ],
+      "b2b_product_ids": [ 241, 242 ]
+    },
+    {
+      "coa": "advanced formula tincture",
+      "files": [ "advanced-formula-tincture-1.jpg", "advanced-formula-tincture-2.jpg" ],
+      "b2b_product_ids": [ 243, 244, 245, 247 ]
+    },
+    {
+      "coa": "original formula tincture",
+      "files": [ "original-formula-tincture-1.jpg", "original-formula-tincture-2.jpg" ],
+      "b2b_product_ids": [ 250, 251, 252, 255, 256 ]
+    },
+    {
+      "coa": "4to1 CBD to D8 tincture",
+      "files": [ "4to1-cbdtod8-tincture-1.jpg", "4to1-cbdtod8-tincture-2.jpg" ],
+      "b2b_product_ids": [ 258 ]
+    },
+    {
+      "coa": "D8 tincture",
+      "files": [ "d8-tincture-1.jpg", "d8-tincture-2.jpg" ],
+      "b2b_product_ids": [ 317 ]
+    },
+    {
+      "coa": "delta 8 gummies",
+      "files": [ "delta-8-gummies-1.jpg", "delta-8-gummies-2.jpg" ],
+      "b2b_product_ids": [ 282 ]
+    },
+    {
+      "coa": "supreme gummies",
+      "files": [ "supreme-gummies-1.jpg", "supreme-gummies-2.jpg" ],
+      "b2b_product_ids": [ 318 ]
+    },
+    {
+      "coa": "green apple CBD 70mg THC free gummies",
+      "files": [ "green-apple-cbd-70mg-thc-free-gummies-1.jpg", "green-apple-cbd-70mg-thc-free-gummies-2.jpg" ],
+      "b2b_product_ids": [ 320 ]
+    },
+    {
+      "coa": "full spectrum CBD oil infused caramel taffies",
+      "files": [
+        "full-spectrum-cbd-oil-infused-caramel-taffies-1.jpg",
+        "full-spectrum-cbd-oil-infused-caramel-taffies-2.jpg"
+      ],
+      "b2b_product_ids": [ 270, 271 ]
+    },
+    {
+      "coa": "THC free taffies",
+      "files": [ "thc-free-taffies-coa-1.jpg", "thc-free-taffies-coa-2.jpg" ],
+      "b2b_product_ids": [ 268 ]
+    },
+    {
+      "coa": "lotion bar",
+      "files": [ "lotion-bar-1.jpg", "lotion-bar-2.jpg" ],
+      "b2b_product_ids": [ 286 ]
+    }
+  ],
+
+  "_superseded_lab_test_files": [
+    "The images these COAs supersede. Identified from the source URLs recorded in",
+    "db/import_data/scraped_images/manifest.json -- the scrape kept the original",
+    "WordPress filenames, which name them as lab tests. Listed here so the importer",
+    "can place the new certificates directly above them in the gallery, and so the",
+    "list is reviewable rather than a regex buried in the code.",
+    "",
+    "The old images are kept, not deleted: a customer may have been sent a link to",
+    "one, and superseding is not the same as being wrong."
+  ],
+  "superseded_lab_test_files": [
+    "34d2ceb954a9d2d0.jpg",
+    "432ad4eee84f8a07.png",
+    "43ad197fb15b4499.jpg",
+    "44974bb05143b46c.png",
+    "55f3794fe66df0b2.png",
+    "879d1bddfecffb7a.jpg",
+    "99659f0cbf033ba2.png",
+    "a0a44fddbaa6fbed.png",
+    "b5ede02eacbcc492.png",
+    "bab73ff49009f92f.png",
+    "f6a729ce823224d8.png"
+  ]
+}

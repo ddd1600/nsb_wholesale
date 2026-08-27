@@ -71,7 +71,19 @@ module Nsb
       product = Spree::Product.find_or_initialize_by(b2b_product_id: record["b2b_product_id"])
       new_record = product.new_record?
 
-      product.name = record["name"]
+      # Name and SKU are owned by Nsb::ProductConsolidator for products it folds
+      # into variants, and by product_variants.json rather than the B2BWave
+      # export. Two reasons not to write them here:
+      #
+      #   The rename would be undone on every import, so the storefront would
+      #   show B2BWave's name until the consolidate step ran again.
+      #
+      #   The SKU would be REJECTED. Consolidation moves the size-specific SKU
+      #   off the master and onto a variant, and Solidus enforces uniqueness --
+      #   so restoring it here fails validation and takes the whole product row
+      #   down with it. That is not hypothetical: it failed for all five gummy
+      #   products the first time this pipeline was re-run end to end.
+      product.name = record["name"] unless consolidation_managed?(record)
       product.description = record["description"]
       product.shipping_category = default_shipping_category
       # Four marketing items (brochures, posters) are genuinely free; Solidus
@@ -89,7 +101,7 @@ module Nsb
       # SKU lives on the master variant. Kept as-is from B2BWave, including the
       # placeholder "-", so admin still matches the old system; b2b_product_id
       # is what we actually key on.
-      if record["sku"].present? && product.master.sku != record["sku"]
+      if record["sku"].present? && !consolidation_managed?(record) && product.master.sku != record["sku"]
         product.master.update!(sku: record["sku"])
       end
 
@@ -97,6 +109,26 @@ module Nsb
       attach_image(product, record["image"])
 
       new_record ? @result.created += 1 : @result.updated += 1
+    end
+
+    # b2b_product_ids that db/import_data/product_variants.json owns: the products
+    # that survive a consolidation, and the ones folded into them.
+    def consolidation_managed_ids
+      @consolidation_managed_ids ||= begin
+        path = @data_dir / "product_variants.json"
+        if path.exist?
+          config = JSON.parse(path.read)
+          config.fetch("consolidations", []).flat_map do |spec|
+            [ spec["keep"], *spec.fetch("supersedes", []).map { |entry| entry["b2b_product_id"] } ]
+          end.compact.to_set
+        else
+          Set.new
+        end
+      end
+    end
+
+    def consolidation_managed?(record)
+      consolidation_managed_ids.include?(record["b2b_product_id"])
     end
 
     def default_shipping_category

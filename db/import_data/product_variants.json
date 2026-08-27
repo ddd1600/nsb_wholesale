@@ -1,0 +1,93 @@
+{
+  "_comment": [
+    "Pack sizes that B2BWave modelled as separate products, expressed as Solidus",
+    "variants of one product instead. Keyed by b2b_product_id, like",
+    "product_overrides.json, but kept in its own file because this is a structural",
+    "change rather than a field correction.",
+    "",
+    "'keep' is the product that survives and becomes the page customers land on.",
+    "'variants' are listed in display order, so the FIRST entry is the default the",
+    "storefront preselects -- the operator wants the larger pack default everywhere.",
+    "'slug' is set explicitly rather than regenerated from the name: friendly_id",
+    "keeps the slug it first generated, so a renamed product would otherwise keep a",
+    "URL naming a product that no longer exists under that name.",
+    "'supersedes' lists the b2b_product_ids folded into it; those products are",
+    "discontinued rather than deleted, because order history references them.",
+    "",
+    "Their master SKUs are cleared as part of folding them in. Solidus enforces SKU",
+    "uniqueness across every variant that is not soft-deleted (Spree::Variant",
+    "#enforce_unique_sku?), so the superseded product cannot keep the SKU that the",
+    "new variant now claims. The original is recorded in 'was_sku' so nothing is",
+    "lost, and the product keeps its name and history in the admin.",
+    "",
+    "Applied by Nsb::ProductConsolidator via bin/rails nsb:catalog:consolidate.",
+    "Safe to re-run."
+  ],
+
+  "option_type": {
+    "name": "pack_size",
+    "presentation": "Pack Size"
+  },
+
+  "consolidations": [
+    {
+      "_why": [
+        "One Delta 8 gummy product sold in two pack sizes, listed twice in B2BWave.",
+        "Renamed at the operator's request: the B2BWave name spelled out the whole",
+        "formulation and repeated the count in the title, which is what the variant",
+        "picker is for."
+      ],
+      "keep": 282,
+      "name": "Delta 8 Gummies",
+      "slug": "delta-8-gummies",
+      "master_sku": "E-D8Gummies",
+      "variants": [
+        { "presentation": "30ct", "sku": "E-D8Gummies30Ct", "price": 30.0, "b2b_product_id": 282 },
+        { "presentation": "10ct", "sku": "E-D8Gummies10Ct", "price": 10.0, "b2b_product_id": 283 }
+      ],
+      "supersedes": [
+        { "b2b_product_id": 283, "was_sku": "E-D8Gummies10Ct" }
+      ]
+    },
+    {
+      "_why": [
+        "Same two-products-one-item shape as the Delta 8 gummies. The name already",
+        "reads well without the count, so only the count suffix is dropped."
+      ],
+      "keep": 318,
+      "name": "Supreme Formula Gummies",
+      "slug": "supreme-formula-gummies",
+      "master_sku": "E-Supreme Gummies",
+      "variants": [
+        { "presentation": "30ct", "sku": "E-Supreme Gummies30Ct", "price": 30.0, "b2b_product_id": 318 },
+        { "presentation": "10ct", "sku": "E-Supreme Gummies10Ct", "price": 12.5, "b2b_product_id": 319 }
+      ],
+      "supersedes": [
+        { "b2b_product_id": 319, "was_sku": "E-Supreme Gummies10Ct" }
+      ]
+    },
+    {
+      "_why": [
+        "Different shape from the other two: B2BWave carried only the 10ct, which",
+        "product_overrides.json already corrects from the placeholder SKU '-' and the",
+        "leaked retail price of 25.00. The 30ct exists in the operator's master SKU",
+        "sheet as E-IsoSupremeGummies30Ct and on the public retail site, but never",
+        "reached the wholesale price list, so there is no source row to import -- the",
+        "30ct variant is created here.",
+        "",
+        "Both prices confirmed by the operator on 2026-08-27: 12.50 for the 10ct,",
+        "30.00 for the 30ct. Renamed from 'THC Free Green Apple Gummies' at the same",
+        "time; flavour is no longer in the title."
+      ],
+      "keep": 320,
+      "name": "THC Free Gummies (70mg CBD)",
+      "slug": "thc-free-gummies-70mg-cbd",
+      "master_sku": "E-IsoSupremeGummies",
+      "variants": [
+        { "presentation": "30ct", "sku": "E-IsoSupremeGummies30Ct", "price": 30.0 },
+        { "presentation": "10ct", "sku": "E-IsoSupremeGummies10Ct", "price": 12.5, "b2b_product_id": 320 }
+      ],
+      "supersedes": []
+    }
+  ]
+}

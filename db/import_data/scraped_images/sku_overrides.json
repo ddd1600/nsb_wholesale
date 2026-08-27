@@ -6,8 +6,18 @@
     "Keep this list short and only add entries you have eyeballed -- fuzzy name",
     "matching was tried and rejected here, because 'Mint Chocolate ... Original",
     "Hemp Flower Extract (450MG)' and our 'Advanced Hemp Flower Extract 1400MG -",
-    "Mint Chocolate' are different products that a similarity score happily confuses."
+    "Mint Chocolate' are different products that a similarity score happily confuses.",
+    "",
+    "The three parent SKUs below exist because product_variants.json folds pack",
+    "sizes into one product with variants, and moves the size-specific SKU off the",
+    "master onto the variants. Nsb::SiteImageImporter matches on the MASTER sku, so",
+    "without these the consolidated products stop matching the public site --",
+    "silently, since a product that already has photos looks fine until the day the",
+    "photos need updating."
   ],
   "E-D8Gummies10Ct": "Delta-8 THC Infused Gummies",
-  "E-D8Gummies30Ct": "Delta-8 THC Infused Gummies"
+  "E-D8Gummies30Ct": "Delta-8 THC Infused Gummies",
+  "E-D8Gummies": "Delta-8 THC Infused Gummies",
+  "E-Supreme Gummies": "Supreme Gummies (60mg CBD per gummy)",
+  "E-IsoSupremeGummies": "THC-Free Green Apple Gummies (70mg-CBD/gummy)"
 }

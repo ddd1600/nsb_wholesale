@@ -135,6 +135,50 @@ header, so the usual Host-header poisoning payoff is not available here. Turning
 it on is available hardening, but it can 403 the whole site if the health check
 is not excluded — not something to bundle into a DNS cutover.
 
+## Catalog pipeline, and the order it runs in
+
+The catalog is built from committed files in `db/import_data/` by four steps that
+must run in this order. Each is safe to re-run; running them out of order is what
+goes wrong.
+
+```
+bin/rails nsb:import:catalog       # 1. products from the B2BWave export
+bin/rails nsb:import:consolidate   # 2. fold pack sizes into variants
+bin/rails nsb:images:import        # 3. product photos from the public site
+bin/rails nsb:images:lab_tests     # 4. current COAs, above the ones they supersede
+bin/rails nsb:images:warm          # 5. pre-generate variants (see the memory section)
+```
+
+**Why the order matters.** Step 2 renames products and moves SKUs off the master,
+so step 1 must have created them first. Step 3 reorders every gallery it touches,
+putting manifest images first — so step 4 has to come after it, or the new
+certificates get pushed back below the old ones. Step 5 is last because steps 3
+and 4 are what add the images it warms.
+
+**The data files, and what each is for:**
+
+| File | Purpose |
+|---|---|
+| `products.json` | Faithful copy of the B2BWave export. Do not hand-edit. |
+| `product_overrides.json` | Field-level corrections to known-bad source rows, keyed by `b2b_product_id`. |
+| `product_variants.json` | Pack sizes folded into one product with variants. First variant listed is the storefront default. |
+| `scraped_images/manifest.json` | Which photos each SKU gets, and in what order. |
+| `lab_tests/manifest.json` | Which COA belongs to which product, and which older lab tests it supersedes. |
+
+**Pack sizes are variants, not separate products.** B2BWave had no variant
+concept, so Delta 8 Gummies, Supreme Formula Gummies and THC Free Gummies each
+arrived as two products. `product_variants.json` folds them into one page with a
+Pack Size picker, defaulting to the larger pack. The folded-away products are
+discontinued rather than deleted — order history references them — and their
+master SKUs are cleared, because Solidus enforces SKU uniqueness across every
+variant that is not soft-deleted and the new variant now claims that SKU.
+
+**Lab tests are images, converted from PDF.** The operator supplies COAs as
+two-page PDFs; Solidus galleries hold images and Active Storage will not build
+variants of a PDF. Both pages are kept. New certificates are placed directly
+above the lab test they supersede, and the old image is kept rather than deleted
+— a customer may hold a link to it.
+
 ## Memory ceiling, and the image-variant rule
 
 The web service is Render's `starter` plan: **512MB and 0.5 CPU**, shared by
@@ -210,7 +254,9 @@ bin/rails nsb:monitoring:test            # send a test error to Sentry
 bin/rails nsb:shipstation:status         # push state of recent orders
 bin/rails 'nsb:shipstation:repush[R123]' # re-push after an outage
 bin/rails nsb:import:catalog             # re-import products (safe to re-run)
+bin/rails nsb:import:consolidate         # fold pack sizes into variants
 bin/rails nsb:import:store               # store name/url/from-address
 bin/rails nsb:images:import              # attach product photos (safe to re-run)
+bin/rails nsb:images:lab_tests           # attach current COAs above the older ones
 bin/rails nsb:images:warm                # pre-generate variants -- REQUIRED after an import
 ```

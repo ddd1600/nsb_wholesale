@@ -77,6 +77,23 @@ namespace :nsb do
       puts "generates every variant and waits about 13 seconds for the homepage."
     end
 
+    desc "Attach the current lab tests (COAs) above the ones they supersede (safe to re-run)"
+    task lab_tests: :environment do
+      result = Nsb::LabTestImporter.new.call
+
+      puts
+      puts "=" * 72
+      puts "lab tests: #{result}"
+      puts "Run this AFTER nsb:images:import and nsb:import:consolidate -- both move"
+      puts "images and products around. Then nsb:images:warm for the new variants."
+
+      if result.failures.any?
+        puts "\nFAILURES:"
+        result.failures.each { |f| puts "  #{f[:coa]} -> b2b #{f[:b2b_product_id]}: #{f[:error]}" }
+        abort "lab test import finished with #{result.failures.size} failure(s)"
+      end
+    end
+
     desc "List visually similar images within each product, for review (deletes nothing)"
     task duplicates: :environment do
       pairs = Nsb::SimilarImageReport.new.call
