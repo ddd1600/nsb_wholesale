@@ -148,9 +148,24 @@ applying is worth their time. Everything commercial requires an account:
 | No add-to-cart; a prompt to sign in or apply | |
 
 `ApplicationHelper#show_wholesale_prices?` guards every view that renders a
-price; `Nsb::RequiresWholesaleAccount` closes the cart, checkout, orders and
-coupon controllers. Both halves matter: hiding prices while leaving the cart open
-would let someone read the same numbers back out of it.
+price; `Nsb::RequiresWholesaleAccount` closes adding to the cart and checkout.
+Both halves matter: hiding prices while leaving add-to-cart open would let
+someone read the same numbers back out of the cart.
+
+The cart page and the order pages are deliberately NOT gated. An anonymous cart
+is necessarily empty once adding to it is closed, and gating orders would break
+the tokenised `/orders/:id/token/:token` links customers follow from their own
+confirmation emails.
+
+**There is no guest checkout.** A guest wholesale customer is a contradiction
+when accounts are approval-gated, so it was removed on 2026-08-27 rather than
+left gated and dead: `CheckoutSessionsController`,
+`CheckoutGuestSessionsController`, their routes, the registration interstitial
+and the `check_registration` detour through it are all gone.
+`Spree::Config[:allow_guest_checkout]` and
+`Spree::Auth::Config[:registration_step]` are set to false in the Spree
+initializer, so the intent is visible where a Solidus developer would look for
+it rather than inferred from absent controllers.
 
 **The price assertions in `spec/requests/wholesale_gate_spec.rb` scan rendered
 HTML, not helpers.** That is deliberate. Prices reach the page through several
