@@ -12,13 +12,23 @@
       </button>
     </div>
     <div class="flex items-center gap-x-4 xl:gap-x-8 w-full justify-center lg:justify-start">
-      <%# The mark here was Solidus's logo, not the store's. Showing the store
-          name alone is at least accurate; drop a real logo into
-          app/assets/images and add an image_tag back when one exists.
+      <%# Two files, not one recoloured by CSS: the wordmark is near-black and
+          would disappear on the dark theme, while a filter that lightened it
+          would also drain the pineapple's greens. The light variant recolours
+          only the dark, unsaturated ink -- see app/assets/images/brand/README.md.
+
           current_store rather than Spree::Store.default: same record here, but
           it is the helper Solidus intends and avoids a query per render. %>
       <%= link_to root_path, class: 'absolute lg:relative left-1/2 lg:left-0 lg:-translate-x-0 -translate-x-1/2 flex items-center space-x-3' do %>
-        <span class="uppercase font-sans font-semibold mb-0 dark:text-sand text-body lg:text-body-sm xl:text-body-sm"><%= current_store.name %></span>
+        <%= image_tag 'brand/nsb_logo_horizontal.png',
+              alt: current_store.name,
+              width: 610, height: 200,
+              class: 'h-9 w-auto lg:h-11 dark:hidden' %>
+        <%= image_tag 'brand/nsb_logo_horizontal_light.png',
+              alt: current_store.name,
+              width: 610, height: 200,
+              aria: { hidden: true },
+              class: 'h-9 w-auto lg:h-11 hidden dark:block' %>
       <% end %>
 
       <% categories = taxonomies.first %>

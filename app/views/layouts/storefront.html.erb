@@ -14,8 +14,14 @@
 
     <%= javascript_importmap_tags %>
 
-    <%= favicon_link_tag '/storefront_favicon.svg', type: 'image/svg+xml', rel: 'icon' %>
-    <%= favicon_link_tag '/storefront_favicon.ico', rel: 'icon', type: 'image/ico' %>
+    <%# New South Botanicals' pineapple mark, from the operator's brand folder.
+        These replaced Solidus's starter favicon, which was Solidus's own logo.
+        PNG rather than SVG because the supplied set is raster; the .ico carries
+        the legacy sizes for older browsers. %>
+    <%= favicon_link_tag '/storefront_favicon_32.png', type: 'image/png', rel: 'icon', sizes: '32x32' %>
+    <%= favicon_link_tag '/storefront_favicon_16.png', type: 'image/png', rel: 'icon', sizes: '16x16' %>
+    <%= favicon_link_tag '/apple-touch-icon.png', rel: 'apple-touch-icon', type: 'image/png' %>
+    <%= favicon_link_tag '/storefront_favicon.ico', rel: 'icon', type: 'image/x-icon' %>
 
     <script>
       const lsTheme = localStorage.getItem('theme') || 'light'
