@@ -7,7 +7,6 @@
 class CheckoutsController < CheckoutBaseController
   before_action :ensure_valid_state
   before_action :ensure_valid_payment
-  before_action :check_registration
   before_action :setup_for_current_state
 
   # Updates the order and advances to the next state (when possible.)
@@ -173,30 +172,14 @@ class CheckoutsController < CheckoutBaseController
     false
   end
 
-  # Introduces a registration step whenever the +registration_step+ preference is true.
-  def check_registration
-    return unless registration_required?
-
-    store_location
-    redirect_to new_checkout_session_path
-  end
-
-  def registration_required?
-    Spree::Auth::Config[:registration_step] &&
-      !already_registered?
-  end
-
-  def already_registered?
-    spree_current_user || guest_authenticated?
-  end
-
-  def guest_authenticated?
-    current_order&.email.present? &&
-      Spree::Config[:allow_guest_checkout]
-  end
-
-  # Overrides the equivalent method defined in Spree::Core.  This variation of the method will ensure that users
-  # are redirected to the tokenized order url unless authenticated as a registered user.
+  # Overrides the equivalent method defined in Spree::Core.
+  #
+  # With guest checkout removed, anyone reaching this point is signed in, so the
+  # first branch is the one that runs. The tokenised fallback is kept
+  # deliberately: it is two lines of defence rather than guest-checkout
+  # machinery, and without it a nil spree_current_user would raise here instead
+  # of redirecting somewhere sensible. Every order carries a guest_token, so it
+  # still resolves.
   def completion_route
     return order_path(@order) if spree_current_user
 

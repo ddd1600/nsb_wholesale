@@ -100,6 +100,24 @@ Spree::Api::Config.configure do |config|
   config.requires_authentication = true
 end
 
+# No guest checkout. Wholesale accounts are approval-gated -- existing customers
+# claim the account migrated from B2BWave, everyone else applies and waits for a
+# person to say yes -- so a guest wholesale customer is a contradiction. Pricing
+# is not shown to anyone signed out either, which is most of what checkout is
+# for.
+#
+# Set here as well as enforced by Nsb::RequiresWholesaleAccount, because this is
+# the switch a Solidus developer would look for. The controllers that served the
+# guest path (CheckoutSessionsController, CheckoutGuestSessionsController) were
+# removed on 2026-08-27 rather than left gated and dead.
+Spree::Config[:allow_guest_checkout] = false
+
+# The registration step existed to offer "sign in, sign up, or continue as a
+# guest" partway through checkout. With guest checkout gone and the storefront
+# closed to anonymous visitors, anyone reaching checkout is already signed in,
+# so the step has nothing left to ask.
+Spree::Auth::Config[:registration_step] = false
+
 
 # Rules for avoiding to store the current path into session for redirects
 # When at least one rule is matched, the request path will not be stored

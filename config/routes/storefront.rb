@@ -59,8 +59,6 @@ resources :cart_line_items, only: :create
 get '/locale/set', to: 'locale#set'
 post '/locale/set', to: 'locale#set', as: :select_locale
 
-resource :checkout_session, only: :new
-resource :checkout_guest_session, only: :create
 
 # non-restful checkout stuff
 patch '/checkout/update/:state', to: 'checkouts#update', as: :update_checkout
