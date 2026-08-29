@@ -22,6 +22,12 @@ module Nsb
     ENDPOINT = "https://addressvalidation.googleapis.com/v1:validateAddress"
     TIMEOUT = 5
 
+    # How precisely Google matched the address. PREMISE is a building,
+    # SUB_PREMISE a unit within one. Anything coarser -- ROUTE, BLOCK, OTHER --
+    # means it found the street or the area but not the address, which is what
+    # an invented street number looks like.
+    CONFIRMED_GRANULARITY = %w[PREMISE SUB_PREMISE].freeze
+
     # Google's verdict vocabulary, reduced to the three cases the form acts on.
     Result = Struct.new(:status, :formatted_address, :message, keyword_init: true) do
       def confirmed? = status == :confirmed
@@ -81,24 +87,42 @@ module Nsb
       verdict = result["verdict"] || {}
       formatted = result.dig("address", "formattedAddress")
 
-      # Google's own definition of "we found this and it is complete enough to
-      # deliver to". Anything short of it is worth showing the applicant once.
-      complete = verdict["addressComplete"]
-      unresolved = result.dig("address", "unresolvedTokens").presence
-      missing = result.dig("address", "missingComponentTypes").presence
+      reasons = problems(result, verdict)
 
-      if complete && unresolved.nil? && missing.nil?
+      if reasons.empty?
         Result.new(status: :confirmed, formatted_address: formatted)
       else
-        Result.new(status: :suspect, formatted_address: formatted, message: reason(missing, unresolved))
+        Result.new(status: :suspect, formatted_address: formatted, message: reasons.first)
       end
     end
 
-    def reason(missing, unresolved)
-      return "We could not find part of this address: #{unresolved.join(', ')}" if unresolved
-      return "This address looks incomplete (missing #{missing.join(', ')})" if missing
+    # Why we would not just accept this address.
+    #
+    # addressComplete alone is not enough, which is how an invented street
+    # number on a real street got through: nothing is missing from the address,
+    # so Google calls it complete, while separately reporting that it could not
+    # confirm the number. The unconfirmed-components flag and the granularity
+    # are what catch that.
+    #
+    # hasInferredComponents is deliberately NOT here. Google infers ZIP+4 and
+    # county on perfectly good addresses, so treating it as a problem would
+    # query almost every submission.
+    def problems(result, verdict)
+      unresolved = result.dig("address", "unresolvedTokens").presence
+      missing = result.dig("address", "missingComponentTypes").presence
+      granularity = verdict["validationGranularity"]
 
-      "We could not confirm this address"
+      problems = []
+      problems << "We could not find part of this address: #{unresolved.join(', ')}" if unresolved
+      problems << "This address looks incomplete (missing #{missing.join(', ')})" if missing
+      problems << "We could not confirm every part of this address" if verdict["hasUnconfirmedComponents"]
+
+      unless CONFIRMED_GRANULARITY.include?(granularity)
+        problems << "We could not match this to a specific building"
+      end
+
+      problems << "We could not confirm this address" unless verdict["addressComplete"]
+      problems
     end
   end
 end

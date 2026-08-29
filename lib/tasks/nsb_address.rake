@@ -2,9 +2,11 @@
 
 namespace :nsb do
   namespace :address do
-    desc "Check the Google Address Validation setup end to end (makes one live call)"
+    desc "Check Google Address Validation (ADDRESS=\"...\" to test a specific one)"
     task check: :environment do
-      report = Nsb::AddressValidationCheck.new.call
+      # An env var rather than a rake argument: addresses are full of commas,
+      # which rake treats as argument separators.
+      report = Nsb::AddressValidationCheck.new(ENV["ADDRESS"]).call
 
       puts
       puts "=" * 72

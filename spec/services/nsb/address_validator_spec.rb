@@ -30,10 +30,10 @@ RSpec.describe Nsb::AddressValidator do
   end
 
   describe "with an API key" do
-    it "confirms an address Google resolves completely" do
+    it "confirms an address Google resolves down to the building" do
       with_key do
         stub_google(status: 200, body: {
-          result: { verdict: { addressComplete: true },
+          result: { verdict: { addressComplete: true, validationGranularity: "PREMISE" },
                     address: { formattedAddress: "12 Front St, Conway, SC 29526, USA" } }
         }.to_json)
 
@@ -44,10 +44,53 @@ RSpec.describe Nsb::AddressValidator do
       end
     end
 
+    it "accepts an address Google tidied up but still placed exactly" do
+      # Inferring ZIP+4 or county is routine on good addresses. Treating that as
+      # a problem would query almost every submission.
+      with_key do
+        stub_google(status: 200, body: {
+          result: { verdict: { addressComplete: true, validationGranularity: "PREMISE",
+                               hasInferredComponents: true },
+                    address: { formattedAddress: "12 Front St, Conway, SC 29526-1234, USA" } }
+        }.to_json)
+
+        expect(validator.call(address)).to be_confirmed
+      end
+    end
+
+    # The bug this logic exists for: a made-up street number on a real street.
+    # Nothing is missing, so Google reports addressComplete, and an earlier
+    # version accepted it on that alone.
+    it "flags an invented street number even though the address is complete" do
+      with_key do
+        stub_google(status: 200, body: {
+          result: { verdict: { addressComplete: true, validationGranularity: "ROUTE",
+                               hasUnconfirmedComponents: true },
+                    address: { formattedAddress: "Front St, Conway, SC 29526, USA" } }
+        }.to_json)
+
+        result = validator.call(address)
+
+        expect(result).to be_suspect
+        expect(result.message).to include("could not confirm")
+      end
+    end
+
+    it "flags an address matched only to a street or an area" do
+      with_key do
+        stub_google(status: 200, body: {
+          result: { verdict: { addressComplete: true, validationGranularity: "OTHER" },
+                    address: { formattedAddress: "Conway, SC, USA" } }
+        }.to_json)
+
+        expect(validator.call(address).message).to include("specific building")
+      end
+    end
+
     it "flags an incomplete address and offers what Google did find" do
       with_key do
         stub_google(status: 200, body: {
-          result: { verdict: { addressComplete: false },
+          result: { verdict: { addressComplete: false, validationGranularity: "ROUTE" },
                     address: { formattedAddress: "Front St, Conway, SC, USA",
                                missingComponentTypes: [ "street_number" ] } }
         }.to_json)
@@ -63,7 +106,7 @@ RSpec.describe Nsb::AddressValidator do
     it "flags parts of the address it could not place" do
       with_key do
         stub_google(status: 200, body: {
-          result: { verdict: { addressComplete: false },
+          result: { verdict: { addressComplete: false, validationGranularity: "OTHER" },
                     address: { unresolvedTokens: [ "Nowhereville" ] } }
         }.to_json)
 

@@ -22,6 +22,10 @@ module Nsb
 
     Report = Struct.new(:ok, :headline, :details, keyword_init: true)
 
+    def initialize(address = nil)
+      @address = address.presence || SAMPLE
+    end
+
     def call
       key = Nsb::AddressValidator.api_key
       return missing_key unless key
@@ -48,7 +52,7 @@ module Nsb
     def perform(key)
       uri = URI("#{Nsb::AddressValidator::ENDPOINT}?key=#{key}")
       request = Net::HTTP::Post.new(uri, "Content-Type" => "application/json")
-      request.body = { address: { regionCode: "US", addressLines: [ SAMPLE ] } }.to_json
+      request.body = { address: { regionCode: "US", addressLines: [ @address ] } }.to_json
 
       Net::HTTP.start(uri.host, uri.port, use_ssl: true, open_timeout: 10, read_timeout: 20) do |http|
         http.request(request)
@@ -88,20 +92,40 @@ module Nsb
       end
     end
 
+    # Prints the whole verdict, not a summary. When an address slips through
+    # that should not have, the verdict is the evidence for which signal was
+    # missed -- an invented street number can come back addressComplete with
+    # hasUnconfirmedComponents set, and a summary hides exactly that.
     def success(body)
-      verdict = body.dig("result", "verdict") || {}
-      formatted = body.dig("result", "address", "formattedAddress")
+      result = body["result"] || {}
+      verdict = result["verdict"] || {}
+      formatted = result.dig("address", "formattedAddress")
+      decision = Nsb::AddressValidator.new.send(:interpret, body)
 
       Report.new(
         ok: true,
         headline: "Working",
         details: [
-          "Sent:      #{SAMPLE}",
-          "Google:    #{formatted}",
-          "Complete:  #{verdict['addressComplete'] ? 'yes' : 'no'}",
-          "Address validation is live on the application form."
+          "Sent:     #{@address}",
+          "Google:   #{formatted}",
+          "",
+          "Verdict:",
+          *verdict.sort.map { |key, value| "  #{key}: #{value}" },
+          *unresolved_lines(result),
+          "",
+          "The form would: #{decision.confirmed? ? 'accept this' : "ask them to check it -- #{decision.message}"}"
         ]
       )
+    end
+
+    def unresolved_lines(result)
+      unresolved = result.dig("address", "unresolvedTokens").presence
+      missing = result.dig("address", "missingComponentTypes").presence
+
+      [
+        ("  unresolvedTokens: #{unresolved.join(', ')}" if unresolved),
+        ("  missingComponentTypes: #{missing.join(', ')}" if missing)
+      ].compact
     end
 
     def failure(headline, details)
