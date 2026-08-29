@@ -9,9 +9,13 @@
       <dt>Contact</dt><dd><%= @application.contact_name %></dd>
       <dt>Email</dt><dd><%= mail_to @application.email %></dd>
       <dt>Phone</dt><dd><%= @application.phone %></dd>
-      <dt>Retail licence</dt>
+      <dt>Retail license</dt>
       <dd><%= @application.retail_license_number %> (<%= @application.retail_license_state %>)</dd>
-      <dt>Address</dt><dd><%= simple_format @application.address %></dd>
+      <dt>Business address</dt><dd><%= simple_format @application.address %></dd>
+      <%# Only shown when they gave one; blank means "same as business address". %>
+      <% if @application.shipping_address.present? %>
+        <dt>Shipping address</dt><dd><%= simple_format @application.shipping_address %></dd>
+      <% end %>
       <dt>What they sell</dt><dd><%= simple_format @application.sells %></dd>
       <dt>Interested in</dt><dd><%= simple_format @application.interested_in %></dd>
       <dt>How they found us</dt><dd><%= simple_format @application.heard_about_us %></dd>

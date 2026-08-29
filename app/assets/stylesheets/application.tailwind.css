@@ -216,3 +216,23 @@
     @apply h-full w-full aspect-auto rounded;
   }
 }
+
+@layer components {
+  /* Form error and warning panels. `.errors` was used by the application form
+     and the claim flow but never styled, so a validation failure rendered as
+     plain body text among the fields -- indistinguishable from help text, which
+     is exactly the thing the operator noticed people missing. */
+  .errors {
+    @apply rounded border border-red-300 bg-red-100 p-4 text-body-sm text-red-600;
+    @apply dark:border-red-400 dark:bg-red-600/20 dark:text-red-200;
+  }
+
+  .errors ul {
+    @apply list-disc list-inside space-y-1;
+  }
+
+  /* The asterisk marking a required field. */
+  .required-marker {
+    @apply text-red-500;
+  }
+}

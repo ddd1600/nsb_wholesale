@@ -51,6 +51,12 @@ en:
       title: "Apply for a wholesale account"
       intro: "Wholesale is for licensed retailers. Tell us about your business and we'll be in touch once we've reviewed your application."
       submit: "Submit application"
+      required_note: "Required field"
+      select_state: "Select a state"
+      address_check:
+        heading: "Please check the address you entered"
+        did_you_mean: "Did you mean: %{address}"
+        submit_again: "If what you entered is right, submit again and we'll take it as it is."
       # The 360 accounts migrated from the old portal make this likely enough to
       # be worth handling rather than creating a duplicate.
       already_a_customer_html: "It looks like %{email} already has an account with us. %{claim} instead."
@@ -65,8 +71,9 @@ en:
         email: "Email address"
         phone: "Phone number"
         address: "Business address"
-        retail_license_state: "Retail licence state"
-        retail_license_number: "Retail licence number"
+        shipping_address: "Shipping address (if different from business address)"
+        retail_license_state: "Retail license state"
+        retail_license_number: "Retail license number"
         sells: "What does your business sell?"
         interested_in: "What are you interested in?"
         heard_about_us: "How did you hear about us?"

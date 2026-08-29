@@ -22,7 +22,7 @@ class CreateNsbWholesaleApplications < ActiveRecord::Migration[8.0]
       # address is collected by Solidus at the first order.
       t.text :address, null: false
 
-      # Wholesale is licence-gated, so these are the fields the operator actually
+      # Wholesale is license-gated, so these are the fields the operator actually
       # vets on.
       t.string :retail_license_state, null: false
       t.string :retail_license_number, null: false

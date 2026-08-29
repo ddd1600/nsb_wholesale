@@ -1,0 +1,8 @@
+en:
+  activerecord:
+    errors:
+      models:
+        nsb/wholesale_application:
+          attributes:
+            phone:
+              invalid_us_phone: "must be a 10-digit US phone number, like (843) 555-1234"

@@ -1,11 +1,36 @@
+<%
+  # Ordered as the form reads, with whether each field is required and what kind
+  # of input it takes. REQUIRED_FIELDS is the model's list, so the asterisk and
+  # the validation can never disagree.
+  fields = [
+    [ :business_name,         :text_field ],
+    [ :contact_name,          :text_field ],
+    [ :email,                 :email_field ],
+    [ :phone,                 :telephone_field ],
+    [ :address,               :text_area ],
+    [ :shipping_address,      :text_area ],
+    [ :retail_license_state,  :select ],
+    [ :retail_license_number, :text_field ],
+    [ :sells,                 :text_area ],
+    [ :interested_in,         :text_area ],
+    [ :heard_about_us,        :text_area ]
+  ]
+  required = Nsb::WholesaleApplication::REQUIRED_FIELDS
+%>
 <div class="wrapper py-12">
   <div class="max-w-2xl mx-auto flex flex-col gap-8">
     <header class="flex flex-col gap-3">
       <h1 class="font-serif-md text-h4 lg:text-h3"><%= t("nsb.applications.title") %></h1>
       <p class="text-body"><%= t("nsb.applications.intro") %></p>
+      <p class="text-body-sm text-gray-600 dark:text-gray-300">
+        <span class="required-marker" aria-hidden="true">*</span>
+        <%= t("nsb.applications.required_note") %>
+      </p>
     </header>
 
-    <%= form_for @application, as: :wholesale_application, url: create_application_path do |f| %>
+    <%= form_for @application, as: :wholesale_application, url: create_application_path,
+          html: { novalidate: true, data: { controller: "application-form",
+                                            action: "submit->application-form#submit" } } do |f| %>
       <% if @application.errors.any? %>
         <div class="errors mb-6" role="alert">
           <ul>
@@ -16,30 +41,64 @@
         </div>
       <% end %>
 
+      <%# Only reachable once the applicant has already filled the form in and
+          Google could not confirm an address. Submitting again goes through. %>
+      <% if @address_warnings.present? %>
+        <div class="errors mb-6" role="alert" data-application-form-target="addressWarning">
+          <p class="font-sans-md mb-2"><%= t("nsb.applications.address_check.heading") %></p>
+          <ul class="mb-3">
+            <% @address_warnings.each do |warning| %>
+              <li>
+                <strong><%= t("nsb.applications.fields.#{warning[:field]}") %>:</strong>
+                <%= warning[:message] %><%= ".".html_safe %>
+                <% if warning[:suggestion].present? %>
+                  <br><%= t("nsb.applications.address_check.did_you_mean", address: warning[:suggestion]) %>
+                <% end %>
+              </li>
+            <% end %>
+          </ul>
+          <p class="text-body-sm"><%= t("nsb.applications.address_check.submit_again") %></p>
+        </div>
+        <%= hidden_field_tag :addresses_confirmed, "1" %>
+      <% end %>
+
+      <%# Client-side summary of anything left blank. Populated by the Stimulus
+          controller on submit; the browser's own per-field bubble only shows one
+          at a time, which is what made the required fields hard to spot. %>
+      <div class="errors mb-6 hidden" role="alert"
+           data-application-form-target="missingSummary" tabindex="-1"></div>
+
       <div class="flex flex-col gap-5">
-        <%# Every field is required: a half-filled application cannot be judged,
-            and chasing the rest by email is worse for both sides. %>
-        <% {
-             business_name: :text_field,
-             contact_name: :text_field,
-             email: :email_field,
-             phone: :telephone_field,
-             address: :text_area,
-             retail_license_state: :text_field,
-             retail_license_number: :text_field,
-             sells: :text_area,
-             interested_in: :text_area,
-             heard_about_us: :text_area
-           }.each do |field, input| %>
+        <% fields.each do |field, input| %>
+          <% is_required = required.include?(field) %>
           <div class="flex flex-col gap-1">
-            <%= f.label field, t("nsb.applications.fields.#{field}"), class: "font-sans-md text-body-sm" %>
-            <%= f.public_send(input, field, required: true, class: "form-input") %>
+            <%= f.label field, class: "font-sans-md text-body-sm" do %>
+              <%= t("nsb.applications.fields.#{field}") %><%
+                %><% if is_required %><span class="required-marker" aria-hidden="true">&nbsp;*</span><% end %>
+            <% end %>
+
+            <% if input == :select %>
+              <%= f.select field,
+                    Nsb::UsStates.options,
+                    { include_blank: t("nsb.applications.select_state") },
+                    required: is_required,
+                    class: "form-input",
+                    data: { application_form_target: "field" } %>
+            <% else %>
+              <%= f.public_send(input, field,
+                    required: is_required,
+                    class: "form-input",
+                    data: {
+                      application_form_target: field == :phone ? "phone field" : "field",
+                      action: (field == :phone ? "input->application-form#phoneInput" : nil)
+                    }.compact) %>
+            <% end %>
           </div>
         <% end %>
       </div>
 
       <div class="mt-8">
-        <%= f.submit t("nsb.applications.submit"), class: "btn-primary" %>
+        <%= f.submit t("nsb.applications.submit"), class: "button-primary" %>
       </div>
     <% end %>
   </div>

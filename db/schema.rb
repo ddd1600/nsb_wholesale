@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_08_27_182602) do
+ActiveRecord::Schema[8.0].define(version: 2026_08_29_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -80,14 +80,15 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_27_182602) do
     t.text "address", null: false
     t.string "retail_license_state", null: false
     t.string "retail_license_number", null: false
-    t.text "sells", null: false
-    t.text "interested_in", null: false
-    t.text "heard_about_us", null: false
+    t.text "sells"
+    t.text "interested_in"
+    t.text "heard_about_us"
     t.string "status", default: "pending", null: false
     t.datetime "reviewed_at"
     t.bigint "user_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "shipping_address"
     t.index "lower((email)::text)", name: "index_nsb_wholesale_applications_on_lower_email"
     t.index ["status", "created_at"], name: "index_nsb_wholesale_applications_on_status_and_created_at"
     t.index ["user_id"], name: "index_nsb_wholesale_applications_on_user_id"

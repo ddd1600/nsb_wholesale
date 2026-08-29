@@ -17,14 +17,29 @@ module Nsb
 
     belongs_to :user, class_name: "Spree::User", optional: true
 
-    # Every field on the form is required. This is a licence-gated wholesale
-    # account, not a newsletter signup -- a half-filled application cannot be
-    # judged, and chasing the rest by email is worse for both sides than the
-    # applicant filling it in now.
-    validates :business_name, :contact_name, :email, :phone, :address,
-      :retail_license_state, :retail_license_number,
-      :sells, :interested_in, :heard_about_us,
-      presence: true
+    # What the operator actually decides on: who you are, how to reach you, and
+    # the license. The three "tell us about your business" questions are useful
+    # colour but are not worth losing an applicant over, so they stay optional.
+    REQUIRED_FIELDS = %i[
+      business_name contact_name email phone address
+      retail_license_state retail_license_number
+    ].freeze
+
+    validates(*REQUIRED_FIELDS, presence: true)
+
+    # Two letters, and a state we actually recognise. The form offers a dropdown,
+    # so anything else arrived by hand-crafted request rather than by typo.
+    validates :retail_license_state,
+      inclusion: { in: ->(_) { Nsb::UsStates.codes } },
+      allow_blank: true
+
+    # Ten digits, once punctuation is stripped, optionally with a leading US
+    # country code. Deliberately not stricter: area-code and exchange rules
+    # change, and rejecting a real number to enforce a lookup table nobody
+    # maintains is the worse failure.
+    validates :phone,
+      format: { with: /\A\(\d{3}\) \d{3}-\d{4}\z/, message: :invalid_us_phone },
+      allow_blank: true
 
     validates :status, inclusion: { in: STATUSES }
 
@@ -38,6 +53,11 @@ module Nsb
 
     normalizes :email, with: ->(email) { email.to_s.strip.downcase }
     normalizes :retail_license_state, with: ->(state) { state.to_s.strip.upcase }
+
+    # Stored one way, however it was typed, so the operator reading a list of
+    # applications is not also parsing three phone formats. The browser formats
+    # as you type; this is what makes it true for anyone who bypasses that.
+    normalizes :phone, with: ->(phone) { Nsb::PhoneNumber.format(phone) }
 
     scope :pending, -> { where(status: "pending") }
     scope :reviewed, -> { where.not(status: "pending") }

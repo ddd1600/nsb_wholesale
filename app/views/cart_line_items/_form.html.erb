@@ -9,7 +9,7 @@
 <% unless show_wholesale_prices? %>
   <div class="signed-out-cta flex flex-col gap-3">
     <p><%= t("nsb.pricing.sign_in_to_order") %></p>
-    <%= link_to t("nsb.pricing.sign_in"), login_path, class: "btn-primary" %>
+    <%= link_to t("nsb.pricing.sign_in"), login_path, class: "button-primary" %>
     <p class="text-body-sm">
       <%= t("nsb.pricing.no_account_html", apply: link_to(t("nsb.pricing.apply"), apply_path, class: "underline")).html_safe %>
     </p>

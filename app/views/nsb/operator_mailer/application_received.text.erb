@@ -5,10 +5,14 @@ Contact:         <%= @application.contact_name %>
 Email:           <%= @application.email %>
 Phone:           <%= @application.phone %>
 
-Retail licence:  <%= @application.retail_license_number %> (<%= @application.retail_license_state %>)
+Retail license:  <%= @application.retail_license_number %> (<%= @application.retail_license_state %>)
 
-Address:
+Business address:
 <%= @application.address %>
+<% if @application.shipping_address.present? %>
+Shipping address:
+<%= @application.shipping_address %>
+<% end %>
 
 What they sell:
 <%= @application.sells %>

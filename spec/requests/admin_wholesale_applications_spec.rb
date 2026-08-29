@@ -33,7 +33,9 @@ RSpec.describe "Admin wholesale applications", type: :request do
       get "/admin/wholesale_applications/#{application.id}"
 
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include("RL-99881", "jo@coastalapothecary.test", "843-555-0134")
+      # The phone is stored formatted, however it was typed, so the operator
+      # reading a list of applications is not also parsing three phone formats.
+      expect(response.body).to include("RL-99881", "jo@coastalapothecary.test", "(843) 555-0134")
     end
 
     it "approves, creating the account and emailing them" do

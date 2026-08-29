@@ -83,7 +83,7 @@ RSpec.describe Nsb::WholesaleApplication do
     )
   end
 
-  it "normalises the email and licence state, because people type them how they like" do
+  it "normalizes the email and license state, because people type them how they like" do
     expect(application.email).to eq("jo@coastalapothecary.test")
     expect(application.retail_license_state).to eq("SC")
   end
