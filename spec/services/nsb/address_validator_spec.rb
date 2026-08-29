@@ -76,6 +76,51 @@ RSpec.describe Nsb::AddressValidator do
       end
     end
 
+    # The operator entered "999 Chapin Circle, Myrtle Beach, SC 29572", was
+    # asked "did you mean 999 Chapin Circle, Myrtle Beach, SC 29572, USA?",
+    # typed exactly that, and was let through. Google had not corrected
+    # anything; it appended the country to an address it could not confirm.
+    it "does not offer a suggestion that is the input with a country appended" do
+      with_key do
+        stub_google(status: 200, body: {
+          result: { verdict: { addressComplete: true, validationGranularity: "ROUTE",
+                               hasUnconfirmedComponents: true },
+                    address: { formattedAddress: "999 Chapin Circle, Myrtle Beach, SC 29572, USA" } }
+        }.to_json)
+
+        result = validator.call("999 Chapin Circle, Myrtle Beach, SC 29572")
+
+        expect(result).to be_suspect
+        expect(result.suggestion?).to be(false)
+      end
+    end
+
+    it "still offers a suggestion when Google genuinely corrected something" do
+      with_key do
+        stub_google(status: 200, body: {
+          result: { verdict: { addressComplete: true, validationGranularity: "ROUTE",
+                               hasUnconfirmedComponents: true },
+                    address: { formattedAddress: "12 Front Street, Conway, SC 29526, USA" } }
+        }.to_json)
+
+        result = validator.call("12 Frunt St, Conway, SC 29526")
+
+        expect(result.suggestion?).to be(true)
+      end
+    end
+
+    it "ignores case, punctuation and spacing when deciding that" do
+      with_key do
+        stub_google(status: 200, body: {
+          result: { verdict: { addressComplete: true, validationGranularity: "ROUTE",
+                               hasUnconfirmedComponents: true },
+                    address: { formattedAddress: "999 CHAPIN CIRCLE, MYRTLE BEACH, SC  29572" } }
+        }.to_json)
+
+        expect(validator.call("999 chapin circle myrtle beach sc 29572").suggestion?).to be(false)
+      end
+    end
+
     it "flags an address matched only to a street or an area" do
       with_key do
         stub_google(status: 200, body: {

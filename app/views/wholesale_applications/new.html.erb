@@ -41,28 +41,36 @@
         </div>
       <% end %>
 
-      <%# Only reachable once the applicant has already filled the form in and
-          Google could not confirm an address. Submitting again goes through. %>
+      <%# Reached when Google could not confirm an address. The applicant can
+          always proceed -- Google cannot tell us an address is fake, only that
+          it could not confirm one -- but proceeding is a checkbox they tick,
+          not something that happens by pressing submit twice. %>
       <% if @address_warnings.present? %>
-        <div class="errors mb-6" role="alert" data-application-form-target="addressWarning">
+        <div class="errors mb-6" role="alert">
           <p class="font-sans-md mb-2"><%= t("nsb.applications.address_check.heading") %></p>
           <ul class="mb-3">
             <% @address_warnings.each do |warning| %>
               <li>
-                <strong><%= t("nsb.applications.fields.#{warning[:field]}") %>:</strong>
-                <%= warning[:message] %><%= ".".html_safe %>
-                <% if warning[:suggestion].present? %>
-                  <br><%= t("nsb.applications.address_check.did_you_mean", address: warning[:suggestion]) %>
+                <%= warning.message %>.
+                <%# Only when Google actually found something different. Its
+                    formatted address is otherwise just the input with ", USA"
+                    appended, and offering that as a correction says the address
+                    is fine at the moment we are saying it is not. %>
+                <% if warning.suggestion? %>
+                  <br><%= t("nsb.applications.address_check.did_you_mean", address: warning.formatted_address) %>
                 <% end %>
               </li>
             <% end %>
           </ul>
-          <p class="text-body-sm"><%= t("nsb.applications.address_check.submit_again") %></p>
+
+          <label class="flex items-start gap-2 text-body-sm font-sans-md">
+            <%= check_box_tag :addresses_confirmed, "1", false, class: "mt-1" %>
+            <span><%= t("nsb.applications.address_check.confirm_checkbox") %></span>
+          </label>
         </div>
-        <%= hidden_field_tag :addresses_confirmed, "1" %>
       <% end %>
 
-      <%# Client-side summary of anything left blank. Populated by the Stimulus
+<%# Client-side summary of anything left blank. Populated by the Stimulus
           controller on submit; the browser's own per-field bubble only shows one
           at a time, which is what made the required fields hard to spot. %>
       <div class="errors mb-6 hidden" role="alert"

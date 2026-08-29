@@ -127,6 +127,61 @@ RSpec.describe Nsb::DemandRanking do
     end
   end
 
+  # The regression that put the best-selling product in the catalog on nobody's
+  # screen. Pack sizes that arrived from B2BWave as separate products were folded
+  # into one product with a Pack Size variant, which moved the SKUs the order
+  # history knows off the master and onto the variants. The index only read
+  # master SKUs, so all three folded products vanished from every ranking -- and
+  # nothing failed, the list was just quietly shorter.
+  describe 'products sold as variants' do
+    # Its own dataset, so the totals here cannot disturb the share arithmetic
+    # the other examples assert on.
+    let(:wholesale_data) do
+      {
+        channel: 'wholesale',
+        first_order_date: '2021-10-28',
+        last_order_date: '2026-08-04',
+        total_units: 1000.0,
+        total_sales: 1000.0,
+        products: [
+          { rank: 1, sku: 'GUMMY-30', name: 'Gummies 30ct', units: 600.0, sales: 600.0 },
+          { rank: 2, sku: 'GUMMY-10', name: 'Gummies 10ct', units: 100.0, sales: 100.0 }
+        ]
+      }
+    end
+
+    # One product, two pack sizes. The SKUs the order history knows are on the
+    # variants; the master carries a new SKU that appears in no export.
+    let!(:gummies) do
+      product = create(:product, name: 'Gummies', sku: 'GUMMY')
+      size = Spree::OptionType.create!(name: 'pack_size', presentation: 'Pack Size')
+      product.option_types << size
+      %w[GUMMY-30 GUMMY-10].each_with_index do |sku, index|
+        value = size.option_values.create!(name: "v#{index}", presentation: "#{sku}")
+        product.variants.create!(sku: sku, option_values: [ value ])
+      end
+      product
+    end
+
+    it 'finds a product by a SKU that lives on a variant, not the master' do
+      expect(names_for(channel: :wholesale, metric: :units)).to include('Gummies')
+    end
+
+    it 'adds up the export rows that now share one product' do
+      entry = described_class.new(scope: Spree::Product.available, channel: :wholesale, metric: :units)
+        .entries.find { |candidate| candidate.product == gummies }
+
+      expect(entry.units).to eq(700.0)
+      expect(entry.share).to eq(0.7)
+    end
+
+    it 'counts a folded product once, not once per pack size' do
+      entries = described_class.new(scope: Spree::Product.available, channel: :wholesale, metric: :units).entries
+
+      expect(entries.map(&:product).count(gummies)).to eq(1)
+    end
+  end
+
   describe 'parameter coercion' do
     it 'accepts the supported values' do
       expect(described_class.channel_for('retail')).to eq(:retail)

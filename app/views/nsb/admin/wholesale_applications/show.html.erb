@@ -11,10 +11,24 @@
       <dt>Phone</dt><dd><%= @application.phone %></dd>
       <dt>Retail license</dt>
       <dd><%= @application.retail_license_number %> (<%= @application.retail_license_state %>)</dd>
-      <dt>Business address</dt><dd><%= simple_format @application.address %></dd>
+      <dt>Business address</dt>
+      <dd>
+        <%= simple_format @application.address %>
+        <%# Not a reason to decline on its own -- plenty of real addresses cannot
+            be confirmed -- but the operator should not take it on trust. %>
+        <% if @application.address_unverified? %>
+          <span class="badge badge-warning">Google could not verify this address</span>
+        <% end %>
+      </dd>
       <%# Only shown when they gave one; blank means "same as business address". %>
       <% if @application.shipping_address.present? %>
-        <dt>Shipping address</dt><dd><%= simple_format @application.shipping_address %></dd>
+        <dt>Shipping address</dt>
+        <dd>
+          <%= simple_format @application.shipping_address %>
+          <% if @application.shipping_address_unverified? %>
+            <span class="badge badge-warning">Google could not verify this address</span>
+          <% end %>
+        </dd>
       <% end %>
       <dt>What they sell</dt><dd><%= simple_format @application.sells %></dd>
       <dt>Interested in</dt><dd><%= simple_format @application.interested_in %></dd>

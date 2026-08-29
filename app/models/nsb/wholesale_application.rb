@@ -15,6 +15,14 @@ module Nsb
 
     STATUSES = %w[pending approved declined].freeze
 
+    # What Google said about an address, recorded so the operator sees it when
+    # deciding. "unverified" is not a reason to decline on its own -- plenty of
+    # real addresses cannot be confirmed -- but it is worth a second look.
+    VERDICTS = %w[confirmed unverified unchecked].freeze
+
+    def address_unverified? = address_verdict == "unverified"
+    def shipping_address_unverified? = shipping_address_verdict == "unverified"
+
     belongs_to :user, class_name: "Spree::User", optional: true
 
     # What the operator actually decides on: who you are, how to reach you, and

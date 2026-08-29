@@ -90,11 +90,46 @@ RSpec.describe "Wholesale application form", type: :request do
       expect(response.body).to include("12 Front St, Conway, SC 29526, USA")
     end
 
-    it "takes the address as typed when they submit again" do
+    it "does not accept it just because they submitted a second time" do
+      # The confirmation used to be a hidden field, so pressing submit again
+      # carried it automatically. Typing the useless suggestion back in was
+      # enough to get a fake address accepted.
+      google_returns(Nsb::AddressValidator::Result.new(status: :suspect, message: "nope"))
+
+      expect { submit }.not_to change(Nsb::WholesaleApplication, :count)
+      expect { submit }.not_to change(Nsb::WholesaleApplication, :count)
+    end
+
+    it "accepts it once they tick the confirmation box" do
       google_returns(Nsb::AddressValidator::Result.new(status: :suspect, message: "nope"))
 
       expect { submit({}, addresses_confirmed: "1") }
         .to change(Nsb::WholesaleApplication, :count).by(1)
+    end
+
+    it "records the verdict so the operator sees it when deciding" do
+      google_returns(Nsb::AddressValidator::Result.new(status: :suspect, message: "nope"))
+
+      submit({}, addresses_confirmed: "1")
+
+      expect(Nsb::WholesaleApplication.last).to be_address_unverified
+    end
+
+    it "records a confirmed address as confirmed" do
+      google_returns(Nsb::AddressValidator::Result.new(status: :confirmed))
+
+      submit
+
+      expect(Nsb::WholesaleApplication.last.address_verdict).to eq("confirmed")
+    end
+
+    it "records 'unchecked' when Google could not be reached, never 'confirmed'" do
+      # A blank verdict must never be mistaken for "we checked and it was fine".
+      google_returns(Nsb::AddressValidator::Result.new(status: :skipped))
+
+      submit
+
+      expect(Nsb::WholesaleApplication.last.address_verdict).to eq("unchecked")
     end
 
     # The operator's requirement: an outage or an exhausted quota must never

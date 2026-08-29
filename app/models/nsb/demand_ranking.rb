@@ -123,29 +123,56 @@ module Nsb
     # and dropping those from the denominator would inflate everything left.
     def total = data.fetch(METRICS.fetch(metric)[:total]).to_f
 
+    # Export rows folded onto the catalog products they belong to.
+    #
+    # Several rows can land on one product, and their demand is added together
+    # rather than one of them winning. That is the normal case now: pack sizes
+    # that arrived from B2BWave as separate products are sold as variants of a
+    # single product, so the two Delta 8 gummy rows are two sizes of one thing
+    # the page sells. Showing one size's units under a product that sells both
+    # would understate it.
     def matched
       @matched ||= begin
-        by_sku, by_name = catalog_indexes
+        index = catalog_index
+        grouped = {}
 
-        pairs = data.fetch("products").filter_map do |row|
-          product = by_sku[row["sku"].to_s.strip.presence] || by_name[normalize(row["name"])]
+        data.fetch("products").each do |row|
+          product = index[row["sku"].to_s.strip.presence] || index[normalize(row["name"])]
           next if product.nil?
 
-          [ product, row ]
+          (grouped[product] ||= []) << row
         end
 
-        # A catalog product can be reached by two export rows (a SKU left blank
-        # on some historical lines). Keep the first, which is the stronger.
-        pairs.uniq { |product, _row| product.id }
+        grouped.map { |product, rows| [ product, combine(rows) ] }
       end
     end
 
-    def catalog_indexes
-      products = scope.to_a
-      [
-        products.index_by { |product| product.master.sku.to_s.strip.presence },
-        products.index_by { |product| normalize(product.name) }
-      ]
+    def combine(rows)
+      return rows.first if rows.one?
+
+      {
+        "units" => rows.sum { |row| row["units"].to_f },
+        "sales" => rows.sum { |row| row["sales"].to_f }
+      }
+    end
+
+    # One lookup from "whatever the export called it" to a catalog product.
+    #
+    # Keyed on EVERY variant's SKU, not just the master's. Pack sizes that used
+    # to be separate products are now variants of one, so the SKUs the order
+    # history knows -- E-D8Gummies10Ct and its siblings -- are variant SKUs, and
+    # a master-only index silently dropped all three gummy products, the best
+    # seller in the catalog among them. Names are indexed too, for the export
+    # rows whose SKU was left blank.
+    def catalog_index
+      scope.to_a.each_with_object({}) do |product, index|
+        index[normalize(product.name)] ||= product
+
+        product.variants_including_master.each do |variant|
+          key = variant.sku.to_s.strip.presence
+          index[key] ||= product if key
+        end
+      end
     end
 
     def normalize(value) = value.to_s.strip.downcase

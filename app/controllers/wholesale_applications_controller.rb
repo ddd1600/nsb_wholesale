@@ -33,11 +33,22 @@ class WholesaleApplicationsController < StoreController
       return render :new, status: :unprocessable_content
     end
 
-    # Advisory only, and only ever asked once. Google flags real addresses --
-    # new builds, rural routes, unfamiliar suites -- and losing a licensed
-    # retailer over a tidy address field is the worse trade. So the applicant is
-    # shown what we found, and submitting again goes through unchanged.
-    if !params[:addresses_confirmed] && (@address_warnings = address_warnings).any?
+    # Advisory only. Google cannot tell us an address is fake, only that it
+    # could not confirm one, and plenty of real addresses -- rural routes, new
+    # builds, unfamiliar suites -- cannot be confirmed. Blocking those would
+    # cost licensed retailers, so the applicant can always proceed.
+    #
+    # What they cannot do is proceed by accident. The confirmation is a checkbox
+    # they have to tick, not a hidden field that rides along with a second
+    # submit, and the verdict is recorded either way so the operator sees it
+    # when deciding.
+    results = address_results
+    @address_warnings = results.values.select(&:suspect?)
+
+    @application.address_verdict = verdict_for(results[:address])
+    @application.shipping_address_verdict = verdict_for(results[:shipping_address])
+
+    if @address_warnings.any? && params[:addresses_confirmed].blank?
       return render :new, status: :unprocessable_content
     end
 
@@ -55,17 +66,21 @@ class WholesaleApplicationsController < StoreController
 
   private
 
-  # [{ field:, message:, suggestion: }] for any address Google could not confirm.
-  def address_warnings
+  # { field => Result } for both addresses on the form.
+  def address_results
     validator = Nsb::AddressValidator.new
 
     { address: @application.address, shipping_address: @application.shipping_address }
-      .filter_map do |field, value|
-        result = validator.call(value)
-        next unless result.suspect?
+      .to_h { |field, value| [ field, validator.call(value) ] }
+  end
 
-        { field: field, message: result.message, suggestion: result.formatted_address }
-      end
+  # Blank shipping address and an unreachable Google both record "unchecked",
+  # so a blank verdict in the admin always means the row predates this and never
+  # "we checked and it was fine".
+  def verdict_for(result)
+    return "unchecked" if result.nil? || result.skipped?
+
+    result.confirmed? ? "confirmed" : "unverified"
   end
 
   def application_params

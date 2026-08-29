@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_08_29_120000) do
+ActiveRecord::Schema[8.0].define(version: 2026_08_29_160000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -89,6 +89,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_29_120000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "shipping_address"
+    t.string "address_verdict"
+    t.string "shipping_address_verdict"
     t.index "lower((email)::text)", name: "index_nsb_wholesale_applications_on_lower_email"
     t.index ["status", "created_at"], name: "index_nsb_wholesale_applications_on_status_and_created_at"
     t.index ["user_id"], name: "index_nsb_wholesale_applications_on_user_id"

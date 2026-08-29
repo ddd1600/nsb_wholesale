@@ -7,10 +7,10 @@ Phone:           <%= @application.phone %>
 
 Retail license:  <%= @application.retail_license_number %> (<%= @application.retail_license_state %>)
 
-Business address:
+Business address:<%= " -- GOOGLE COULD NOT VERIFY THIS" if @application.address_unverified? %>
 <%= @application.address %>
 <% if @application.shipping_address.present? %>
-Shipping address:
+Shipping address:<%= " -- GOOGLE COULD NOT VERIFY THIS" if @application.shipping_address_unverified? %>
 <%= @application.shipping_address %>
 <% end %>
 

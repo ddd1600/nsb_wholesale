@@ -56,7 +56,7 @@ en:
       address_check:
         heading: "Please check the address you entered"
         did_you_mean: "Did you mean: %{address}"
-        submit_again: "If what you entered is right, submit again and we'll take it as it is."
+        confirm_checkbox: "I've checked it — this address is correct. Submit it as I entered it."
       # The 360 accounts migrated from the old portal make this likely enough to
       # be worth handling rather than creating a duplicate.
       already_a_customer_html: "It looks like %{email} already has an account with us. %{claim} instead."

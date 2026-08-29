@@ -29,11 +29,34 @@ module Nsb
     CONFIRMED_GRANULARITY = %w[PREMISE SUB_PREMISE].freeze
 
     # Google's verdict vocabulary, reduced to the three cases the form acts on.
-    Result = Struct.new(:status, :formatted_address, :message, keyword_init: true) do
+    Result = Struct.new(:status, :input, :formatted_address, :message, keyword_init: true) do
       def confirmed? = status == :confirmed
       def suspect? = status == :suspect
       def skipped? = status == :skipped
-      def suggestion? = suspect? && formatted_address.present?
+
+      # Only a suggestion if it is actually different from what they typed.
+      #
+      # Google returns a formattedAddress whether or not it could confirm
+      # anything, and for an unconfirmable address that is usually the input
+      # with ", USA" bolted on. Offering that back as "did you mean..." tells
+      # someone their address is fine at the exact moment we are saying it is
+      # not -- and they retype it, and we accept it.
+      def suggestion?
+        return false unless suspect? && formatted_address.present?
+
+        Nsb::AddressValidator.comparable(formatted_address) !=
+          Nsb::AddressValidator.comparable(input)
+      end
+    end
+
+    # Reduces an address to what a person would consider "the same address":
+    # case, punctuation, whitespace and a trailing country all stop counting.
+    def self.comparable(address)
+      address.to_s
+        .downcase
+        .gsub(/\b(usa|united states( of america)?)\b/, " ")
+        .gsub(/[^a-z0-9]+/, " ")
+        .strip
     end
 
     def self.api_key = ENV["GOOGLE_ADDRESS_VALIDATION_API_KEY"].presence
@@ -50,7 +73,7 @@ module Nsb
       response = post(address)
       return skipped unless response
 
-      interpret(response)
+      interpret(response, address)
     rescue StandardError => e
       # A validation outage must never cost an application. Log it and wave the
       # address through.
@@ -82,7 +105,7 @@ module Nsb
       JSON.parse(response.body)
     end
 
-    def interpret(body)
+    def interpret(body, input = nil)
       result = body["result"] || {}
       verdict = result["verdict"] || {}
       formatted = result.dig("address", "formattedAddress")
@@ -90,9 +113,9 @@ module Nsb
       reasons = problems(result, verdict)
 
       if reasons.empty?
-        Result.new(status: :confirmed, formatted_address: formatted)
+        Result.new(status: :confirmed, input: input, formatted_address: formatted)
       else
-        Result.new(status: :suspect, formatted_address: formatted, message: reasons.first)
+        Result.new(status: :suspect, input: input, formatted_address: formatted, message: reasons.first)
       end
     end
 
