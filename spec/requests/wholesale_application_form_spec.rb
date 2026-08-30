@@ -87,7 +87,21 @@ RSpec.describe "Wholesale application form", type: :request do
 
       expect { submit }.not_to change(Nsb::WholesaleApplication, :count)
       expect(response.body).to include("Please check the address you entered")
-      expect(response.body).to include("12 Front St, Conway, SC 29526, USA")
+      expect(response.body).to include("We could not confirm this address")
+    end
+
+    it "never shows Google's reworded address as a suggested correction" do
+      # It is the input normalised, not a fix, and presenting it as one is what
+      # let a fake address through: the applicant retyped it and we accepted it.
+      google_returns(Nsb::AddressValidator::Result.new(
+        status: :suspect, formatted_address: "99999 Chapin Circle, Myrtle Beach, SC 29572, USA",
+        message: "We could not confirm every part of this address"
+      ))
+
+      submit
+
+      expect(response.body).not_to include("Did you mean")
+      expect(response.body).not_to include("99999 Chapin Circle, Myrtle Beach, SC 29572, USA")
     end
 
     it "does not accept it just because they submitted a second time" do
@@ -134,6 +148,60 @@ RSpec.describe "Wholesale application form", type: :request do
 
     # The operator's requirement: an outage or an exhausted quota must never
     # cost an application.
+    it "checks the shipping address too, not just the business one" do
+      # Both go to Google. A bad delivery address is the one that actually costs
+      # money later.
+      calls = []
+      allow_any_instance_of(Nsb::AddressValidator).to receive(:call) do |_, value|
+        calls << value
+        Nsb::AddressValidator::Result.new(status: :confirmed)
+      end
+
+      submit(shipping_address: "Unit 4, 88 Dock Road, Conway, SC 29526")
+
+      expect(calls).to include("12 Front Street, Conway, SC 29526",
+                               "Unit 4, 88 Dock Road, Conway, SC 29526")
+    end
+
+    it "warns about a shipping address Google could not confirm" do
+      allow_any_instance_of(Nsb::AddressValidator).to receive(:call) do |_, value|
+        if value.to_s.include?("Dock Road")
+          Nsb::AddressValidator::Result.new(status: :suspect, message: "We could not confirm this address")
+        else
+          Nsb::AddressValidator::Result.new(status: :confirmed)
+        end
+      end
+
+      expect { submit(shipping_address: "99999 Dock Road, Conway, SC 29526") }
+        .not_to change(Nsb::WholesaleApplication, :count)
+      expect(response.body).to include("Please check the address you entered")
+    end
+
+    it "records the shipping verdict separately from the business one" do
+      allow_any_instance_of(Nsb::AddressValidator).to receive(:call) do |_, value|
+        status = value.to_s.include?("Dock Road") ? :suspect : :confirmed
+        Nsb::AddressValidator::Result.new(status: status, message: "nope")
+      end
+
+      submit({ shipping_address: "99999 Dock Road, Conway, SC 29526" }, addresses_confirmed: "1")
+
+      application = Nsb::WholesaleApplication.last
+      expect(application.address_verdict).to eq("confirmed")
+      expect(application).to be_shipping_address_unverified
+    end
+
+    it "does not ask Google about a blank shipping address" do
+      calls = []
+      allow_any_instance_of(Nsb::AddressValidator).to receive(:call) do |_, value|
+        calls << value
+        Nsb::AddressValidator::Result.new(status: value.blank? ? :skipped : :confirmed)
+      end
+
+      submit(shipping_address: "")
+
+      expect(Nsb::WholesaleApplication.last.shipping_address_verdict).to eq("unchecked")
+    end
+
     it "lets the applicant through when the service is unusable" do
       google_returns(Nsb::AddressValidator::Result.new(status: :skipped))
 

@@ -310,8 +310,11 @@ another workaround — this one is already at the end of what tuning can buy.
 
 - A partially refunded order shows `balance_due`. Expected: the order total is
   unchanged while payments dropped. Not money owed by the customer.
-- A refund issued in the **Square dashboard** does not reach Solidus — no
-  webhook. Refund from Solidus admin, or ask for the webhook to be built.
+- A refund issued in the **Square dashboard** now reaches Solidus through
+  `POST /square/webhooks` (`refund.created` / `refund.updated`). It needs
+  `SQUARE_WEBHOOK_SIGNATURE_KEY` set on Render and a subscription configured in
+  Square's Developer Console — see docs/SQUARE_GO_LIVE.md. Without the key the
+  endpoint rejects everything, deliberately.
 - `app/assets/builds/tailwind.css` and `public/assets` are gitignored. A stale
   `public/assets` makes local specs pass on assets CI does not have; CI builds
   Tailwind explicitly for this reason.

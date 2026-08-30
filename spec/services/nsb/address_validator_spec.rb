@@ -76,48 +76,24 @@ RSpec.describe Nsb::AddressValidator do
       end
     end
 
-    # The operator entered "999 Chapin Circle, Myrtle Beach, SC 29572", was
-    # asked "did you mean 999 Chapin Circle, Myrtle Beach, SC 29572, USA?",
-    # typed exactly that, and was let through. Google had not corrected
-    # anything; it appended the country to an address it could not confirm.
-    it "does not offer a suggestion that is the input with a country appended" do
+    # The operator entered a fake address, was told "did you mean" and shown
+    # back the same address with ", USA" appended, retyped it, and was let
+    # through. Google's formattedAddress is a normalisation of the input, not a
+    # correction of it, so the form no longer offers it at all -- it says only
+    # that the address could not be confirmed.
+    it "reports the problem without offering Google's rewording as a fix" do
       with_key do
         stub_google(status: 200, body: {
           result: { verdict: { addressComplete: true, validationGranularity: "ROUTE",
                                hasUnconfirmedComponents: true },
-                    address: { formattedAddress: "999 Chapin Circle, Myrtle Beach, SC 29572, USA" } }
+                    address: { formattedAddress: "99999 Chapin Circle, Myrtle Beach, SC 29572, USA" } }
         }.to_json)
 
-        result = validator.call("999 Chapin Circle, Myrtle Beach, SC 29572")
+        result = validator.call("99999 Chapin Circle, Myrtle Beach, SC 29572")
 
         expect(result).to be_suspect
-        expect(result.suggestion?).to be(false)
-      end
-    end
-
-    it "still offers a suggestion when Google genuinely corrected something" do
-      with_key do
-        stub_google(status: 200, body: {
-          result: { verdict: { addressComplete: true, validationGranularity: "ROUTE",
-                               hasUnconfirmedComponents: true },
-                    address: { formattedAddress: "12 Front Street, Conway, SC 29526, USA" } }
-        }.to_json)
-
-        result = validator.call("12 Frunt St, Conway, SC 29526")
-
-        expect(result.suggestion?).to be(true)
-      end
-    end
-
-    it "ignores case, punctuation and spacing when deciding that" do
-      with_key do
-        stub_google(status: 200, body: {
-          result: { verdict: { addressComplete: true, validationGranularity: "ROUTE",
-                               hasUnconfirmedComponents: true },
-                    address: { formattedAddress: "999 CHAPIN CIRCLE, MYRTLE BEACH, SC  29572" } }
-        }.to_json)
-
-        expect(validator.call("999 chapin circle myrtle beach sc 29572").suggestion?).to be(false)
+        expect(result.message).to eq("We could not confirm every part of this address")
+        expect(result).not_to respond_to(:suggestion?)
       end
     end
 
@@ -132,7 +108,7 @@ RSpec.describe Nsb::AddressValidator do
       end
     end
 
-    it "flags an incomplete address and offers what Google did find" do
+    it "names the missing part of an incomplete address" do
       with_key do
         stub_google(status: 200, body: {
           result: { verdict: { addressComplete: false, validationGranularity: "ROUTE" },
@@ -143,7 +119,6 @@ RSpec.describe Nsb::AddressValidator do
         result = validator.call(address)
 
         expect(result).to be_suspect
-        expect(result).to be_suggestion
         expect(result.message).to include("street_number")
       end
     end

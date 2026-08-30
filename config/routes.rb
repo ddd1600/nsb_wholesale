@@ -35,6 +35,10 @@ Rails.application.routes.draw do
     end
   end
 
+  # Square's webhook endpoint. Machine-to-machine, authenticated by signature
+  # rather than session, and deliberately outside the storefront's controllers.
+  post "/square/webhooks", to: "nsb/square/webhooks#create", as: :square_webhooks
+
   mount Spree::Core::Engine, at: '/'
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

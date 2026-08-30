@@ -21,7 +21,14 @@
 class SitePasswordGate
   # Render polls this to decide whether the service is healthy. Gating it would
   # make every deploy look like a failed one and take the site down.
-  OPEN_PATHS = ["/up"].freeze
+  # /up: Render polls it to decide the service is healthy.
+  #
+  # /square/webhooks: Square is a machine with no password to give. Gating it
+  # would answer 401, and Square would retry a few times and then stop -- so
+  # refunds issued while the site is still private would never reconcile, and
+  # nothing would say so. Safe to leave open: that endpoint authenticates every
+  # request by HMAC signature and does nothing at all without a valid one.
+  OPEN_PATHS = [ "/up", "/square/webhooks" ].freeze
 
   def initialize(app)
     @app = app

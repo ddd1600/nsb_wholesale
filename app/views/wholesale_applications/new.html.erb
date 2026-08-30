@@ -50,16 +50,14 @@
           <p class="font-sans-md mb-2"><%= t("nsb.applications.address_check.heading") %></p>
           <ul class="mb-3">
             <% @address_warnings.each do |warning| %>
-              <li>
-                <%= warning.message %>.
-                <%# Only when Google actually found something different. Its
-                    formatted address is otherwise just the input with ", USA"
-                    appended, and offering that as a correction says the address
-                    is fine at the moment we are saying it is not. %>
-                <% if warning.suggestion? %>
-                  <br><%= t("nsb.applications.address_check.did_you_mean", address: warning.formatted_address) %>
-                <% end %>
-              </li>
+              <%# No "did you mean". Google's formattedAddress is a
+                  normalisation of what was typed, not a correction of it: for an
+                  address it cannot confirm it comes back as the same address
+                  with ", USA" appended. Offering that as a suggestion tells
+                  someone their address is right at the moment we are saying we
+                  cannot confirm it, and they retype it and learn nothing. If
+                  Google cannot confirm the address, say only that. %>
+              <li><%= warning.message %>.</li>
             <% end %>
           </ul>
 

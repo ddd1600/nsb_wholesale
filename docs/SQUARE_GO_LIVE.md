@@ -51,6 +51,41 @@ Not yet exercised anywhere:
 
 ---
 
+## Square refund webhook
+
+Refunds issued in the Square dashboard reconcile into Solidus through a webhook.
+Without this configured, they do not -- and the failure is silent, which is what
+makes it worth setting up before the first live refund rather than after.
+
+**In Square's Developer Console → your application → Webhooks → Subscriptions:**
+
+1. Add a subscription with the **Production** toggle set.
+2. Notification URL: `https://wholesale.newsouthbotanicals.com/square/webhooks`
+3. Subscribe to **`refund.created`** and **`refund.updated`**.
+4. Copy the **signature key** it generates.
+
+**On Render:**
+
+| Variable | Value |
+|---|---|
+| `SQUARE_WEBHOOK_SIGNATURE_KEY` | The signature key from the subscription. Secret. |
+| `SQUARE_WEBHOOK_URL` | Only if the notification URL differs from `https://<APP_HOST>/square/webhooks`. |
+
+The URL must match **byte for byte** what Square is configured with: Square signs
+the URL it was given, not the one the request arrived on, so a trailing slash or
+a `www.` is the difference between every event verifying and none of them.
+
+Square's "Send test event" button in the console is the quickest way to confirm
+the signature key is right -- a valid event answers 200, a bad key answers 401.
+
+**Without `SQUARE_WEBHOOK_SIGNATURE_KEY` set, the endpoint rejects everything.**
+That is deliberate: an unset key must never mean "accept anything", since this
+endpoint writes refunds onto orders.
+
+The site password gate lets `/square/webhooks` through, because Square has no
+password to give and gating it would make refunds silently fail to reconcile
+while the site is still private.
+
 ## The live test — use a real card, small amount
 
 Place a genuine order through the storefront for the smallest sensible amount.
@@ -90,15 +125,17 @@ Ask your bank for a card you can decline, or use a card with insufficient funds.
 - [ ] The refund appears in Square within a minute
 - [ ] Repeat for the remaining balance — a **full** refund, which sandbox did not cover
 
-**From the Square dashboard (the unsupported route):**
+**From the Square dashboard (now supported, via webhook):**
 
 - [ ] Issue a small refund directly in Square
-- [ ] Confirm Solidus does **not** know about it
+- [ ] Within a few seconds, the order in Solidus shows the refund and its
+      payment state changes
+- [ ] The refund's reason reads "Refunded in Square"
 
-That last one is expected to fail to reconcile, and that is the point of
-checking it. There is no webhook: a refund issued in Square's dashboard is
-invisible to Solidus, and the order will still read as fully paid. Either always
-refund from Solidus admin, or ask for the webhook to be built.
+This used to be the known gap -- a dashboard refund was invisible to Solidus and
+the order went on reading as fully paid. `POST /square/webhooks` closes it. See
+"Square refund webhook" below for the setup, which must be done in Square's
+Developer Console before this check can pass.
 
 ---
 

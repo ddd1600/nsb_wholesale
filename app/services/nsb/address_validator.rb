@@ -29,34 +29,15 @@ module Nsb
     CONFIRMED_GRANULARITY = %w[PREMISE SUB_PREMISE].freeze
 
     # Google's verdict vocabulary, reduced to the three cases the form acts on.
+    #
+    # formatted_address is kept for nsb:address:check, which prints it as
+    # evidence. The form deliberately does not show it -- see the comment in
+    # wholesale_applications/new.html.erb.
     Result = Struct.new(:status, :input, :formatted_address, :message, keyword_init: true) do
       def confirmed? = status == :confirmed
       def suspect? = status == :suspect
       def skipped? = status == :skipped
 
-      # Only a suggestion if it is actually different from what they typed.
-      #
-      # Google returns a formattedAddress whether or not it could confirm
-      # anything, and for an unconfirmable address that is usually the input
-      # with ", USA" bolted on. Offering that back as "did you mean..." tells
-      # someone their address is fine at the exact moment we are saying it is
-      # not -- and they retype it, and we accept it.
-      def suggestion?
-        return false unless suspect? && formatted_address.present?
-
-        Nsb::AddressValidator.comparable(formatted_address) !=
-          Nsb::AddressValidator.comparable(input)
-      end
-    end
-
-    # Reduces an address to what a person would consider "the same address":
-    # case, punctuation, whitespace and a trailing country all stop counting.
-    def self.comparable(address)
-      address.to_s
-        .downcase
-        .gsub(/\b(usa|united states( of america)?)\b/, " ")
-        .gsub(/[^a-z0-9]+/, " ")
-        .strip
     end
 
     def self.api_key = ENV["GOOGLE_ADDRESS_VALIDATION_API_KEY"].presence

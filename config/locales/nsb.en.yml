@@ -55,7 +55,6 @@ en:
       select_state: "Select a state"
       address_check:
         heading: "Please check the address you entered"
-        did_you_mean: "Did you mean: %{address}"
         confirm_checkbox: "I've checked it — this address is correct. Submit it as I entered it."
       # The 360 accounts migrated from the old portal make this likely enough to
       # be worth handling rather than creating a duplicate.

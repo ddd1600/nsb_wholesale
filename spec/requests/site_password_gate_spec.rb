@@ -34,6 +34,28 @@ RSpec.describe "Site password gate", type: :request do
       expect(response).to have_http_status(:unauthorized)
     end
 
+    # Square is a machine with no password to give. Gating it would answer 401,
+    # Square would retry a few times and stop, and refunds issued while the site
+    # is still private would never reconcile -- silently. Safe to leave open:
+    # that endpoint authenticates every request by HMAC signature and does
+    # nothing without a valid one, which spec/requests/square_webhooks_spec.rb
+    # covers.
+    # The endpoint answers 401 here too, because no signature key is set in this
+    # context -- so the assertion is about WHO answered. The gate challenges with
+    # WWW-Authenticate; the controller just refuses. Their absence is what says
+    # the request reached the app.
+    it "lets Square's webhook past the gate, to be judged on its signature" do
+      post "/square/webhooks", params: "{}", headers: { "CONTENT_TYPE" => "application/json" }
+
+      expect(response.headers["WWW-Authenticate"]).to be_nil
+    end
+
+    it "still challenges a normal page, for contrast" do
+      get "/welcome"
+
+      expect(response.headers["WWW-Authenticate"]).to be_present
+    end
+
     # /welcome rather than "/": root now redirects a signed-out visitor to the
     # welcome page, so a 200 there would be testing the wrong thing. What is
     # being asserted is that the middleware did not answer the request itself.
