@@ -37,7 +37,6 @@ module Nsb
       def confirmed? = status == :confirmed
       def suspect? = status == :suspect
       def skipped? = status == :skipped
-
     end
 
     def self.api_key = ENV["GOOGLE_ADDRESS_VALIDATION_API_KEY"].presence
