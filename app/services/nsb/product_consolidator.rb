@@ -22,11 +22,12 @@ module Nsb
   class ProductConsolidator
     DATA_PATH = Rails.root.join("db/import_data/product_variants.json")
 
-    Result = Struct.new(:products, :variants_created, :variants_updated, :superseded, :failures,
+    Result = Struct.new(:products, :variants_created, :variants_updated, :variants_retired, :superseded, :failures,
       keyword_init: true) do
       def to_s
         "products=#{products} variants_created=#{variants_created} " \
-          "variants_updated=#{variants_updated} superseded=#{superseded} failures=#{failures.size}"
+          "variants_updated=#{variants_updated} variants_retired=#{variants_retired} " \
+          "superseded=#{superseded} failures=#{failures.size}"
       end
     end
 
@@ -39,10 +40,14 @@ module Nsb
       # Built per call, not per instance: this runs to completion and reports
       # what THIS run did. Counting cumulatively across calls would make a
       # second run look like it had duplicated everything.
-      @result = Result.new(products: 0, variants_created: 0, variants_updated: 0, superseded: 0, failures: [])
+      @result = Result.new(products: 0, variants_created: 0, variants_updated: 0, variants_retired: 0,
+        superseded: 0, failures: [])
 
       config = JSON.parse(@data_path.read)
       option_type = find_or_create_option_type(config.fetch("option_type"))
+      # Optional second option type. Only products whose variants name a flavor
+      # get it, so a product sold in pack sizes alone is unchanged.
+      @flavor_option_type = config["flavor_option_type"] && find_or_create_option_type(config["flavor_option_type"])
 
       config.fetch("consolidations").each do |spec|
         # Per-consolidation transaction: one bad spec must not roll back a good one.
@@ -79,13 +84,16 @@ module Nsb
       # The option type must be on the product before variants can carry its
       # values, and assignment rather than << so a re-run cannot pile up
       # duplicates.
-      product.option_types = [ option_type ] unless product.option_types.include?(option_type)
+      wanted_option_types = [ option_type ]
+      wanted_option_types << @flavor_option_type if spec.fetch("variants").any? { |v| v["flavor"] }
+      product.option_types = wanted_option_types unless product.option_types.to_a == wanted_option_types
 
       # Superseding first, and the master SKU second, because both free up SKUs
       # that the variants below are about to claim. Solidus enforces uniqueness
       # across every variant that is not soft-deleted.
       spec.fetch("supersedes", []).each { |entry| supersede(entry) }
       release_master_sku(product, spec.fetch("master_sku"))
+      retire_unlisted_variants(product, spec.fetch("variants").map { |v| v.fetch("sku") })
 
       spec.fetch("variants").each_with_index do |variant_spec, index|
         upsert_variant(product, option_type, variant_spec, position: index + 1)
@@ -120,8 +128,24 @@ module Nsb
       product.master.update!(sku: master_sku)
     end
 
+    # The data file is the full list of what a product sells. A variant it no
+    # longer names -- the flavourless 30ct once flavours were added, say -- is
+    # soft-deleted, not destroyed: past orders' line items still point at it.
+    # Done before upserting because it frees the SKU should a listed variant
+    # want to reuse it.
+    def retire_unlisted_variants(product, listed_skus)
+      product.variants.where.not(sku: listed_skus).find_each do |variant|
+        variant.discard
+        @result.variants_retired += 1
+        say "  retired #{variant.sku.presence || "variant #{variant.id}"} from #{product.name}"
+      end
+    end
+
     def upsert_variant(product, option_type, spec, position:)
-      option_value = find_or_create_option_value(option_type, spec.fetch("presentation"))
+      option_values = [ find_or_create_option_value(option_type, spec.fetch("presentation")) ]
+      if spec["flavor"]
+        option_values << find_or_create_option_value(@flavor_option_type, spec.fetch("flavor"))
+      end
 
       variant = product.variants.find_by(sku: spec.fetch("sku")) ||
         product.variants.build(sku: spec.fetch("sku"))
@@ -131,7 +155,7 @@ module Nsb
       variant.position = position
       # Assignment, so re-running with a changed size does not leave the old
       # value attached alongside the new one.
-      variant.option_values = [ option_value ]
+      variant.option_values = option_values
       variant.save!
 
       created ? @result.variants_created += 1 : @result.variants_updated += 1

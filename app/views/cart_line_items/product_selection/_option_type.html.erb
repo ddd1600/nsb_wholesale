@@ -1,33 +1,35 @@
-<%
-  classes = {
-    "color" => "flex items-center justify-center rounded-full cursor-pointer w-8 h-8 border border-gray-50 transition-colors duration-150 [&>span]:hidden hover:border-gray-300 peer-checked:outline peer-checked:outline-2 peer-checked:outline-offset-2 peer-checked:outline-red-500",
-    "size" => "flex items-center justify-center rounded border-2 border-gray-50 bg-gray-50 py-3 px-6 cursor-pointer font-sans-md text-body text-black hover:bg-white transition-colors duration-150 peer-checked:border-red-500 peer-checked:bg-white"
-  }
-%>
-
+<%# One styled button per option value, whatever the option type is called.
+    The starter frontend only styled option types presented as "Size" or
+    "Color", so our "Pack Size" rendered as bare text with no sign of which
+    was chosen. The selected look is pure CSS (peer-checked), so it shows
+    even before JavaScript runs. %>
 <div class="modules_product-display-page_product-selection">
   <div class="optionType<%= option_type.presentation %>">
     <div class="mb-3 font-sans-md"><%= option_type.presentation %>:
-      <span class="selected-value" id='<%= "selected-#{option_type.name}" %>'>
+      <span class="selected-value font-sans-md" id='<%= "selected-#{option_type.name}" %>'>
         <%= option_values(product: product, option_type: option_type).first&.presentation %>
       </span>
     </div>
 
-    <div class="flex items-center gap-x-3">
+    <div class="flex flex-wrap items-center gap-3">
       <% option_values(product: product, option_type: option_type).each_with_index do |option_value, i| %>
         <label class="mb-0 selection-items">
           <%= tag(
             :input,
-            class: "peer absolute opacity-0 h-0 w-0",
+            class: "peer sr-only",
             type: "radio",
             value: option_value.id,
             checked: i.zero?,
             name: "#{option_type.name}",
-            "data-action": "clickOnSelection",
             "data-presentation": option_value.presentation,
-            "data-option-index": index
+            "data-option-index": index,
+            "data-product-page-target": "option",
+            "data-action": "product-page#update"
           ) %>
-          <span class='<%= "#{classes[option_type.presentation.downcase]}" %> <%= "selected-#{option_value.name.downcase}" %>' style='<%= option_type.presentation.downcase == 'color' && "background-color: #{option_value.name.downcase}" %>'>
+          <span class="flex items-center gap-2 rounded-lg border-2 border-gray-200 bg-white py-3 px-6 cursor-pointer font-sans-md text-body text-gray-700 transition-colors duration-150 hover:border-gray-400 peer-focus-visible:ring-2 peer-focus-visible:ring-red-500 peer-checked:border-red-500 peer-checked:bg-red-500 peer-checked:text-white peer-checked:shadow-md peer-checked:[&>svg]:block">
+            <svg class="hidden h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M16.7 5.3a1 1 0 010 1.4l-8 8a1 1 0 01-1.4 0l-4-4a1 1 0 111.4-1.4L8 12.6l7.3-7.3a1 1 0 011.4 0z" clip-rule="evenodd"/>
+            </svg>
             <span class="value"><%= option_value.presentation %></span>
           </span>
         </label>

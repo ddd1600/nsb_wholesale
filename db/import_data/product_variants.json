@@ -6,6 +6,8 @@
     "change rather than a field correction.",
     "",
     "'keep' is the product that survives and becomes the page customers land on.",
+    "'flavor' on a variant is optional and adds a second option type (see",
+    "flavor_option_type); variants a product no longer lists are soft-deleted.",
     "'variants' are listed in display order, so the FIRST entry is the default the",
     "storefront preselects -- the operator wants the larger pack default everywhere.",
     "'slug' is set explicitly rather than regenerated from the name: friendly_id",
@@ -29,6 +31,11 @@
     "presentation": "Pack Size"
   },
 
+  "flavor_option_type": {
+    "name": "flavor",
+    "presentation": "Flavor"
+  },
+
   "consolidations": [
     {
       "_why": [
@@ -41,9 +48,19 @@
       "name": "Delta 8 Gummies",
       "slug": "delta-8-gummies",
       "master_sku": "E-D8Gummies",
+      "_flavors": [
+        "Added 2026-10-02 at the operator's request: each pack size comes in Blue",
+        "Raspberry and Strawberry, and the customer must choose. The flavours had no",
+        "SKUs anywhere, so these were made up here by suffixing the size SKU -- the",
+        "operator said to create them. Same price per size for both flavours.",
+        "The flavourless E-D8Gummies30Ct / 10Ct variants are no longer listed, so the",
+        "consolidator soft-deletes them; past orders still resolve."
+      ],
       "variants": [
-        { "presentation": "30ct", "sku": "E-D8Gummies30Ct", "price": 30.0, "b2b_product_id": 282 },
-        { "presentation": "10ct", "sku": "E-D8Gummies10Ct", "price": 10.0, "b2b_product_id": 283 }
+        { "presentation": "30ct", "flavor": "Blue Raspberry", "sku": "E-D8Gummies30Ct-BlueRaspberry", "price": 30.0 },
+        { "presentation": "30ct", "flavor": "Strawberry", "sku": "E-D8Gummies30Ct-Strawberry", "price": 30.0 },
+        { "presentation": "10ct", "flavor": "Blue Raspberry", "sku": "E-D8Gummies10Ct-BlueRaspberry", "price": 10.0 },
+        { "presentation": "10ct", "flavor": "Strawberry", "sku": "E-D8Gummies10Ct-Strawberry", "price": 10.0 }
       ],
       "supersedes": [
         { "b2b_product_id": 283, "was_sku": "E-D8Gummies10Ct" }

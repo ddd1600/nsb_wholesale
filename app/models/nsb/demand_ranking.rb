@@ -164,11 +164,15 @@ module Nsb
     # a master-only index silently dropped all three gummy products, the best
     # seller in the catalog among them. Names are indexed too, for the export
     # rows whose SKU was left blank.
+    #
+    # Soft-deleted variants count too. When flavours were added, the flavourless
+    # E-D8Gummies30Ct / 10Ct variants were retired, but that is still the SKU
+    # every past order carries -- skipping them would drop the best seller.
     def catalog_index
       scope.to_a.each_with_object({}) do |product, index|
         index[normalize(product.name)] ||= product
 
-        product.variants_including_master.each do |variant|
+        Spree::Variant.with_discarded.where(product_id: product.id).each do |variant|
           key = variant.sku.to_s.strip.presence
           index[key] ||= product if key
         end

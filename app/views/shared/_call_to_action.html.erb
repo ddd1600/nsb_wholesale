@@ -12,5 +12,5 @@
 <% if defined?(url) && url != nil %>
  <%= link_to label.html_safe, url, class: cta_class, target: defined?(target) ? target : '_self' %> 
 <% else %>
-  <%= button_tag(label.html_safe, class: cta_class, id: defined?(id) && id) %>
+  <%= button_tag(label.html_safe, class: "#{cta_class} disabled:opacity-50", id: defined?(id) && id, data: defined?(data) ? data : nil) %>
 <% end %>

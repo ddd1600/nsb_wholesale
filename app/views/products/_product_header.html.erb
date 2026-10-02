@@ -14,7 +14,7 @@
         display_price(product),
         itemprop: 'price',
         content: product.price_for_options(current_pricing_options)&.money.to_d,
-        data: { js: 'price' }
+        data: { js: 'price', product_page_target: 'price' }
       ) %>
 
       <%= content_tag(

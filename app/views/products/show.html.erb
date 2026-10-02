@@ -4,7 +4,9 @@
     Storage's signed image URLs, which expire after minutes -- the cache
     outlived them and every product image 404'd. At ~1 order/day there is
     nothing to gain from caching this anyway. %>
-<section itemscope itemtype="http://schema.org/Product">
+<section itemscope itemtype="http://schema.org/Product"
+         data-controller="product-page"
+         data-product-page-currency-value="<%= current_pricing_options.currency %>">
   <div class="wrapper grid-container py-4 lg:pb-12">
     <div class="col-span-full lg:col-span-8">
       <div class="flex flex-col-reverse gap-4 overflow-auto lg:h-full lg:grid-container lg:max-h-[680px]">

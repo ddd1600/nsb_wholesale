@@ -2,6 +2,7 @@
 
 class TaxonsController < StoreController
   include Nsb::PreloadsProductImages
+  include Nsb::SortsProductsByDemand
 
   helper 'spree/taxons', 'spree/products', 'taxon_filters'
 
@@ -13,7 +14,7 @@ class TaxonsController < StoreController
     @searcher = build_searcher(params.merge(taxon: @taxon.id, include_images: true))
     # include_images only preloads Spree::Image; the Active Storage chain behind
     # each one still N+1s without this.
-    @products = preload_product_images(@searcher.retrieve_products)
+    @products = preload_product_images(sort_products_by_demand(@searcher.retrieve_products))
   end
 
   private

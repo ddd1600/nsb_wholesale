@@ -9,5 +9,3 @@
 
 //= require utils
 //= require checkout
-//= require product
-//= require product_selection_component

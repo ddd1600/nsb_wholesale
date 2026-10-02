@@ -144,4 +144,48 @@ RSpec.describe Nsb::ProductConsolidator do
       expect(survivor.name).to eq("Test Gummies")
     end
   end
+
+  # Delta 8 Gummies gained flavours after it was already on sale as plain pack
+  # sizes. The flavourless variants have to stop being sellable, but past orders
+  # still point at them, so they are soft-deleted rather than destroyed.
+  describe "adding flavours to a product already sold by pack size" do
+    before do
+      consolidator.call
+      config["flavor_option_type"] = { "name" => "flavor", "presentation" => "Flavor" }
+      config["consolidations"][0]["variants"] = [
+        { "presentation" => "30ct", "flavor" => "Blue Raspberry", "sku" => "TEST-30-BR", "price" => 30.0 },
+        { "presentation" => "30ct", "flavor" => "Strawberry", "sku" => "TEST-30-SB", "price" => 30.0 },
+        { "presentation" => "10ct", "flavor" => "Blue Raspberry", "sku" => "TEST-10-BR", "price" => 12.5 },
+        { "presentation" => "10ct", "flavor" => "Strawberry", "sku" => "TEST-10-SB", "price" => 12.5 }
+      ]
+      File.write(data_path, JSON.pretty_generate(config))
+    end
+
+    it "sells one variant per size and flavour, pack size first" do
+      consolidator.call
+
+      expect(survivor.option_types.map(&:name)).to eq(%w[pack_size flavor])
+      expect(survivor.variants.order(:position).map(&:options_text)).to eq([
+        "Pack Size: 30ct, Flavor: Blue Raspberry",
+        "Pack Size: 30ct, Flavor: Strawberry",
+        "Pack Size: 10ct, Flavor: Blue Raspberry",
+        "Pack Size: 10ct, Flavor: Strawberry"
+      ])
+    end
+
+    it "retires the flavourless variants without destroying them" do
+      result = consolidator.call
+
+      expect(result.variants_retired).to eq(2)
+      expect(survivor.variants.pluck(:sku)).not_to include("TEST-30", "TEST-10")
+      expect(Spree::Variant.with_discarded.where(sku: %w[TEST-30 TEST-10]).count).to eq(2)
+    end
+
+    it "retires nothing on a second run" do
+      consolidator.call
+
+      expect(consolidator.call.variants_retired).to eq(0)
+      expect(survivor.variants.count).to eq(4)
+    end
+  end
 end

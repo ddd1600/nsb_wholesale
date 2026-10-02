@@ -14,4 +14,11 @@ module ApplicationHelper
     spree_current_user.present?
   end
 
+  # The few products previewed under each sub-category heading, most-ordered
+  # first. Solidus's taxon_preview takes the first four the database returns;
+  # this asks it for all of them, ranks them, then keeps four.
+  def ranked_taxon_preview(taxon, max = 4)
+    Nsb::SortsProductsByDemand.sort(taxon_preview(taxon, 1_000).to_a).first(max)
+  end
+
 end

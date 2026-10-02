@@ -1,36 +1,27 @@
 <% thumbnails_class = "flex shrink-0 w-1_col-3 justify-center items-center snap-center bg-gray-50 rounded-lg p-4 aspect-square transition-colors duration-150 hover:bg-gray-100 md:rounded-xl lg:rounded-2xl lg:w-full" %>
 
+<%# The product's own photos (and lab tests) are always listed. A variant's
+    photos -- a 10ct bag, say -- are listed too, and product_page_controller
+    shows only the selected variant's. The starter frontend hid the product's
+    own photos entirely once it had variants, which left Delta 8 Gummies with
+    no thumbnails and its lab tests unreachable. %>
 <div class="col-span-full no-scrollbar lg:col-span-3 lg:overflow-auto">
   <ul class="flex flex-nowrap overflow-x-auto no-scrollbar snap-x gap-4 lg:overflow-y-auto lg:snap-y lg:flex-col">
-    <% unless product.has_variants? %>
-      <% product.gallery.images.each do |image| %>
-        <% next if image.viewable_id != product.master.id %>
+    <% product.gallery.images.each do |image| %>
+      <% variant_image = image.viewable_id != product.master.id %>
 
-        <%= content_tag(
-          :li,
-          data: { js: 'product-thumbnail', js_id: image.viewable_id }
-        ) do %>
-          <%= link_to image.url(:product), class: thumbnails_class do %>
-            <%= image_tag(image.url(:small))  %>
-          <% end %>
-        <% end %>
-      <% end %>
-    <% end %>
-
-    <% if product.has_variants? %>
-      <% product.gallery.images.each do |image| %>
-        <% next if image.viewable_id == product.master.id %>
-
-        <%= content_tag(
-          :li,
-          data: { js: 'variant-thumbnail', js_id: image.viewable_id }
-        ) do %>
-          <%= link_to image.url(:product), class: thumbnails_class do %>
-            <%= image_tag(image.url(:small))  %>
-          <% end %>
+      <%= content_tag(
+        :li,
+        data: {
+          js: variant_image ? 'variant-thumbnail' : 'product-thumbnail',
+          variant_id: (image.viewable_id if variant_image),
+          product_page_target: ('variantThumbnail' if variant_image)
+        }
+      ) do %>
+        <%= link_to image.url(:product), class: thumbnails_class, data: { action: 'product-page#showThumbnail' } do %>
+          <%= image_tag(image.url(:small), alt: image.alt) %>
         <% end %>
       <% end %>
     <% end %>
   </ul>
 </div>
-

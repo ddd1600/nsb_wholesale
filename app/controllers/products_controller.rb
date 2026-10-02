@@ -2,6 +2,7 @@
 
 class ProductsController < StoreController
   include Nsb::PreloadsProductImages
+  include Nsb::SortsProductsByDemand
 
   before_action :load_product, only: :show
   before_action :load_taxon, only: :index
@@ -16,7 +17,10 @@ class ProductsController < StoreController
 
   def index
     @searcher = build_searcher(params.merge(include_images: true))
-    @products = preload_product_images(@searcher.retrieve_products)
+    products = @searcher.retrieve_products
+    # A search's results stay in Solidus's order; browsing is most-ordered first.
+    products = sort_products_by_demand(products) unless params[:keywords].present?
+    @products = preload_product_images(products)
   end
 
   def show
