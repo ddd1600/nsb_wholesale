@@ -58,6 +58,18 @@ RSpec.describe "Minimum order", type: :request do
       expect(response.body).to include("Minimum order $100")
     end
 
+    it "still shows free shipping to a customer with no minimum" do
+      Nsb::PromotionSeeder.new.call
+      user.update!(nsb_minimum_order_amount: 0)
+
+      get root_path
+      follow_redirect! while response.redirect?
+
+      banner = Nokogiri::HTML(response.body).at_css("#order-terms-banner").text
+      expect(banner).to include("Free shipping on orders over $500")
+      expect(banner).not_to include("Minimum order")
+    end
+
     it "cannot set its own minimum from the account page" do
       patch account_path, params: { user: { nsb_minimum_order_amount: 0 } }
 
