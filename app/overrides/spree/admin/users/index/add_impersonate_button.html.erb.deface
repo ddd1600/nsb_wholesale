@@ -1,0 +1,22 @@
+<!-- insert_top "[data-hook='admin_users_index_row_actions']" -->
+
+<%#
+  Lets the operator place a phone-in order on behalf of a wholesale customer
+  (CLAUDE.md's "operator working style" -- small, boring pieces). Hidden for
+  admin accounts: the controller also refuses these, but there is no reason to
+  show a button that will only flash an error.
+
+  A Deface override rather than a copied view, same reasoning as
+  add_refund_note.html.erb.deface: the upstream index is otherwise fine.
+%>
+<% unless user.has_spree_role?("admin") %>
+  <%# This view renders inside the mounted Spree::Core::Engine, where a bare
+      route helper resolves against the engine's own routes, not the host
+      app's -- admin_impersonations_path is defined in this app's
+      config/routes.rb, so it needs the main_app proxy to be reachable here. %>
+  <%= button_to "Place order",
+        main_app.admin_impersonations_path(user_id: user.id),
+        method: :post,
+        class: "btn btn-primary",
+        style: "margin-right: 4px;" %>
+<% end %>

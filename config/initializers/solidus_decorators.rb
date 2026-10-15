@@ -12,4 +12,12 @@ Rails.application.config.to_prepare do
 
   # Free-text note on refunds, paired with the "Other" refund reason.
   Spree::Refund.prepend(Nsb::RefundNote)
+
+  # Attributes a phone-in order's created_by to the admin who actually placed
+  # it, not the customer being impersonated. Prepended onto StoreController
+  # (app/controllers/store_controller.rb), not Spree::BaseController: that's
+  # where Spree::Core::ControllerHelpers::Order (new_order_params) actually
+  # gets included, and prepending any higher up the chain would be shadowed
+  # by it.
+  StoreController.prepend(Nsb::ImpersonationAwareOrderCreation)
 end

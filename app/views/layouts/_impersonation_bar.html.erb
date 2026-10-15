@@ -1,0 +1,19 @@
+<%# Shown only while an admin is placing a phone-in order on behalf of a
+    wholesale customer (see Nsb::Admin::ImpersonationsController). Deliberately
+    lives in the storefront layout, not /admin, since /admin's own
+    authorization is unreachable while impersonating -- this bar's "Stop"
+    button is the way back. %>
+<% if impersonating_spree_user? %>
+  <% customer = spree_current_user %>
+  <div class="w-full bg-amber-400 text-black text-body-sm">
+    <div class="wrapper flex flex-wrap items-center justify-between gap-x-4 gap-y-1 py-2 px-5 lg:px-6 2xl:px-0">
+      <p>
+        Placing an order for
+        <strong><%= customer.bill_address&.company.presence || customer.email %></strong>
+        (<%= customer.email %>)
+      </p>
+      <%= button_to "Stop", stop_impersonation_path, method: :delete,
+            class: "shrink-0 rounded-md bg-black text-white px-3 py-1 text-body-xs font-semibold hover:opacity-80" %>
+    </div>
+  </div>
+<% end %>

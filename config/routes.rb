@@ -33,7 +33,18 @@ Rails.application.routes.draw do
         post :decline
       end
     end
+
+    # Starts an admin placing a phone-in order on behalf of a wholesale
+    # customer. See app/controllers/nsb/admin/impersonations_controller.rb.
+    resources :impersonations, only: [ :create ], controller: "nsb/admin/impersonations"
   end
+
+  # Stops an admin's phone-in order impersonation. Deliberately NOT under the
+  # :admin scope above -- while impersonating, spree_current_user is the
+  # customer, so /admin's own authorization is unreachable. This is what the
+  # impersonation bar's "Stop" button hits from the storefront. See
+  # app/controllers/nsb/impersonations_controller.rb.
+  delete "/impersonation", to: "nsb/impersonations#destroy", as: :stop_impersonation
 
   # Square's webhook endpoint. Machine-to-machine, authenticated by signature
   # rather than session, and deliberately outside the storefront's controllers.

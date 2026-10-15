@@ -41,6 +41,11 @@ gem "solidus", "~> 4.7.0"
 # Devise-backed authentication for Solidus users (wholesale customers + admins).
 gem "solidus_auth_devise", "~> 2.6"
 
+# Lets an admin act as a wholesale customer to place phone-in orders on their
+# behalf -- standard Devise user impersonation, not a hand-rolled session flag.
+# See CLAUDE.md and app/controllers/application_controller.rb.
+gem "pretender", "~> 0.5"
+
 # Error monitoring. Without it, a failed ShipStation push or a bounced email is
 # a line in a Render log nobody reads -- and this operator is deliberately
 # hands-off. Inert unless SENTRY_DSN is set, so development and test are
