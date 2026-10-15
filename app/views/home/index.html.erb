@@ -16,6 +16,8 @@
       max_share: @ranking.max_share,
       suffix: @ranking.share_suffix if @podium.any? %>
 
+<%= render 'featured_lineup', products: @featured if @featured.any? %>
+
 <%= render 'bestsellers_spotlight',
       entries: @spotlight,
       suffix: @ranking.share_suffix if @spotlight.any? %>

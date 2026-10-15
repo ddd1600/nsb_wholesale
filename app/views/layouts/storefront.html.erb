@@ -33,8 +33,14 @@
 
   <body class="<%= body_class %>" id="<%= @body_id || 'default' %>" data-turbo="false"  data-controller="drawer">
     <div class="min-h-screen grid grid-rows-[auto_1fr_auto]">
-      <%= render 'layouts/impersonation_bar' %>
-      <%= render 'layouts/header', taxons: @taxons, taxon: @taxon %>
+      <%# One grid row for everything above <main>: the grid is
+          auto / 1fr / auto, so a bar as its own child would take the
+          stretching 1fr row and push the header down the page. %>
+      <div>
+        <%= render 'layouts/impersonation_bar' %>
+        <%= render 'layouts/order_terms_banner' %>
+        <%= render 'layouts/header', taxons: @taxons, taxon: @taxon %>
+      </div>
       <main>
         <%= render BreadcrumbsComponent.new(
           taxon: @product&.primary_taxon || @taxon,

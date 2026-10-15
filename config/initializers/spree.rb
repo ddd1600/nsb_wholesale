@@ -78,6 +78,11 @@ Spree.config do |config|
   # )
 end
 
+# The site-wide minimum order value (Nsb::MinimumOrder), editable on the admin
+# store form (Settings -> Stores). Store attributes are only permitted by the
+# admin stores controller, so this is admin-only.
+Spree::PermittedAttributes.store_attributes << :nsb_minimum_order_amount
+
 # Saved cards (Nsb::Square::CardsOnFile).
 #
 # :nsb_save_requested is the checkout's "Save this card" box.

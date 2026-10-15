@@ -1,0 +1,19 @@
+<%# The order terms, on every storefront page: the minimum order (site-wide, or
+    the signed-in customer's own) and the free-shipping threshold. Each half
+    hides itself when it does not apply -- a customer with no minimum, or no
+    active free-shipping promotion. Amounts come from the same settings checkout
+    enforces, so the banner cannot advertise terms the store does not honour. %>
+<% minimum = nsb_display_minimum_order_amount %>
+<% threshold = nsb_free_shipping_threshold %>
+<% terms = [] %>
+<% terms << t("nsb.order_terms_banner.minimum", minimum: Spree::Money.new(minimum, no_cents_if_whole: true).to_s) if minimum.to_d.positive? %>
+<% terms << t("nsb.order_terms_banner.free_shipping", threshold: Spree::Money.new(threshold, no_cents_if_whole: true).to_s) if threshold %>
+<% if terms.any? %>
+  <div class="w-full bg-primary text-white text-body-sm" id="order-terms-banner">
+    <p class="wrapper flex flex-wrap justify-center gap-x-6 gap-y-1 py-2 px-5 lg:px-6 2xl:px-0 text-center font-semibold">
+      <% terms.each do |term| %>
+        <span><%= term %></span>
+      <% end %>
+    </p>
+  </div>
+<% end %>

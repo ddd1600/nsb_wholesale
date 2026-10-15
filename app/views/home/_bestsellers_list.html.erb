@@ -36,8 +36,8 @@
             <span class="hidden md:inline"><%= suffix %></span>
           </span>
 
-          <span class="w-16 shrink-0 text-right text-body-sm font-sans-md price selling md:w-28">
-            <% if show_wholesale_prices? %><%= entry.product.price_for_options(current_pricing_options)&.money&.to_html %><% end %>
+          <span class="w-24 shrink-0 text-right text-body-sm font-sans-md price selling md:w-32">
+            <%= nsb_display_price(entry.product) %>
           </span>
         <% end %>
       </li>

@@ -8,6 +8,7 @@ class CheckoutBaseController < StoreController
   before_action :ensure_order_is_not_skipping_states
   before_action :ensure_order_not_completed
   before_action :ensure_checkout_allowed
+  before_action :ensure_minimum_order_met
   before_action :ensure_sufficient_stock_lines
 
   before_action :check_authorization
@@ -39,6 +40,17 @@ class CheckoutBaseController < StoreController
     unless @order.checkout_allowed?
       redirect_to cart_path
     end
+  end
+
+  # A customer can reach /checkout/address directly without ever pressing the
+  # cart's Checkout button. The order would still refuse to complete
+  # (Nsb::MinimumOrder), but only after they had typed an address and a card,
+  # so send them back to the cart now instead.
+  def ensure_minimum_order_met
+    return if @order.nsb_meets_minimum_order?
+
+    flash[:error] = @order.nsb_minimum_order_message
+    redirect_to cart_path
   end
 
   def ensure_order_not_completed

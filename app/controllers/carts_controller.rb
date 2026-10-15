@@ -23,7 +23,15 @@ class CartsController < StoreController
   def update
     authorize! :update, @order, cookies.signed[:guest_token]
     if @order.contents.update_cart(order_params)
-      @order.next if params.key?(:checkout) && @order.cart?
+      if params.key?(:checkout) && @order.cart? && !@order.next
+        # The state machine refused to leave the cart -- in practice the
+        # minimum order (Nsb::MinimumOrder). Stay on the cart and say why,
+        # rather than the starter's redirect into a checkout step the order
+        # never reached.
+        flash[:error] = @order.errors.full_messages.join("\n")
+        redirect_to cart_path
+        return
+      end
 
       respond_to do |format|
         format.html do

@@ -1,0 +1,23 @@
+<!-- insert_bottom "[data-hook='admin_user_form_fields']" -->
+
+<%#
+  A customer's own minimum order value (Nsb::MinimumOrder), overriding the
+  store's site-wide one. Blank means "use the site-wide minimum"; 0 means "no
+  minimum for this customer".
+
+  Saved through Nsb::AdminUserMinimumOrderParams, which permits it on the admin
+  users controller only -- customers cannot set it from their own account page.
+%>
+<div class="col-6">
+  <%= f.field_container :nsb_minimum_order_amount do %>
+    <%= f.label :nsb_minimum_order_amount, "Minimum order amount" %>
+    <%= f.number_field :nsb_minimum_order_amount, min: 0, step: 0.01, class: "fullwidth",
+          placeholder: "Site-wide: #{Spree::Money.new(Spree::Store.default.nsb_minimum_order_amount)}" %>
+    <small class="form-text text-muted">
+      Leave blank to use the site-wide minimum
+      (<%= Spree::Money.new(Spree::Store.default.nsb_minimum_order_amount) %>).
+      Enter 0 for no minimum.
+    </small>
+    <%= f.error_message_on :nsb_minimum_order_amount %>
+  <% end %>
+</div>

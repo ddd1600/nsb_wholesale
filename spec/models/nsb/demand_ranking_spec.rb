@@ -182,6 +182,26 @@ RSpec.describe Nsb::DemandRanking do
     end
   end
 
+  describe 'products renamed since the export' do
+    let(:wholesale_data) do
+      {
+        channel: 'wholesale',
+        first_order_date: '2021-10-28',
+        last_order_date: '2026-08-04',
+        total_units: 100.0,
+        total_sales: 100.0,
+        # The real export row: no SKU, and the name the product had in B2BWave.
+        products: [ { rank: 1, sku: '', name: 'THC Free Green Apple Gummies', units: 16.0, sales: 252.5 } ]
+      }
+    end
+
+    let!(:renamed) { create(:product, name: 'THC Free Gummies (70mg CBD)', sku: 'E-IsoSupremeGummies10Ct') }
+
+    it 'still ranks a product whose export row only has its old name' do
+      expect(names_for(channel: :wholesale, metric: :units)).to include('THC Free Gummies (70mg CBD)')
+    end
+  end
+
   describe 'parameter coercion' do
     it 'accepts the supported values' do
       expect(described_class.channel_for('retail')).to eq(:retail)

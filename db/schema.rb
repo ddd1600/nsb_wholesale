@@ -1174,6 +1174,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_130000) do
     t.string "available_locales"
     t.string "bcc_email"
     t.integer "reverse_charge_status", default: 0, null: false, comment: "Enum values: 0 = disabled, 1 = enabled, 2 = not_validated"
+    t.decimal "nsb_minimum_order_amount", precision: 10, scale: 2, default: "0.0", null: false
     t.index ["code"], name: "index_spree_stores_on_code"
     t.index ["default"], name: "index_spree_stores_on_default"
   end
@@ -1307,6 +1308,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_130000) do
     t.string "unconfirmed_email"
     t.integer "b2b_customer_id"
     t.datetime "nsb_activated_at"
+    t.decimal "nsb_minimum_order_amount", precision: 10, scale: 2
     t.string "square_customer_id"
     t.index ["b2b_customer_id"], name: "index_spree_users_on_b2b_customer_id", unique: true
     t.index ["deleted_at"], name: "index_spree_users_on_deleted_at"

@@ -108,6 +108,38 @@ RSpec.describe 'Homepage demand ranking', type: :request, with_signed_in_user: t
     expect(response.body).not_to match(/\d+\s+orders?\b/)
   end
 
+  describe 'featured lineup' do
+    def featured
+      response.body[/<h2[^>]*>Featured<\/h2>.*?Also ordered often/m]
+    end
+
+    it 'shows the featured products, in order, between the podium and the spotlight' do
+      create(:product, name: 'Featured gummies', sku: 'E-IsoSupremeGummies')
+      create(:product, name: 'Featured tincture', sku: 'T-D8AdvancedFormula')
+
+      get root_path
+
+      expect(featured).to be_present
+      expect(response.body.index('Featured</h2>')).to be > response.body.index('Most-ordered products')
+      expect(featured.index('Featured gummies')).to be < featured.index('Featured tincture')
+    end
+
+    it 'skips a featured product that is discontinued' do
+      create(:product, name: 'Featured gummies', sku: 'E-IsoSupremeGummies', discontinue_on: 1.day.ago)
+      create(:product, name: 'Featured tincture', sku: 'T-D8AdvancedFormula')
+
+      get root_path
+
+      expect(featured).to include('Featured tincture')
+      expect(response.body).not_to include('Featured gummies')
+    end
+
+    it 'leaves the section out when none of them exist' do
+      get root_path
+      expect(response.body).not_to match(/<h2[^>]*>Featured<\/h2>/)
+    end
+  end
+
   it 'offers both channels and both metrics' do
     get root_path
     expect(response.body).to include('Wholesale').and include('Retail')

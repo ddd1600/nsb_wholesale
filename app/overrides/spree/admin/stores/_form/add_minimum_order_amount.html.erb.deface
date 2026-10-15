@@ -1,0 +1,24 @@
+<!-- insert_after "div.row" -->
+
+<%#
+  The site-wide minimum order value (Nsb::MinimumOrder), on the admin store
+  form at Settings -> Stores -> edit. A customer with their own minimum (set on
+  their account in Users) uses that instead.
+
+  A Deface override rather than a copied view, so the rest of the upstream form
+  keeps up with Solidus upgrades.
+%>
+<div class="row">
+  <div class="col-12 col-md-6">
+    <%= f.field_container :nsb_minimum_order_amount do %>
+      <%= f.label :nsb_minimum_order_amount, "Minimum order amount (site-wide)" %>
+      <%= f.number_field :nsb_minimum_order_amount, min: 0, step: 0.01, class: "fullwidth" %>
+      <small class="form-text text-muted">
+        Customers can't check out until their cart, before discounts and shipping,
+        reaches this amount. Set to 0 for no minimum. A customer's own minimum,
+        set on their account, overrides this.
+      </small>
+      <%= f.error_message_on :nsb_minimum_order_amount %>
+    <% end %>
+  </div>
+</div>

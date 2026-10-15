@@ -50,6 +50,17 @@ module Nsb
     DEFAULT_CHANNEL = :wholesale
     DEFAULT_METRIC = :units
 
+    # Export rows with no SKU are matched on name, so renaming a product in the
+    # catalog silently drops it from the ranking. These are the old names the
+    # exports still carry, mapped to the SKU the product sells under now.
+    #
+    # "THC Free Green Apple Gummies": B2BWave never gave it a SKU, and it was
+    # renamed "THC Free Gummies (70mg CBD)" on 2026-08-27. Without this entry it
+    # vanished from the homepage entirely.
+    LEGACY_NAME_SKUS = {
+      "thc free green apple gummies" => "E-IsoSupremeGummies10Ct"
+    }.freeze
+
     class << self
       # Coerce anything -- a query param, nil, junk -- to a supported value.
       def channel_for(value) = key_for(value, CHANNELS, DEFAULT_CHANNEL)
@@ -137,7 +148,9 @@ module Nsb
         grouped = {}
 
         data.fetch("products").each do |row|
-          product = index[row["sku"].to_s.strip.presence] || index[normalize(row["name"])]
+          product = index[row["sku"].to_s.strip.presence] ||
+                    index[normalize(row["name"])] ||
+                    index[LEGACY_NAME_SKUS[normalize(row["name"])]]
           next if product.nil?
 
           (grouped[product] ||= []) << row

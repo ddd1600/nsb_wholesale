@@ -16,7 +16,8 @@
             nothing to gain from caching this anyway. %>
         <%= render ProductCardComponent.new(
           product,
-          price: show_wholesale_prices? ? product.price_for_options(current_pricing_options) : nil,
+          price: nil,
+          price_range: nsb_price_range(product),
           additional_classes: 'snap-start shrink-0 md:w-collection-card h-min-content',
           home_collection: true
         ) %>

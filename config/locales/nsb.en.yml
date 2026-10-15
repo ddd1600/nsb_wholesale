@@ -18,6 +18,15 @@ en:
       remove_confirm: "Remove this card? You'll need to enter it again next time."
       removed: "Card removed."
       remove_failed: "We couldn't remove that card right now. Please try again, or contact us."
+    minimum_order:
+      not_met: "Your minimum order is %{minimum}. Add %{short} more to check out."
+      cart_short: "Add %{short} more to reach your %{minimum} minimum order."
+    free_shipping:
+      cart_short: "Add %{short} more for free shipping."
+      cart_qualifies: "Your order ships free."
+    order_terms_banner:
+      minimum: "Minimum order %{minimum}"
+      free_shipping: "Free shipping on orders over %{threshold}"
     claims:
       title: "Set up your wholesale account"
       intro: "Your account and order history have already been moved over. Enter the email address you used to order from us and we'll send you a link to choose a password."

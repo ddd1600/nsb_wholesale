@@ -63,7 +63,7 @@
       >
         <% if display_price %>
           <span class="price selling" itemprop="price" content="<%= display_price.to_d %>">
-            <%= display_price.to_html %>
+            <%= display_price_html %>
           </span>
           <span itemprop="priceCurrency" content="<%= display_price.currency %>"></span>
         <% end %>

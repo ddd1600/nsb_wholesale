@@ -21,6 +21,10 @@ Rails.application.config.to_prepare do
   # by it.
   StoreController.prepend(Nsb::ImpersonationAwareOrderCreation)
 
+  # Minimum order value: site-wide on the store, overridable per customer.
+  Spree::Order.prepend(Nsb::MinimumOrder)
+  Spree::Admin::UsersController.prepend(Nsb::AdminUserMinimumOrderParams)
+
   # Square cards count as saved only once Square holds them, not merely
   # because they carry a single-use browser token.
   Spree::CreditCard.prepend(Nsb::SquareSavedCard)

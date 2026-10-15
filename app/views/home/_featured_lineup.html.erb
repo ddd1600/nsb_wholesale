@@ -1,0 +1,35 @@
+<%#
+  Hand-picked products (HomeController::FEATURED_SKUS), shown between the
+  podium and "Also ordered often". Same card shape as podium #2 and #3, minus
+  the rank and share -- these are chosen, not ranked.
+%>
+<section class="wrapper pb-12 md:pb-16">
+  <h2 class="font-serif text-h5 md:text-h4 mb-7">Featured</h2>
+
+  <ul class="grid-container">
+    <% products.each do |product| %>
+      <li class="col-span-full md:col-span-6 bg-gray-50 dark:bg-gray-800 rounded-lg md:rounded-xl lg:rounded-2xl overflow-hidden">
+        <%= link_to product_path(product), class: 'flex h-full flex-row items-center gap-4 p-4 md:gap-6 md:p-6' do %>
+          <div class="product-frame w-24 h-24 shrink-0 md:w-32 md:h-32">
+            <%= render(ImageComponent.new(
+              image: product.gallery.images.first,
+              size: :small,
+              loading: "lazy",
+              decoding: "async"
+            )) %>
+          </div>
+
+          <div class="min-w-0 flex flex-col gap-y-2 dark:text-sand">
+            <span class="font-sans-md text-body-sm md:text-body">
+              <%= product.name %>
+            </span>
+
+            <span class="text-body-sm md:text-body font-sans-md price selling">
+              <%= nsb_display_price(product) %>
+            </span>
+          </div>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+</section>

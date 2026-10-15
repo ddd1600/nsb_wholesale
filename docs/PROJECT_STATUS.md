@@ -213,6 +213,30 @@ Render without a deploy.
 Rack middleware that blocks everything except `/up`, so while it is set no
 applicant can reach the welcome page at all.
 
+## Order terms: minimum order, NEWPORTAL, free shipping
+
+Added 2026-10-15. All three are measured on the **merchandise subtotal before
+discounts and shipping** (`item_total`), so they never disagree: a $250 cart
+still meets the minimum after NEWPORTAL, and a $500 cart still ships free.
+
+| What | Where the operator changes it |
+|---|---|
+| Site-wide minimum ($250) | Admin → Settings → Stores → edit → "Minimum order amount (site-wide)" |
+| A customer's own minimum | Admin → Users → the customer → "Minimum order amount". Blank = site-wide; 0 = none |
+| NEWPORTAL, 20% off, once per account | Admin → Promotions |
+| Free shipping at $500 or more (`>=`) | Admin → Promotions — the threshold is the rule's amount |
+
+- **The minimum** (`Nsb::MinimumOrder`) is checked leaving the cart and again
+  entering `confirm`. Not on `complete`: Solidus charges the card in its own
+  `complete` callback, which would run first. Applies to admin-placed orders
+  too, so lower a customer's minimum before a small phone order.
+- **The banner** reads the same settings, so it follows any admin change and
+  drops the free-shipping line if that promotion is paused or expired.
+- **NEWPORTAL** is case-insensitive (Solidus lowercases codes). Only a completed
+  order uses it up.
+- **Create the promotions** with `bin/rails nsb:import:promotions`. Safe to
+  re-run; it never overwrites an existing promotion, so admin edits survive.
+
 ## Catalog pipeline, and the order it runs in
 
 The catalog is built from committed files in `db/import_data/` by four steps that

@@ -39,6 +39,11 @@ namespace :nsb do
       Nsb::RefundReasonSeeder.new.call.each { |name| puts "  #{name}" }
     end
 
+    desc "Create the NEWPORTAL code and $500 free-shipping promotion (safe to re-run)"
+    task promotions: :environment do
+      Nsb::PromotionSeeder.new.call
+    end
+
     desc "Set the store's name, url and from-address (safe to re-run)"
     task store: :environment do
       Nsb::StoreConfigurator.new.call
