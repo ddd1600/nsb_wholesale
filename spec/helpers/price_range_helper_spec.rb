@@ -15,6 +15,10 @@ RSpec.describe ApplicationHelper, type: :helper do
 
   let(:product) { create(:product, price: 12.50) }
 
+  # Spree::Money#to_html wraps the symbol and digits in separate spans, so
+  # assert on the text a customer would read.
+  def shown = Nokogiri::HTML.fragment(helper.nsb_display_price(product).to_s).text
+
   def add_variant(price)
     create(:variant, product: product, price: price)
   end
@@ -23,21 +27,20 @@ RSpec.describe ApplicationHelper, type: :helper do
     add_variant(30)
     add_variant(12.50)
 
-    expect(helper.nsb_display_price(product)).to include('$12.50').and include('$30.00')
-    expect(helper.nsb_display_price(product).index('$12.50')).to be < helper.nsb_display_price(product).index('$30.00')
+    expect(shown).to eq('$12.50 – $30.00')
   end
 
   it 'shows one price when every pack size costs the same' do
     add_variant(20)
     add_variant(20)
 
-    expect(helper.nsb_display_price(product)).to include('$20.00')
-    expect(helper.nsb_display_price(product)).not_to include('–')
+    expect(shown).to include('$20.00')
+    expect(shown).not_to include('–')
   end
 
   it 'uses the master price for a product with no variants' do
-    expect(helper.nsb_display_price(product)).to include('$12.50')
-    expect(helper.nsb_display_price(product)).not_to include('–')
+    expect(shown).to include('$12.50')
+    expect(shown).not_to include('–')
   end
 
   context 'when the visitor is not signed in' do
