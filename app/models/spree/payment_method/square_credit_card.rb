@@ -21,14 +21,25 @@ module Spree
       "square"
     end
 
-    # Square tokens from the Web Payments SDK are single-use, so a stored source
-    # cannot be charged again. Saying so keeps Solidus from offering a saved card
-    # that would fail at capture. Repeat customers re-enter their card, which is
-    # the honest trade until Square's Cards API is wired up.
-    def reusable_sources(_order)
-      []
+    # Cards the customer has saved with Square (see Nsb::Square::CardsOnFile).
+    # Offered at checkout and on the admin's "New payment" form.
+    #
+    # Always the customer's wallet, even for a completed order: stock Solidus
+    # would offer only the cards already used on that order, but the admin
+    # adding a payment to a finished order should see every saved card.
+    #
+    # Single-use browser tokens are excluded by Nsb::SquareSavedCard#reusable?.
+    def reusable_sources(order)
+      return [] unless order.user
+
+      order.user.wallet.wallet_payment_sources
+        .map(&:payment_source)
+        .select { |source| source.is_a?(Spree::CreditCard) && source.payment_method_id == id && source.reusable? }
     end
 
+    # Stays false. Turning it on would make Solidus call #create_profile before
+    # the charge and change the gateway's void signature. Cards are saved after
+    # a confirmed charge instead, by Nsb::SaveCardOnFileJob.
     def payment_profiles_supported?
       false
     end

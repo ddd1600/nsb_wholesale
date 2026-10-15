@@ -1,24 +1,48 @@
 <%#
   Shown when an admin adds a payment to an order from the backend.
 
-  There is deliberately no card form here. A Square charge needs a token from
-  the Web Payments SDK running in the customer's browser; an admin typing a card
+  There is deliberately no card-number form here. A new card must be entered in
+  the customer's own browser (Square's Web Payments SDK); an admin typing a card
   number into this page would mean card data hitting our server, which CLAUDE.md
   forbids outright.
 
-  So this explains the supported routes instead of offering a form that could
-  not work.
+  What an admin CAN do is charge a card the customer saved with Square. Those
+  are listed below (SquareCreditCard#reusable_sources). Solidus's admin
+  payments controller reads the chosen card from params[:card] -- the same
+  param its stock card form uses -- and the charge goes to Square's card on file.
+  The customer agreed to phone/admin charges when they saved the card (see
+  nsb.checkout.save_card_consent).
 %>
+<% saved_cards = previous_cards %>
+
 <div class="square-admin-source">
+  <% if saved_cards.any? %>
+    <fieldset class="no-border-bottom">
+      <legend>Charge a saved card</legend>
+      <div class="field" data-hook="previous_cards">
+        <% saved_cards.each do |card| %>
+          <label>
+            <%= radio_button_tag :card, card.id, card == saved_cards.first %>
+            <%= card.cc_type.presence&.titleize || "Card" %> ending <%= card.last_digits %>
+            <% if card.month.present? && card.year.present? %>
+              (expires <%= format("%02d", card.month.to_i) %>/<%= card.year %>)
+            <% end %>
+          </label><br>
+        <% end %>
+      </div>
+      <p><small>The amount above is charged to the selected card through Square.</small></p>
+    </fieldset>
+  <% else %>
+    <p><strong>This customer has no saved card.</strong></p>
+  <% end %>
+
   <p>
-    <strong>Card payments are taken through the customer's checkout.</strong>
-  </p>
-  <p>
-    Square requires the card to be entered in the customer's own browser, so a
-    card cannot be keyed in here. To charge this customer, either:
+    A new card cannot be keyed in here: Square requires it to be entered in the
+    customer's own browser. To use a new card, either:
   </p>
   <ul>
-    <li>ask them to complete checkout in the portal, or</li>
+    <li>ask the customer to complete checkout in the portal (they can tick
+      "Save this card" so you can charge it from here next time), or</li>
     <li>take the payment in the Square dashboard or Square app, then record it
       against this order using the <em>Check</em> payment method with the Square
       receipt number in the notes.</li>

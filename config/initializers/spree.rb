@@ -37,6 +37,10 @@ Spree.config do |config|
   # there cannot roll back an order Square has already charged.
   config.environment.subscribers << "Nsb::ShipstationSubscriber"
 
+  # Saves a customer's card with Square after checkout, when they ticked "Save
+  # this card". Same shape as the ShipStation subscriber: enqueue only.
+  config.environment.subscribers << "Nsb::SaveCardSubscriber"
+
   # Phone is not a required part of an address.
   #
   # Two reasons. First, the B2BWave export has a phone number for only 21 of 360
@@ -73,6 +77,17 @@ Spree.config do |config|
   #   webhook_endpoint_signing_secret: ENV.fetch('SOLIDUS_STRIPE_WEBHOOK_SIGNING_SECRET')
   # )
 end
+
+# Saved cards (Nsb::Square::CardsOnFile).
+#
+# :nsb_save_requested is the checkout's "Save this card" box.
+#
+# :gateway_customer_profile_id is REMOVED from what a browser may post. Stock
+# Solidus permits it, but here it holds the Square customer id that unlocks a
+# saved card: a forged one could point a charge at someone else's card. Only
+# Nsb::Square::CardsOnFile sets it, server side.
+Spree::PermittedAttributes.source_attributes << :nsb_save_requested
+Spree::PermittedAttributes.source_attributes.delete(:gateway_customer_profile_id)
 
 Spree::Backend::Config.configure do |config|
   config.locale = 'en'

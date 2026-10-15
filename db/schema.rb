@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_08_29_160000) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_15_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -348,6 +348,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_29_160000) do
     t.integer "payment_method_id"
     t.boolean "default", default: false, null: false
     t.integer "address_id"
+    t.boolean "nsb_save_requested", default: false, null: false
     t.index ["payment_method_id"], name: "index_spree_credit_cards_on_payment_method_id"
     t.index ["user_id"], name: "index_spree_credit_cards_on_user_id"
   end
@@ -1306,11 +1307,13 @@ ActiveRecord::Schema[8.0].define(version: 2026_08_29_160000) do
     t.string "unconfirmed_email"
     t.integer "b2b_customer_id"
     t.datetime "nsb_activated_at"
+    t.string "square_customer_id"
     t.index ["b2b_customer_id"], name: "index_spree_users_on_b2b_customer_id", unique: true
     t.index ["deleted_at"], name: "index_spree_users_on_deleted_at"
     t.index ["email"], name: "email_idx_unique", unique: true
     t.index ["reset_password_token"], name: "index_spree_users_on_reset_password_token_solidus_auth_devise", unique: true
     t.index ["spree_api_key"], name: "index_spree_users_on_spree_api_key"
+    t.index ["square_customer_id"], name: "index_spree_users_on_square_customer_id", unique: true
   end
 
   create_table "spree_variant_property_rule_conditions", id: :serial, force: :cascade do |t|

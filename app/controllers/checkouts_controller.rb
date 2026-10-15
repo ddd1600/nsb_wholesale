@@ -154,7 +154,11 @@ class CheckoutsController < CheckoutBaseController
     end
 
     if spree_current_user && spree_current_user.respond_to?(:wallet)
+      # Only cards that can actually be charged again. Square cards qualify once
+      # Square has saved them (Nsb::SquareSavedCard); before that the wallet
+      # could hold spent single-use tokens.
       @wallet_payment_sources = spree_current_user.wallet.wallet_payment_sources
+                                                  .select { |wps| wps.payment_source.try(:reusable?) }
       @default_wallet_payment_source = @wallet_payment_sources.detect(&:default) ||
                                        @wallet_payment_sources.first
     end

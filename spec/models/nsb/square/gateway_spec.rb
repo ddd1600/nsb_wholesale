@@ -170,6 +170,15 @@ RSpec.describe Nsb::Square::Gateway do
         .to raise_error(ActiveMerchant::ConnectionError, /may or may not have completed/)
     end
 
+    # The SDK raises ServiceUnavailableError for a 503 and does not make it a
+    # ServerError, so it used to escape as an unhandled exception.
+    it "raises ConnectionError on a Square 503" do
+      allow(payments_api).to receive(:create).and_raise(Square::Errors::ServiceUnavailableError)
+
+      expect { gateway.purchase(2500, source, gateway_options) }
+        .to raise_error(ActiveMerchant::ConnectionError)
+    end
+
     it "raises ConnectionError on a Square 5xx" do
       allow(payments_api).to receive(:create)
         .and_raise(Square::Errors::ServerError.new("boom", code: 500))
@@ -325,6 +334,46 @@ RSpec.describe Nsb::Square::Gateway do
       allow(refunds_api).to receive(:refund_payment).and_return(refund_response("FAILED"))
 
       expect(gateway.credit(2500, "sq-pay-1", gateway_options)).not_to be_success
+    end
+  end
+
+  describe "charging a saved card" do
+    let(:owner) { double("Spree::User", square_customer_id: "SQ-CUST-1") }
+    let(:saved_card) do
+      double("Spree::CreditCard", gateway_payment_profile_id: "ccof:card-1",
+                                  gateway_customer_profile_id: "SQ-CUST-1", user: owner)
+    end
+
+    it "sends the card on file with its Square customer" do
+      allow(payments_api).to receive(:create).and_return(create_response(square_payment(status: "COMPLETED")))
+
+      expect(gateway.purchase(2500, saved_card, gateway_options)).to be_success
+      expect(payments_api).to have_received(:create)
+        .with(hash_including(source_id: "ccof:card-1", customer_id: "SQ-CUST-1"))
+    end
+
+    it "still succeeds only on Square's COMPLETED" do
+      allow(payments_api).to receive(:create).and_return(create_response(square_payment(status: "PENDING")))
+
+      expect(gateway.purchase(2500, saved_card, gateway_options)).not_to be_success
+    end
+
+    it "refuses, without calling Square, when the card's customer is not its owner's" do
+      allow(owner).to receive(:square_customer_id).and_return("SQ-SOMEONE-ELSE")
+      allow(payments_api).to receive(:create)
+
+      response = gateway.purchase(2500, saved_card, gateway_options)
+
+      expect(response).not_to be_success
+      expect(payments_api).not_to have_received(:create)
+    end
+
+    it "sends no customer for a one-off browser token" do
+      allow(payments_api).to receive(:create).and_return(create_response(square_payment(status: "COMPLETED")))
+
+      gateway.purchase(2500, source, gateway_options)
+
+      expect(payments_api).to have_received(:create).with(hash_including(customer_id: nil))
     end
   end
 end

@@ -20,4 +20,8 @@ Rails.application.config.to_prepare do
   # gets included, and prepending any higher up the chain would be shadowed
   # by it.
   StoreController.prepend(Nsb::ImpersonationAwareOrderCreation)
+
+  # Square cards count as saved only once Square holds them, not merely
+  # because they carry a single-use browser token.
+  Spree::CreditCard.prepend(Nsb::SquareSavedCard)
 end

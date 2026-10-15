@@ -36,9 +36,19 @@
        role="alert"
        aria-live="polite"></p>
 
-    <%# Says plainly what happens to the card, since customers reasonably assume
-        a portal is storing it. Accurate: the token is single-use and we keep
-        only the last four digits and brand for the order record. %>
+    <%# Opt-in, unticked by default: Square's card-on-file rules expect the
+        customer's clear consent. The card is saved only after the charge
+        succeeds (Nsb::SaveCardOnFileJob), and is held by Square, not us. %>
+    <label class="flex items-start gap-x-2 text-body-sm">
+      <%= hidden_field_tag "#{param_prefix}[nsb_save_requested]", "0", id: nil %>
+      <%= check_box_tag "#{param_prefix}[nsb_save_requested]", "1", false,
+            id: "square_save_card_#{payment_method.id}", class: "mt-1" %>
+      <span>
+        <%= t("nsb.checkout.save_card") %>
+        <span class="block text-body-xs opacity-75"><%= t("nsb.checkout.save_card_consent") %></span>
+      </span>
+    </label>
+
     <p class="text-body-xs opacity-75"><%= t("nsb.checkout.card_not_stored") %></p>
 
     <%# Populated by the Stimulus controller from Square's tokenize() result.

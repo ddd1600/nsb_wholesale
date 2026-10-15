@@ -60,6 +60,31 @@
 
         <p class="rounded-lg bg-black text-white text-center p-4 mt-4 inline-block"><%= I18n.t('spree.you_have_no_orders_yet') %></p>
       <% end %>
+
+      <h2 class="font-serif text-h4 md:text-h4 mt-10 mb-6"><%= t('nsb.saved_cards.heading') %></h2>
+      <% if @saved_cards.present? %>
+        <ul class="bg-white rounded-xl border border-gray-300 divide-y divide-gray-mid dark:bg-black dark:border-gray-700">
+          <% @saved_cards.each do |wallet_payment_source| %>
+            <% card = wallet_payment_source.payment_source %>
+            <li class="flex items-center justify-between gap-4 p-4">
+              <span>
+                <%= card.cc_type.presence&.titleize || "Card" %>
+                <% if card.last_digits.present? %>ending <%= card.last_digits %><% end %>
+                <% if card.month.present? && card.year.present? %>
+                  <span class="opacity-75">(expires <%= format("%02d", card.month.to_i) %>/<%= card.year %>)</span>
+                <% end %>
+              </span>
+              <%= button_to t('nsb.saved_cards.remove'),
+                    account_saved_card_path(wallet_payment_source),
+                    method: :delete,
+                    form: { data: { turbo_confirm: t('nsb.saved_cards.remove_confirm') } },
+                    class: 'transition-all duration-300 text-black hover:!text-red-500 dark:text-sand underline' %>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="text-body-sm opacity-75"><%= t('nsb.saved_cards.none') %></p>
+      <% end %>
     </div>
   </div>
 </div>

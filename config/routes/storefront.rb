@@ -48,7 +48,10 @@ devise_scope :spree_user do
   get '/confirm', to: 'user_confirmations#show', as: :confirmation if Spree::Auth::Config[:confirmable]
 end
 
-resource :account, controller: 'users'
+resource :account, controller: 'users' do
+  # Removing a card saved with Square. See SavedCardsController.
+  resources :saved_cards, only: :destroy
+end
 
 resources :products, only: [:index, :show]
 

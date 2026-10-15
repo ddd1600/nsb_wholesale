@@ -112,6 +112,9 @@ module Nsb
         token = source_token(source)
         return failure("No payment token was supplied by the browser.", nil) if token.blank?
 
+        customer_id = saved_card_customer_id(source)
+        return failure("That saved card doesn't belong to this customer.", nil) if customer_id == :mismatch
+
         expected_status = autocomplete ? CAPTURED : AUTHORIZED
 
         with_square_errors do
@@ -125,6 +128,9 @@ module Nsb
             autocomplete: autocomplete,
             location_id: config.location_id,
             reference_id: gateway_options[:order_id].to_s.first(40),
+            # Present only for a saved card: Square requires the owning
+            # customer alongside a card-on-file id.
+            customer_id: customer_id,
             buyer_email_address: gateway_options[:email],
             note: "Wholesale order #{gateway_options[:order_id]}"
           )
@@ -150,6 +156,21 @@ module Nsb
         return source if source.is_a?(String)
 
         source.try(:gateway_payment_profile_id).presence
+      end
+
+      # For a saved card, the Square customer id to send with the charge; nil
+      # for a single-use browser token; :mismatch if the card's customer is not
+      # the card owner's own Square customer.
+      #
+      # The id is cross-checked against the user record rather than trusted from
+      # the card alone, as defence in depth on top of the browser being unable
+      # to post gateway_customer_profile_id (config/initializers/spree.rb).
+      def saved_card_customer_id(source)
+        customer_id = source.try(:gateway_customer_profile_id).presence
+        return nil unless customer_id
+
+        owner_customer_id = source.try(:user).try(:square_customer_id)
+        owner_customer_id.present? && owner_customer_id == customer_id ? customer_id : :mismatch
       end
 
       def idempotency_key(gateway_options, prefix: nil)
@@ -236,7 +257,10 @@ module Nsb
           "Check the Square dashboard before retrying.",
           error
         )
-      rescue ::Square::Errors::ServerError => error
+      rescue ::Square::Errors::ServerError, ::Square::Errors::ServiceUnavailableError => error
+        # ServiceUnavailableError (503) is listed separately because the SDK
+        # does not make it a ServerError subclass; without it a 503 escaped as
+        # an unhandled exception.
         raise ActiveMerchant::ConnectionError.new("Square returned a server error: #{error.message}", error)
       rescue ::Square::Errors::ResponseError => error
         # 4xx: Square reached a decision and rejected it. A declined card lands here.

@@ -80,6 +80,8 @@ soon as a worker starts.
    `SQUARE_ENVIRONMENT=production`, then work through `docs/SQUARE_GO_LIVE.md`
    with a real small-dollar order. The store cannot take a real card until this
    is done.
+   - **Saved cards** (built 2026-10-15, stubbed tests only) need the sandbox
+     check and live check in `docs/SAVED_CARDS.md`.
 2. **Custom domain** — `wholesale.newsouthbotanicals.com`. Render side is
    prepared; see "Custom domain" below for the order of operations.
 3. **11 products have no image** in the B2BWave export.

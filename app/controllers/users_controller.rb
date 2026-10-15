@@ -8,6 +8,9 @@ class UsersController < StoreController
   def show
     load_object
     @orders = @user.orders.complete.order('completed_at desc')
+    # Cards saved with Square; spent single-use tokens are filtered out by
+    # Nsb::SquareSavedCard#reusable?.
+    @saved_cards = @user.wallet.wallet_payment_sources.select { |wps| wps.payment_source.try(:reusable?) }
   end
 
   def create

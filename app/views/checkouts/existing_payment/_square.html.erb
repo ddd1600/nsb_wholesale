@@ -1,18 +1,16 @@
 <%#
-  Shown when a customer has a saved payment source for this method.
-
-  Square tokens from the Web Payments SDK are single-use, so
-  SquareCreditCard#reusable_sources returns [] and this should never render in
-  practice. It exists because Solidus requires the partial to exist for the
-  partial_name, and a MissingTemplate at checkout would be far worse than an
-  unused file.
+  A card the customer saved with Square at an earlier checkout. Selecting it
+  posts order[wallet_payment_source_id]; the charge goes to Square's card on
+  file (Nsb::Square::Gateway sends the card id plus the Square customer id).
+  No card entry, no browser token.
 %>
 <% card = wallet_payment_source.payment_source %>
 
 <div class="square-existing-payment">
   <%= card.cc_type.presence&.titleize || "Card" %>
   <% if card.last_digits.present? %>ending <%= card.last_digits %><% end %>
-  <p class="text-body-xs opacity-75">
-    You'll be asked to re-enter your card, as we don't store card details.
-  </p>
+  <% if card.month.present? && card.year.present? %>
+    <span class="opacity-75">(expires <%= format("%02d", card.month.to_i) %>/<%= card.year %>)</span>
+  <% end %>
+  <p class="text-body-xs opacity-75"><%= t("nsb.checkout.saved_card_note") %></p>
 </div>
