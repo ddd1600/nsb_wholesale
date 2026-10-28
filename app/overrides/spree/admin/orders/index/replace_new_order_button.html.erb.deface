@@ -1,0 +1,10 @@
+<!-- replace "erb[loud]:contains('admin_new_order')" -->
+
+<%#
+  Swaps the Orders page's stock "New Order" button for the phone-in order flow
+  (Nsb::Admin::PlaceOrdersController). Stock "New Order" opens Solidus's
+  back-office order form, a second, different way to take an order that the
+  operator found confusing next to the storefront one. One way in.
+%>
+<%= link_to "Place an order for a customer", main_app.admin_place_order_path,
+      id: "admin_new_order", class: "btn btn-primary" %>

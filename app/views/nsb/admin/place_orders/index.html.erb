@@ -1,0 +1,54 @@
+<% admin_breadcrumb("Place an order") %>
+
+<div class="row">
+  <div class="col-12">
+    <h1>Place an order for a customer</h1>
+
+    <p>
+      Find the customer, then click <strong>Shop as this customer</strong>.
+      You'll be taken to the store signed in as them, with a yellow bar across
+      the top. Add products to the cart and check out as normal -- the order
+      is theirs, and your name is recorded as the person who placed it. Click
+      <strong>Stop</strong> in the yellow bar when you're done to get back to
+      the admin.
+    </p>
+
+    <%= form_tag admin_place_order_path, method: :get, class: "mb-4" do %>
+      <div class="d-flex" style="gap: 8px; max-width: 600px;">
+        <%= search_field_tag :q, @query, placeholder: "Business name, contact name or email",
+              class: "form-control", autofocus: true %>
+        <%= submit_tag "Find customer", name: nil, class: "btn btn-primary" %>
+      </div>
+    <% end %>
+
+    <% if @query.present? %>
+      <% if @customers.empty? %>
+        <p>No customers match "<%= @query %>".</p>
+      <% else %>
+        <table class="index">
+          <thead>
+            <tr><th>Business</th><th>Email</th><th></th></tr>
+          </thead>
+          <tbody>
+            <% @customers.each do |customer| %>
+              <tr>
+                <%# Any saved address will do: the default billing one is not set for every imported customer. %>
+                <% address = customer.bill_address || customer.addresses.first %>
+                <td><%= address&.company.presence || address&.name || "—" %></td>
+                <td><%= customer.email %></td>
+                <td class="actions">
+                  <%= button_to "Shop as this customer",
+                        admin_impersonations_path(user_id: customer.id),
+                        method: :post, class: "btn btn-primary" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+        <% if @customers.size >= Nsb::Admin::PlaceOrdersController::MAX_RESULTS %>
+          <p>Showing the first <%= Nsb::Admin::PlaceOrdersController::MAX_RESULTS %> matches. Type more to narrow it down.</p>
+        <% end %>
+      <% end %>
+    <% end %>
+  </div>
+</div>

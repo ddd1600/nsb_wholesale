@@ -213,6 +213,14 @@ Render without a deploy.
 Rack middleware that blocks everything except `/up`, so while it is set no
 applicant can reach the welcome page at all.
 
+## Phone-in orders
+
+Admin menu → **Place an order** (also the button at the top of the Orders
+page, which replaces Solidus's stock "New Order"). Search for the customer,
+click **Shop as this customer**, and check out in the storefront as them. A
+yellow bar shows whose account you are in; **Stop** returns you to the admin.
+The order belongs to the customer and records the admin as `created_by`.
+
 ## Order terms: minimum order, NEWPORTAL, free shipping
 
 Added 2026-10-15. All three are measured on the **merchandise subtotal before

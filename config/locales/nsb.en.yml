@@ -5,6 +5,9 @@ en:
     # misleading: a card is saved only when the customer ticks the separate
     # "Save this card" box, and then by Square, not us.
     save_and_continue: "Continue"
+    admin:
+      tab:
+        place_order: "Place an order"
   nsb:
     checkout:
       card_not_stored: "Your card details go straight to Square and are never stored on our servers."

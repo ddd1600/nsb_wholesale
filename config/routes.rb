@@ -37,6 +37,9 @@ Rails.application.routes.draw do
     # Starts an admin placing a phone-in order on behalf of a wholesale
     # customer. See app/controllers/nsb/admin/impersonations_controller.rb.
     resources :impersonations, only: [ :create ], controller: "nsb/admin/impersonations"
+
+    # The customer picker in front of it -- "Place an order" in the admin menu.
+    get "place_order", to: "nsb/admin/place_orders#index", as: :place_order
   end
 
   # Stops an admin's phone-in order impersonation. Deliberately NOT under the

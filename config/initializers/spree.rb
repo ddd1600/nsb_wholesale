@@ -97,6 +97,19 @@ Spree::PermittedAttributes.source_attributes.delete(:gateway_customer_profile_id
 Spree::Backend::Config.configure do |config|
   config.locale = 'en'
 
+  # "Place an order" at the top of the admin menu: the phone-in order flow
+  # (Nsb::Admin::PlaceOrdersController). Put first because taking an order for
+  # a customer is the most common thing the operator does in here. The label
+  # is translated from spree.admin.tab.place_order in config/locales/nsb.en.yml.
+  config.menu_items.unshift(
+    config.class::MenuItem.new(
+      label: :place_order,
+      icon: config.admin_updated_navbar ? "ri-add-circle-line" : "plus",
+      url: -> { Rails.application.routes.url_helpers.admin_place_order_path },
+      condition: -> { can?(:create, Spree::Order) }
+    )
+  )
+
   # Uncomment and change the following configuration if you want to add
   # a new menu item:
   #
