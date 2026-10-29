@@ -121,13 +121,34 @@ RSpec.describe Nsb::CustomerImporter do
     write_customers([record])
     importer.call
 
-    write_customers([record("email" => "new@example.com")])
+    write_customers([record("company_name" => "Renamed")])
     result = described_class.new(data_file: data_file).call
 
     expect(result.created).to eq(0)
     expect(result.updated).to eq(1)
     expect(Spree.user_class.where(b2b_customer_id: 5001).count).to eq(1)
-    expect(Spree.user_class.find_by(b2b_customer_id: 5001).email).to eq("new@example.com")
+  end
+
+  it "never reverts an email the customer has since changed on the portal" do
+    write_customers([record])
+    importer.call
+    Spree.user_class.find_by(b2b_customer_id: 5001).update!(email: "changed@example.com")
+
+    described_class.new(data_file: data_file).call
+
+    expect(Spree.user_class.find_by(b2b_customer_id: 5001).email).to eq("changed@example.com")
+  end
+
+  it "adds new B2BWave fields to the stored record without dropping old ones" do
+    write_customers([record])
+    importer.call
+
+    write_customers([record("source" => { "latest_order_submitted_at" => "09/02/2026 12:32" })])
+    described_class.new(data_file: data_file).call
+
+    metadata = Spree.user_class.find_by(b2b_customer_id: 5001).admin_metadata["b2bwave"]
+    expect(metadata["tax_id"]).to eq("TX-1")
+    expect(metadata["latest_order_submitted_at"]).to eq("09/02/2026 12:32")
   end
 
   it "keeps the B2BWave record on the user for customers with no address" do
@@ -188,6 +209,29 @@ RSpec.describe Nsb::CustomerImporter do
       expect(result.failures).to be_empty
       expect(result.addresses).to eq(0)
       expect(Spree.user_class.find_by(b2b_customer_id: 5001)).to be_present
+    end
+
+    it "adds an address to a customer who had none on an earlier import" do
+      write_customers([record])
+      importer.call
+
+      write_customers([record("address" => address)])
+      result = described_class.new(data_file: data_file).call
+
+      expect(result.addresses).to eq(1)
+      expect(Spree.user_class.find_by(b2b_customer_id: 5001).bill_address.address1).to eq("100 Main St")
+    end
+
+    it "never replaces an address the customer already has, such as one typed at checkout" do
+      write_customers([record])
+      importer.call
+      user = Spree.user_class.find_by(b2b_customer_id: 5001)
+      user.update!(bill_address: create(:address, address1: "9 Typed At Checkout Rd", state: south_carolina, country: usa))
+
+      write_customers([record("address" => address)])
+      described_class.new(data_file: data_file).call
+
+      expect(user.reload.bill_address.address1).to eq("9 Typed At Checkout Rd")
     end
 
     it "does not duplicate the address on re-run" do

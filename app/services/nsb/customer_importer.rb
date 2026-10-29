@@ -52,7 +52,9 @@ module Nsb
       new_record = user.new_record?
 
       user.b2b_customer_id = record["b2b_customer_id"]
-      user.email = record["email"]
+      # Set once, like the password: a customer who has since changed their
+      # email on the portal must not have it reverted by a re-import.
+      user.email = record["email"] if new_record
 
       # Only ever set a password on creation. Re-running the import must not
       # disturb a customer who has already set their own.
@@ -63,8 +65,13 @@ module Nsb
 
       # Everything B2BWave held, kept verbatim. Most customers have no usable
       # address, so this is where their company details survive.
-      user.admin_metadata = (user.admin_metadata || {}).merge(
-        "b2bwave" => record["source"].compact
+      #
+      # Merged into what is already there, not replaced: the 2026-10-28 admin
+      # export adds fields the first export lacked, and a later file missing a
+      # key should not erase it.
+      metadata = user.admin_metadata || {}
+      user.admin_metadata = metadata.merge(
+        "b2bwave" => (metadata["b2bwave"] || {}).merge(record["source"].compact)
       )
 
       user.save!
@@ -115,9 +122,11 @@ module Nsb
       )
       return unless address.valid?
 
-      # Reuse an identical existing address so re-runs don't pile up duplicates.
-      existing = user.bill_address
-      return if existing && same_address?(existing, address)
+      # Only for customers with no address at all. One they already have came
+      # from an earlier import or, more importantly, was typed by the customer
+      # at checkout -- an import must never replace that with older B2BWave
+      # data. This also makes re-runs a no-op.
+      return if user.addresses.any?
 
       address.save!
       user.update!(bill_address: address, ship_address: address)
@@ -132,11 +141,6 @@ module Nsb
       country.states.find_by("lower(abbr) = :v OR lower(name) = :v", v: value.to_s.strip.downcase)
     end
 
-    def same_address?(existing, candidate)
-      %i[address1 address2 city zipcode country_id state_id].all? do |attribute|
-        existing.public_send(attribute) == candidate.public_send(attribute)
-      end
-    end
 
     def say(message)
       @logger.info("[customer-import] #{message}")
