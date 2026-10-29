@@ -1,5 +1,12 @@
 <div class="relative flex items-center" data-controller="top-bar">
   <div class="flex items-center gap-x-6">
+    <%# The way into the admin for a signed-in admin, who otherwise had to know
+        to type /admin. Hidden while placing a phone-in order: spree_current_user
+        is then the customer, and the impersonation bar's Stop is the way back. %>
+    <% if spree_current_user&.has_spree_role?("admin") %>
+      <%= link_to "Admin", spree.admin_path,
+            class: "shrink-0 rounded-md bg-black text-white dark:bg-sand dark:text-black px-3 py-1 text-body-sm font-semibold hover:opacity-80" %>
+    <% end %>
     <%= render 'shared/search/search_bar', taxons: taxons, taxon: taxon, :locals => { :additional_classes => 'hidden lg:flex' } %>
     <div class="hidden lg:flex">
       <%= render "shared/navigation/theme_switcher" %>

@@ -49,6 +49,24 @@ RSpec.describe "Admin place an order", type: :request do
     end
   end
 
+  describe "the storefront's Admin button" do
+    it "shows for an admin" do
+      sign_in create(:admin_user)
+
+      get root_path
+
+      expect(Nokogiri::HTML(response.body).at_css("a[href='#{spree.admin_path}']")&.text).to eq("Admin")
+    end
+
+    it "is hidden from customers" do
+      sign_in customer
+
+      get root_path
+
+      expect(Nokogiri::HTML(response.body).at_css("a[href='#{spree.admin_path}']")).to be_nil
+    end
+  end
+
   it "is closed to customers" do
     sign_in customer
 
