@@ -2,21 +2,22 @@
 
 require "solidus_starter_frontend_spec_helper"
 
-# "Check (Net 14)" (Nsb::CheckTerms): offered only to customers flagged for it,
-# refused for everyone else even when posted by hand, and never marks the order
-# paid until the operator captures it.
-RSpec.describe "Check (Net 14) payment", type: :request, with_signed_in_user: true do
+# "Check (Net 14)" (Nsb::CheckTerms): only when an admin is placing the order
+# for a customer flagged for net terms. Customers checking out themselves --
+# flagged or not -- get card only, and a hand-posted attempt is refused. The
+# order is never marked paid until the operator captures it.
+RSpec.describe "Check (Net 14) payment", type: :request do
   let!(:store) { create(:store, nsb_minimum_order_amount: 0) }
   let!(:card_method) { create(:credit_card_payment_method) }
   let!(:check_method) { Nsb::CheckTerms.ensure_payment_method! }
-  let(:user) { order.user }
-  let(:order) { create(:order_with_line_items, state: "payment", store: store) }
+  let(:customer) { create(:user, nsb_pays_by_check: true) }
+  let!(:order) { create(:order_with_line_items, state: "payment", store: store, user: customer) }
 
   let(:check_params) do
     { state: "payment", order: { payments_attributes: [ { payment_method_id: check_method.id.to_s } ] } }
   end
 
-  context "for a customer without net terms" do
+  shared_examples "card only" do
     it "is not listed on the payment page" do
       get checkout_state_path("payment")
 
@@ -33,8 +34,27 @@ RSpec.describe "Check (Net 14) payment", type: :request, with_signed_in_user: tr
     end
   end
 
-  context "for a customer with net terms" do
-    before { order.user.update!(nsb_pays_by_check: true) }
+  context "when a flagged customer checks out on their own" do
+    before { sign_in customer }
+
+    include_examples "card only"
+  end
+
+  context "when an admin places the order for a customer without net terms" do
+    before do
+      customer.update!(nsb_pays_by_check: false)
+      sign_in create(:admin_user)
+      post admin_impersonations_path(user_id: customer.id)
+    end
+
+    include_examples "card only"
+  end
+
+  context "when an admin places the order for a customer with net terms" do
+    before do
+      sign_in create(:admin_user)
+      post admin_impersonations_path(user_id: customer.id)
+    end
 
     it "is listed on the payment page" do
       get checkout_state_path("payment")
@@ -68,9 +88,12 @@ RSpec.describe "Check (Net 14) payment", type: :request, with_signed_in_user: tr
   end
 
   it "cannot be switched on by the customer from their account page" do
+    customer.update!(nsb_pays_by_check: false)
+    sign_in customer
+
     patch account_path, params: { user: { nsb_pays_by_check: "1" } }
 
-    expect(user.reload.nsb_pays_by_check).to be(false)
+    expect(customer.reload.nsb_pays_by_check).to be(false)
   end
 end
 

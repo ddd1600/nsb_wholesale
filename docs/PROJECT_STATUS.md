@@ -238,9 +238,11 @@ queue, after the order completes.
 ## Check (Net 14)
 
 Added 2026-10-28, for Back to Nature. Solidus's own `Spree::PaymentMethod::Check`,
-shown at checkout only to customers with Admin → Users → the customer →
-**Can pay by check (Net 14)** ticked (`Nsb::CheckTerms`). Everyone else never
-sees it, and a hand-posted attempt is refused.
+**admin-placed orders only**: it appears at checkout only while an admin is
+shopping as a customer (Admin → Place an order) who has Admin → Users → the
+customer → **Can pay by check (Net 14)** ticked (`Nsb::CheckTerms`). Customers
+checking out themselves, Back to Nature included, only ever get the card form,
+and a hand-posted attempt is refused.
 
 - The order completes **unpaid**: payment state "balance due", nothing charged.
 - It still goes to ShipStation as awaiting shipment, with amount paid $0.

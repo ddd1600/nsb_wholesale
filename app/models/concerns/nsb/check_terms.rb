@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 
 module Nsb
-  # "Check (Net 14)": pay by check within 14 days, offered only to customers
-  # the operator has ticked "Can pay by check" for (spree_users.nsb_pays_by_check,
-  # on the admin user form). Today that is Back to Nature.
+  # "Check (Net 14)": pay by check within 14 days. Offered only when BOTH:
+  #   - an admin is placing the order on the customer's behalf (the phone-in
+  #     flow), set per request by CheckoutBaseController as
+  #     #nsb_placed_by_admin; customers never choose it themselves, and
+  #   - the customer has "Can pay by check" ticked (spree_users.nsb_pays_by_check,
+  #     on the admin user form). Today that is Back to Nature.
+  # Everyone checking out on their own, flagged or not, gets card only.
   #
   # Uses Solidus's own Spree::PaymentMethod::Check. Nothing is charged, and the
   # order is NOT marked paid: it completes with its payment left in "checkout"
@@ -39,9 +43,18 @@ module Nsb
       end
     end
 
+    # Not a column: who is acting is a fact about the request, not the order.
+    # Defaults to false, so any code path that does not set it (the API, a
+    # console, a job) gets card only.
+    attr_accessor :nsb_placed_by_admin
+
+    def nsb_check_terms_allowed?
+      nsb_placed_by_admin == true && user&.nsb_pays_by_check? == true
+    end
+
     def available_payment_methods
       methods = super
-      return methods if user&.nsb_pays_by_check?
+      return methods if nsb_check_terms_allowed?
 
       methods.where.not(type: Spree::PaymentMethod::Check.name)
     end

@@ -11,7 +11,8 @@
       Can pay by check (Net 14)
     </label>
     <small class="form-text text-muted">
-      Adds "Check (Net 14)" as a payment option at checkout for this customer only.
+      Lets an admin choose "Check (Net 14)" when placing an order for this customer
+      (Admin &rarr; Place an order). The customer never sees it when ordering themselves.
       The order is not marked paid until you click Capture on its Payments tab.
     </small>
   <% end %>

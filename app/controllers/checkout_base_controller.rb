@@ -23,6 +23,10 @@ class CheckoutBaseController < StoreController
   def load_order
     @order = current_order
     redirect_to(cart_path) && return unless @order
+
+    # Check (Net 14) is for admin-placed orders only (Nsb::CheckTerms). True
+    # only while a real admin is shopping as the customer.
+    @order.nsb_placed_by_admin = impersonating_spree_user? && true_spree_user.has_spree_role?("admin")
   end
 
   # Allow the customer to only go back or stay on the current state
