@@ -10,31 +10,18 @@ module Nsb
     # instead -- a different flow that skips the storefront checkout. This page
     # is the one front door; the actual switch is still
     # Nsb::Admin::ImpersonationsController.
+    #
+    # Lists every customer, most recent order first (Nsb::CustomerDirectory),
+    # with an optional filter box.
     class PlaceOrdersController < Spree::Admin::BaseController
-      MAX_RESULTS = 25
+      PER_PAGE = 25
 
       def index
         @query = params[:q].to_s.strip
-        @customers = @query.present? ? search(@query) : []
-      end
-
-      private
-
-      # Matches on email, or on the company or contact name of any saved
-      # address -- the B2BWave import put each business name in the address.
-      def search(query)
-        pattern = "%#{Spree.user_class.sanitize_sql_like(query)}%"
-
-        Spree.user_class
-          .left_joins(:addresses)
-          .where(
-            "spree_users.email ILIKE :q OR spree_addresses.company ILIKE :q OR spree_addresses.name ILIKE :q",
-            q: pattern
-          )
-          .distinct
-          .order(:email)
-          .limit(MAX_RESULTS)
-          .reject { |user| user.has_spree_role?("admin") }
+        @entries = Kaminari
+          .paginate_array(Nsb::CustomerDirectory.new(query: @query).entries)
+          .page(params[:page])
+          .per(PER_PAGE)
       end
     end
   end

@@ -4,13 +4,16 @@ require "solidus_starter_frontend_spec_helper"
 
 # The admin's "Place an order" page (Nsb::Admin::PlaceOrdersController): the
 # front door to the phone-in order flow. The switch into the customer's account
-# itself is covered in spec/requests/admin_impersonation_spec.rb.
+# itself is covered in spec/requests/admin_impersonation_spec.rb; the ordering
+# and matching rules in spec/models/nsb/customer_directory_spec.rb.
 RSpec.describe "Admin place an order", type: :request do
   let!(:store) { create(:store) }
+  # Shaped like a B2BWave import: no address, business name in admin_metadata.
   let!(:customer) do
-    create(:user, email: "buyer@backtonature.example").tap do |user|
-      user.save_in_address_book(build(:address, company: "Back to Nature").attributes.except("id", "created_at", "updated_at"), true)
-    end
+    create(:user, email: "linnrav@example.com", admin_metadata: {
+      "b2bwave" => { "company_name" => "Back To Nature", "name" => "Lynn Ravare",
+                     "latest_order_submitted_at" => "07/31/2026 11:13" }
+    })
   end
 
   context "as an admin" do
@@ -26,26 +29,32 @@ RSpec.describe "Admin place an order", type: :request do
       expect(page.at_css("#admin_new_order").text).to eq("Place an order for a customer")
     end
 
-    it "finds a customer by business name and offers to shop as them" do
-      get admin_place_order_path, params: { q: "back to nat" }
+    it "lists customers without a search, with their last B2BWave order" do
+      get admin_place_order_path
 
-      expect(response.body).to include("Back to Nature")
-      expect(response.body).to include("Shop as this customer")
+      expect(response.body).to include("Back To Nature")
+      expect(response.body).to include("July 31, 2026")
+      expect(response.body).to include("on B2BWave")
       expect(response.body).to include(admin_impersonations_path(user_id: customer.id))
     end
 
-    it "finds a customer by email" do
-      get admin_place_order_path, params: { q: "buyer@backtonature" }
+    it "filters loosely, so 'back 2 nature' finds Back To Nature" do
+      create(:user, email: "other@example.com")
 
-      expect(response.body).to include(customer.email)
+      get admin_place_order_path, params: { q: "back 2 nature" }
+
+      expect(response.body).to include("Back To Nature")
+      expect(response.body).not_to include("other@example.com")
     end
 
-    it "never lists admin accounts" do
-      create(:admin_user, email: "boss@backtonature.example")
+    it "pages through customers 25 at a time" do
+      create_list(:user, 25)
 
-      get admin_place_order_path, params: { q: "backtonature" }
+      get admin_place_order_path
+      expect(Nokogiri::HTML(response.body).css("table.index tbody tr").size).to eq(25)
 
-      expect(response.body).not_to include("boss@backtonature.example")
+      get admin_place_order_path, params: { page: 2 }
+      expect(Nokogiri::HTML(response.body).css("table.index tbody tr").size).to eq(1)
     end
   end
 
