@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_10_15_140000) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_28_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -1310,6 +1310,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_15_140000) do
     t.datetime "nsb_activated_at"
     t.decimal "nsb_minimum_order_amount", precision: 10, scale: 2
     t.string "square_customer_id"
+    t.boolean "nsb_pays_by_check", default: false, null: false
     t.index ["b2b_customer_id"], name: "index_spree_users_on_b2b_customer_id", unique: true
     t.index ["deleted_at"], name: "index_spree_users_on_deleted_at"
     t.index ["email"], name: "email_idx_unique", unique: true

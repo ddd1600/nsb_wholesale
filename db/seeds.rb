@@ -49,6 +49,9 @@ Spree::PaymentMethod::SquareCreditCard.find_or_initialize_by(
   method.save!
 end
 
+# "Check (Net 14)", shown only to customers flagged for it (Nsb::CheckTerms).
+Nsb::CheckTerms.ensure_payment_method!
+
 puts "seeds complete: #{Spree::Product.count} products, " \
      "#{Spree::ShippingMethod.count} shipping methods, " \
      "#{Spree::RefundReason.count} refund reasons"

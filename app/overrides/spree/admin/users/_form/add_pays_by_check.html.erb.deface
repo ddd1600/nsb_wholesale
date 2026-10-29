@@ -1,0 +1,18 @@
+<!-- insert_bottom "[data-hook='admin_user_form_fields']" -->
+
+<%#
+  Offers this customer "Check (Net 14)" at checkout (Nsb::CheckTerms). Saved
+  through Nsb::AdminUserCheckTermsParams, admin only.
+%>
+<div class="col-6">
+  <%= f.field_container :nsb_pays_by_check do %>
+    <label>
+      <%= f.check_box :nsb_pays_by_check %>
+      Can pay by check (Net 14)
+    </label>
+    <small class="form-text text-muted">
+      Adds "Check (Net 14)" as a payment option at checkout for this customer only.
+      The order is not marked paid until you click Capture on its Payments tab.
+    </small>
+  <% end %>
+</div>

@@ -25,6 +25,10 @@ Rails.application.config.to_prepare do
   Spree::Order.prepend(Nsb::MinimumOrder)
   Spree::Admin::UsersController.prepend(Nsb::AdminUserMinimumOrderParams)
 
+  # "Check (Net 14)", offered only to customers flagged for it.
+  Spree::Order.prepend(Nsb::CheckTerms)
+  Spree::Admin::UsersController.prepend(Nsb::AdminUserCheckTermsParams)
+
   # Square cards count as saved only once Square holds them, not merely
   # because they carry a single-use browser token.
   Spree::CreditCard.prepend(Nsb::SquareSavedCard)

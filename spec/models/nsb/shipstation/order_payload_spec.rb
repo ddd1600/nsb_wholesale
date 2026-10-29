@@ -43,6 +43,21 @@ RSpec.describe Nsb::Shipstation::OrderPayload do
     expect(payload[:shippingAmount]).to be_a(Float)
   end
 
+  it "reports a paid order as paid in full, on its completion date" do
+    order.update_columns(payment_state: "paid", payment_total: order.total)
+
+    expect(payload[:amountPaid]).to eq(order.total.to_f)
+    expect(payload[:paymentDate]).to eq(order.completed_at.utc.iso8601)
+  end
+
+  it "reports an unpaid Check (Net 14) order as unpaid, but still ready to ship" do
+    order.update_columns(payment_state: "balance_due", payment_total: 0)
+
+    expect(payload[:amountPaid]).to eq(0.0)
+    expect(payload).not_to have_key(:paymentDate)
+    expect(payload[:orderStatus]).to eq("awaiting_shipment")
+  end
+
   it "falls back to the billing address when there is no shipping address" do
     order.update_column(:ship_address_id, nil)
 

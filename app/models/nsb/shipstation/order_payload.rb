@@ -24,16 +24,21 @@ module Nsb
           orderKey: order.number,
           orderNumber: order.number.to_s.first(MAX_ORDER_NUMBER),
           orderDate: (order.completed_at || Time.current).utc.iso8601,
-          paymentDate: order.completed_at&.utc&.iso8601,
-          # awaiting_shipment is what puts it in the operator's work queue.
-          # Payment has already been captured by Square before we get here.
+          # Blank for a "Check (Net 14)" order (Nsb::CheckTerms), which ships
+          # before it is paid. A card order is captured by Square before we get
+          # here, so it is paid by completion.
+          paymentDate: (order.completed_at&.utc&.iso8601 if order.paid?),
+          # awaiting_shipment is what puts it in the operator's work queue --
+          # for unpaid check orders too, since Net 14 means ship now, pay later.
           orderStatus: "awaiting_shipment",
           customerUsername: order.email,
           customerEmail: order.email,
           billTo: address(order.bill_address),
           shipTo: address(order.ship_address || order.bill_address),
           items: items,
-          amountPaid: money(order.total),
+          # What has actually been received: the full total for a card order,
+          # zero for a check order still awaiting its check.
+          amountPaid: money(order.payment_total),
           taxAmount: money(order.additional_tax_total),
           shippingAmount: money(order.ship_total),
           customerNotes: order.special_instructions.presence,

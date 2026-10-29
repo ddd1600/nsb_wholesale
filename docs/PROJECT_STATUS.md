@@ -221,6 +221,18 @@ click **Shop as this customer**, and check out in the storefront as them. A
 yellow bar shows whose account you are in; **Stop** returns you to the admin.
 The order belongs to the customer and records the admin as `created_by`.
 
+## Check (Net 14)
+
+Added 2026-10-28, for Back to Nature. Solidus's own `Spree::PaymentMethod::Check`,
+shown at checkout only to customers with Admin → Users → the customer →
+**Can pay by check (Net 14)** ticked (`Nsb::CheckTerms`). Everyone else never
+sees it, and a hand-posted attempt is refused.
+
+- The order completes **unpaid**: payment state "balance due", nothing charged.
+- It still goes to ShipStation as awaiting shipment, with amount paid $0.
+- When the check arrives: Orders → the order → Payments → **Capture**. That
+  is what marks it paid.
+
 ## Order terms: minimum order, NEWPORTAL, free shipping
 
 Added 2026-10-15. All three are measured on the **merchandise subtotal before
