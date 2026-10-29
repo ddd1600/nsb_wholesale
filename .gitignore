@@ -80,3 +80,8 @@
 # ARE committed, along with the hand-checked retail_item_map.json needed to
 # reproduce them.
 /retail sales data/
+customers_ordered_since_2023.csv
+
+# Customer exports with contact details (PII). Converted into the gitignored
+# db/import_data/customers.json; never committed.
+NewSouth_Botanicals_B2B_Customers.xlsx

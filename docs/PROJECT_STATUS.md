@@ -207,7 +207,8 @@ Both are one-way; an application that has been reviewed cannot be reviewed again
 
 `OPERATOR_NOTIFICATION_EMAILS` (comma-separated) sets who gets the notifications,
 defaulting to david@newsouthbotanicals.com and ddd1600@gmail.com. Changeable in
-Render without a deploy.
+Render without a deploy. ddd1600@gmail.com is always added on top of whatever
+that variable lists, so setting it can never drop the operator.
 
 **`SITE_PASSWORD` must be removed before any of this is reachable.** The gate is
 Rack middleware that blocks everything except `/up`, so while it is set no

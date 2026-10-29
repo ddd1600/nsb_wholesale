@@ -12,9 +12,14 @@ module Nsb
     # the code around them does.
     DEFAULT_RECIPIENTS = %w[david@newsouthbotanicals.com ddd1600@gmail.com].freeze
 
+    # Added on top of whatever the env var lists, so setting
+    # OPERATOR_NOTIFICATION_EMAILS to add people can never drop the operator.
+    ALWAYS_RECIPIENTS = %w[ddd1600@gmail.com].freeze
+
     def self.recipients
-      ENV["OPERATOR_NOTIFICATION_EMAILS"].presence&.split(",")&.map(&:strip)&.reject(&:blank?) ||
+      listed = ENV["OPERATOR_NOTIFICATION_EMAILS"].presence&.split(",")&.map(&:strip)&.reject(&:blank?) ||
         DEFAULT_RECIPIENTS
+      (listed + ALWAYS_RECIPIENTS).uniq(&:downcase)
     end
 
     def application_received(application)
