@@ -1,0 +1,66 @@
+<%# Replaces Solidus's stock confirmation with an invoice. Same data as the
+    attached PDF -- both read Nsb::Invoice. Styles are inline because most
+    email clients drop <style> blocks. %>
+<% invoice = Nsb::Invoice.new(@order) %>
+<% cell = "padding:6px 8px;border-bottom:1px solid #ddd;" %>
+<div style="font-family:Helvetica,Arial,sans-serif;font-size:14px;color:#222;max-width:680px;">
+  <p>Thank you for your order! Your invoice is below, and a printable copy is attached as a PDF.</p>
+
+  <h2 style="margin:16px 0 4px;">Invoice — Order <%= invoice.number %></h2>
+  <p style="margin:0;color:#666;">
+    <%= invoice.date.to_fs(:long) %><br>
+    <%= invoice.payment_summary %>
+  </p>
+
+  <table cellpadding="0" cellspacing="0" style="width:100%;margin:16px 0;">
+    <tr>
+      <td style="vertical-align:top;width:50%;">
+        <strong style="font-size:12px;color:#666;">BILL TO</strong><br>
+        <%= safe_join(invoice.address_lines(invoice.bill_address).presence || [ invoice.customer_name, @order.email ].compact_blank, tag.br) %>
+      </td>
+      <td style="vertical-align:top;width:50%;">
+        <strong style="font-size:12px;color:#666;">SHIP TO</strong><br>
+        <%= safe_join(invoice.address_lines(invoice.ship_address), tag.br) %>
+      </td>
+    </tr>
+  </table>
+
+  <table cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;">
+    <tr style="background:#f2f2f2;text-align:left;">
+      <th style="<%= cell %>">Product</th>
+      <th style="<%= cell %>">Variety</th>
+      <th style="<%= cell %>">SKU</th>
+      <th style="<%= cell %>text-align:right;">Qty</th>
+      <th style="<%= cell %>text-align:right;">Price</th>
+      <th style="<%= cell %>text-align:right;">Amount</th>
+    </tr>
+    <% invoice.rows.each do |row| %>
+      <tr>
+        <td style="<%= cell %>"><%= row.product %></td>
+        <td style="<%= cell %>"><%= row.variety %></td>
+        <td style="<%= cell %>"><%= row.sku %></td>
+        <td style="<%= cell %>text-align:right;"><%= row.quantity %></td>
+        <td style="<%= cell %>text-align:right;"><%= row.unit_price %></td>
+        <td style="<%= cell %>text-align:right;"><%= row.amount %></td>
+      </tr>
+    <% end %>
+    <% invoice.totals.each do |total| %>
+      <tr style="<%= 'font-weight:bold;font-size:16px;' if total.grand %>">
+        <td colspan="5" style="padding:4px 8px;text-align:right;"><%= total.label %></td>
+        <td style="padding:4px 8px;text-align:right;"><%= total.amount %></td>
+      </tr>
+    <% end %>
+  </table>
+
+  <div style="margin-top:24px;padding-top:12px;border-top:1px solid #ddd;">
+    <% if invoice.notice.present? %>
+      <p style="margin:0 0 8px;"><strong><%= invoice.notice %></strong></p>
+    <% end %>
+    <p style="margin:0;color:#444;">
+      <%= invoice.business_name %><br>
+      <% invoice.mailing_address_lines.each do |line| %><%= line %><br><% end %>
+      <% if invoice.phone.present? %>Phone: <%= invoice.phone %><br><% end %>
+      <% if invoice.email.present? %>Email: <%= mail_to invoice.email %><% end %>
+    </p>
+  </div>
+</div>

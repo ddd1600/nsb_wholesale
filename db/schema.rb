@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_10_28_120000) do
+ActiveRecord::Schema[8.0].define(version: 2026_10_28_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -1175,6 +1175,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_10_28_120000) do
     t.string "bcc_email"
     t.integer "reverse_charge_status", default: 0, null: false, comment: "Enum values: 0 = disabled, 1 = enabled, 2 = not_validated"
     t.decimal "nsb_minimum_order_amount", precision: 10, scale: 2, default: "0.0", null: false
+    t.string "nsb_contact_phone"
+    t.string "nsb_contact_email"
+    t.text "nsb_mailing_address"
+    t.text "nsb_support_notice"
     t.index ["code"], name: "index_spree_stores_on_code"
     t.index ["default"], name: "index_spree_stores_on_default"
   end

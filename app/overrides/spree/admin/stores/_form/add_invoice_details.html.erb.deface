@@ -1,0 +1,38 @@
+<!-- insert_after "div.row" -->
+
+<%#
+  Business details printed on order confirmation emails and their PDF
+  invoice (Nsb::Invoice). Who gets a copy of each order is the stock
+  "BCC Email" field above.
+%>
+<div class="row">
+<div class="col-12">
+  <h2 class="mt-4">Invoice details</h2>
+  <p class="text-muted">
+    Printed on every order confirmation email and its PDF invoice. A copy of each
+    confirmation goes to the addresses in "BCC Email" above (separate several with commas).
+  </p>
+</div>
+<div class="col-12 col-md-6">
+  <%= f.field_container :nsb_contact_phone do %>
+    <%= f.label :nsb_contact_phone, "Phone" %>
+    <%= f.text_field :nsb_contact_phone, class: "fullwidth" %>
+  <% end %>
+  <%= f.field_container :nsb_contact_email do %>
+    <%= f.label :nsb_contact_email, "Contact email" %>
+    <%= f.email_field :nsb_contact_email, class: "fullwidth" %>
+  <% end %>
+</div>
+<div class="col-12 col-md-6">
+  <%= f.field_container :nsb_mailing_address do %>
+    <%= f.label :nsb_mailing_address, "Mailing address" %>
+    <%= f.text_area :nsb_mailing_address, rows: 3, class: "fullwidth" %>
+  <% end %>
+</div>
+<div class="col-12">
+  <%= f.field_container :nsb_support_notice do %>
+    <%= f.label :nsb_support_notice, "Notice to customers" %>
+    <%= f.text_area :nsb_support_notice, rows: 2, class: "fullwidth" %>
+  <% end %>
+</div>
+</div>

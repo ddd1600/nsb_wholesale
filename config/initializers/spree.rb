@@ -83,6 +83,12 @@ end
 # admin stores controller, so this is admin-only.
 Spree::PermittedAttributes.store_attributes << :nsb_minimum_order_amount
 
+# Business details printed on the order confirmation email and PDF invoice
+# (Nsb::Invoice), on the same admin store form.
+Spree::PermittedAttributes.store_attributes.push(
+  :nsb_contact_phone, :nsb_contact_email, :nsb_mailing_address, :nsb_support_notice
+)
+
 # Saved cards (Nsb::Square::CardsOnFile).
 #
 # :nsb_save_requested is the checkout's "Save this card" box.

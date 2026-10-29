@@ -29,6 +29,9 @@ Rails.application.config.to_prepare do
   Spree::Order.prepend(Nsb::CheckTerms)
   Spree::Admin::UsersController.prepend(Nsb::AdminUserCheckTermsParams)
 
+  # Printable PDF invoice on the order confirmation email.
+  Spree::OrderMailer.prepend(Nsb::OrderConfirmationInvoice)
+
   # Square cards count as saved only once Square holds them, not merely
   # because they carry a single-use browser token.
   Spree::CreditCard.prepend(Nsb::SquareSavedCard)

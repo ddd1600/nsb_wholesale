@@ -111,6 +111,11 @@ gem "solidus_support", ">= 0.12.0"
 gem "view_component", "~> 3.0"
 gem "tailwindcss-rails", "~> 3.0"
 
+# The printable PDF invoice attached to order confirmations (Nsb::InvoicePdf).
+# Pure Ruby -- no native extensions, nothing extra for the Docker image.
+gem "prawn", "~> 2.5"
+gem "prawn-table", "~> 0.2"
+
 group :test do
   gem "capybara"
   gem "selenium-webdriver"

@@ -1,0 +1,35 @@
+<%# Plain-text twin of confirm_email.html.erb. Both read Nsb::Invoice. -%>
+<% invoice = Nsb::Invoice.new(@order) -%>
+Thank you for your order! Your invoice is below, and a printable copy is attached as a PDF.
+
+INVOICE - Order <%= invoice.number %>
+<%= invoice.date.to_fs(:long) %>
+<%= raw invoice.payment_summary %>
+
+Bill to:
+<%= raw (invoice.address_lines(invoice.bill_address).presence || [ invoice.customer_name, @order.email ].compact_blank).join("\n") %>
+
+Ship to:
+<%= raw invoice.address_lines(invoice.ship_address).join("\n") %>
+
+============================================================
+<% invoice.rows.each do |row| -%>
+<%= raw [ row.product, row.variety ].compact.join(" - ") %><%= " (SKU #{row.sku})" if row.sku %>
+    <%= row.quantity %> x <%= row.unit_price %> = <%= row.amount %>
+<% end -%>
+============================================================
+<% invoice.totals.each do |total| -%>
+<%= raw total.label %>: <%= total.amount %>
+<% end -%>
+
+<% if invoice.notice.present? -%>
+<%= raw invoice.notice %>
+<% end -%>
+<%= invoice.business_name %>
+<%= raw invoice.mailing_address_lines.join("\n") %>
+<% if invoice.phone.present? -%>
+Phone: <%= invoice.phone %>
+<% end -%>
+<% if invoice.email.present? -%>
+Email: <%= invoice.email %>
+<% end -%>

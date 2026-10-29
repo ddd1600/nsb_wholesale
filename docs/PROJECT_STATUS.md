@@ -221,6 +221,19 @@ click **Shop as this customer**, and check out in the storefront as them. A
 yellow bar shows whose account you are in; **Stop** returns you to the admin.
 The order belongs to the customer and records the admin as `created_by`.
 
+## Order confirmation invoice
+
+Added 2026-10-28. Solidus's own order confirmation email, rewritten as an
+invoice (`app/views/spree/order_mailer/confirm_email.*`) with a printable PDF
+attached (`Nsb::InvoicePdf`, built with Prawn). One row per variety, then
+subtotal, shipping, discounts and total. Sent to the customer, from the job
+queue, after the order completes.
+
+| What | Where the operator changes it |
+|---|---|
+| Who gets a copy of every order | Admin → Settings → Stores → edit → "BCC Email" (comma-separated) |
+| Phone, contact email, mailing address, voicemail notice | Same form → "Invoice details" |
+
 ## Check (Net 14)
 
 Added 2026-10-28, for Back to Nature. Solidus's own `Spree::PaymentMethod::Check`,
